@@ -18,4 +18,21 @@ try {
 }
 
 
+// Test is_a()
+$a = new V8Js();
+$a->test = function ($params) {
+    return
+        (is_a($params, 'V8Object')) ?
+            $params->cb1("hel__lo") : false;
+};
+$ret = $a->executeString('PHP.test({ "cb1" : function (foo) { return foo + " wo__rld"; } });');
+var_dump(__LINE__, $ret);
+
+$a->testA = function () {
+    return "saldfkjls;adf";
+};
+$ret = $a->executeString("PHP.testA();");
+var_dump(__LINE__, $ret);
+
+
 ?>
