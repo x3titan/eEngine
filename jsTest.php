@@ -28,10 +28,12 @@ $a->test = function ($params) {
 $ret = $a->executeString('PHP.test({ "cb1" : function (foo) { return foo + " wo__rld"; } });');
 var_dump(__LINE__, $ret);
 
-$a->testA = function () {
-    return "saldfkjls;adf";
+print("====================\r\n");
+
+$a->testA = function ($p1, $p2) {
+    return "saldfkjls;adf" . $p1 . $p2;
 };
-$ret = $a->executeString("PHP.testA();");
+$ret = $a->executeString("PHP.testA(12345,'bbb');");
 var_dump(__LINE__, $ret);
 
 
