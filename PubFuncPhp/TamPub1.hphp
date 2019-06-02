@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: admin
+ * User: Jesse Tam
  * Date: 2019/6/2 0002
  * Time: 下午 6:22
  */
@@ -9,6 +9,8 @@
 namespace TamPub1;
 
 class DelphiString {
+    public static $encoding = "utf-8";
+
     /**
      * 兼容Delphi的从1开始的copy
      * @param $value string 需要拷贝的字串
@@ -17,10 +19,7 @@ class DelphiString {
      * @return string 子字符串
      */
     public static function copy($value, $startPos, $len) {
-        if ($startPos <= 0) $startPos = 1;
-        if ($len > (strlen($value) - $startPos + 1)) $len = strlen($value) - $startPos + 1;
-        if ($len <= 0) return "";
-        return mb_substr($value, $startPos - 1, $len, "utf-8");
+        return StringFunc::copy($value, $startPos - 1, $len);
     }
 
     /**
@@ -31,10 +30,140 @@ class DelphiString {
      * @return int 大于等于1标识搜索到了，否则返回0
      */
     public static function pos($subString, $value, $startPos) {
-        $pos = mb_strpos($value, $subString, $startPos - 1, "utf-8");
-        return $pos ? $pos + 1 : 0;
+        return StringFunc::pos($subString, $value, $startPos - 1) + 1;
     }
+
+    /**
+     * 获取字元(未调试)
+     * @param $destString string 需要分析的字符串
+     * @param $position int 位置指针
+     * @param $breakValueList string 结束标记字符列表
+     * @return string token
+     */
+    public static function getToken($destString, &$position, $breakValueList) {
+        $result = "";
+        for ($i = $position - 1; $i < StringFunc::length($destString); $i++) {
+            if (self::pos(StringFunc::charAt($destString, $i), $breakValueList, 1) > 0) break;
+            $result = $result + StringFunc::charAt($destString, $i);
+        }
+        $position = $i + 1;
+        return result;
+    }
+
+    public static function getBlank($destString, &$position) {
+        $result = "";
+        for ($i = $position - 1; $i < StringFunc::length($destString); $i++) {
+            if (StringFunc::getCharCode(StringFunc::charAt($destString, $i)) > 0x20) break;
+            $result += StringFunc::charAt($destString, $i);
+        }
+        $position = $i + 1;
+        return $result;
+    }
+
+    public static function getBlankAndToken($destString, &$position, $breakValueList) {
+        $result = getBlank($destString, $position);
+        $result += getToken($destString, $position, $breakValueList);
+        return result;
+    }
+
+    /// <summary>
+    /// 将字串转换为一种可显示的形式，比如回车字符以$0D的形式显示
+    /// </summary>
+    /// <param name="value">string 需要显示的字符串</param>
+    public static function displayString($value) {
+        $result = "";
+        for ($i = 0; $i < StringFunc::length($value); $i++) {
+            if (StringFunc::getCharCode(StringFunc::charAt($value, $i)) < 16) {
+                $result += "$0" + dechex(StringFunc::getCharCode(StringFunc::charAt($value, $i))) . ToUpper();
+            } else if (Convert . ToInt32(StringFunc::charAt($value, $i)) < 20) {
+                $result += "$" + dechex(StringFunc::getCharCode(StringFunc::charAt($value, $i))) . ToUpper();
+            } else $result += StringFunc::charAt($value, $i);
+        }
+        return $result;
+    }
+
 }
+
+/**
+ * Class StringFunc 高级字符串函数(平台兼容函数)，第一个字符以0序号开始
+ * @package TamPub1
+ */
+class StringFunc {
+    /**
+     * @var string 字符串编码格式
+     */
+    public static $encoding = "utf-8";
+
+    /**
+     * 获取指定位置的字符
+     * @param $value string 源字符串
+     * @param $position int 获取字符的位置
+     * @return string 返回的字符，位置超界返回""
+     */
+    public static function charAt($value, $position) {
+        if ($position < 0 || $position >= self::length($value)) {
+            return "";
+        } else {
+            return mb_substr($value, $position, 1, self::$encoding);
+        }
+    }
+
+    /**
+     * 获取字符串的长度
+     * @param $value 字符串
+     * @return int 字符串长度
+     */
+    public static function length($value) {
+        return mb_strlen(@value, self::$encoding);
+    }
+
+    /**
+     * 获取一个字符的编码
+     * @param $char string 字符串
+     * @return int 编码
+     */
+    public static function getCharCode($char) {
+        return mb_ord($char, self::$encoding);
+    }
+
+    /**
+     * 取子字符串函数
+     * @param $value string 源字符串
+     * @param $start int 开始的位置
+     * @param $len int 取值长度
+     * @return string 返回值
+     */
+    public static function copy($value, $start, $len) {
+        if ($start < 0) {
+            $len += $start;
+            $start = 0;
+        }
+        if ($start + $len > self::length($value)) {
+            $len -= $start + $len - self::length($value);
+        }
+        if ($len <= 0) {
+            return "";
+        } else {
+            return mb_substr($value, $start, $len, self::$encoding);
+        }
+    }
+
+    /**
+     * 兼容Delphi的从1开始的搜索
+     * @param $subString string 需要搜索的字串
+     * @param $value string 被搜索的字串
+     * @param $startPos int 起始搜索位置（从0开始）
+     * @return int 大于等于0标识搜索到了，否则返回-1
+     */
+    public static function pos($subString, $value, $startPos) {
+        $pos = mb_strpos($value, $subString, $startPos - 1, self::$encoding);
+        return $pos ? $pos : -1;
+    }
+
+
+}
+
+
 
 
 
