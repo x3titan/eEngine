@@ -38,13 +38,9 @@ var_dump(__LINE__, $ret);
 
 require_once __DIR__ . '/PubFuncPhp/TamPub1.hphp';
 $sTemp = "谭江天1234567谭江天";
-print ($sTemp[2]);
-print(mb_ord(\TamPub1\DelphiString::copy($sTemp,4,3),"utf-8"));
-print("\r\n");
-for ($i=0; $i<-100; $i++) {
 
-}
-print ($i);
+print ("====\r\n");
+print(\TamPub1\StringFunc::isLetter('中') ? "true" : "false");
 
 
 ?>

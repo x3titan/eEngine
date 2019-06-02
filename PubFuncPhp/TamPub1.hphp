@@ -160,6 +160,137 @@ class StringFunc {
         return $pos ? $pos : -1;
     }
 
+    /**
+     * 在字符串末尾加一个字符，如果这个字符已经存在则不加
+     * @param $value string
+     * @param $ch string
+     * @return string
+     */
+    public static function addRearChar($value, $ch) {
+        if (self::length($value) <= 0) {
+            return $ch;
+        }
+        if (self::copy($value, self::length($value) - 1, 1) === $ch) {
+            return $value;
+        } else {
+            return $value + $ch;
+        }
+    }
+
+    /**
+     * 在字符串末尾删除一个字符，如果这个字符不存在则不删除任何字符
+     * @param $value string
+     * @param $ch string
+     * @return string
+     */
+    public static function deleteRearChar($value, $ch) {
+        if (self::length($value) <= 0) {
+            return "";
+        }
+        if (self::copy($value, self::length($value) - 1, 1) === $ch) {
+            return self::copy($value, 0, self::length($value) - 1);
+        } else {
+            return $value;
+        }
+    }
+
+    /**
+     * 在字符串前端增加一个字符，如果这个字符已经存在则不增加
+     * @param $value string
+     * @param $ch string
+     * @return string
+     */
+    public static function addFrontChar($value, $ch) {
+        if (self::length($value) <= 0) {
+            return $ch;
+        }
+        if (self::copy($value, 0, 1) === $ch) {
+            return $value;
+        } else {
+            return $ch + $value;
+        }
+    }
+
+    /**
+     * 在字符串前端删除一个字符，如果这个字符不存在则不做任何操作
+     * @param $value string
+     * @param $ch string
+     * @return string
+     */
+    public static function deleteFrontChar($value, $ch) {
+        if (self::length($value) <= 0) {
+            return "";
+        }
+        if (self::copy($value, 0, 1) === $ch) {
+            return self::copy($value, 1, self::length($value) - 1);
+        } else {
+            return $value;
+        }
+    }
+
+    /**
+     * 获取字元(第一个字符序号为0)
+     * @param $destString string 需要分析的字符串
+     * @param $position int 位置指针，以0为开始
+     * @param $breakValueList string 结束标记字符列表
+     * @return string token
+     */
+    public static function getToken($destString, &$position, $breakValueList) {
+        $result = "";
+        for ($i = $position; $i < self::length($destString); $i++) {
+            if (breakValueList . IndexOf(self::charAt($destString, $i)) >= 0) break;
+            $result = $result + self::charAt($destString, $i);
+        }
+        $position = $i;
+        return $result;
+    }
+
+    /**
+     * 判断ch是否是英文字母
+     * @param $ch string
+     * @return bool
+     */
+    public static function isLetter($ch) {
+        if ((strcmp($ch, 'a') >= 0) && (strcmp($ch, 'z') <= 0)) return true;
+        if ((strcmp($ch, 'A') >= 0) && (strcmp($ch, 'Z') <= 0)) return true;
+        return false;
+    }
+
+    /**
+     * 判断一个字符是不是数字
+     * @param $ch string
+     * @return bool
+     */
+    public static function isNumber($ch) {
+        if ((strcmp($ch, '0') >= 0) && (strcmp($ch, '9') <= 0)) return true;
+        return false;
+    }
+
+    /**
+     * 判断一个字符串是否是浮点数,不支持e的形式，用于替换缓慢的convert.toDouble判断形势
+     * @param $value string
+     * @return bool
+     */
+    public static function isFloat($value) {
+        if (self::length($value) <= 0) return false;
+        $dotCount = 0;
+        for ($i = 0; $i < self::length($value); $i++) {
+            if ($i == 0) {
+                if (self::charAt($value, $i) === '+') continue;
+                if (self::charAt($value, $i) === '-') continue;
+            }
+            if (isNumber(self::charAt($value, $i))) continue;
+            if (self::charAt($value, $i) === '.') {
+                $dotCount++;
+                continue;
+            }
+            return false;
+        }
+        if ($dotCount > 1) {
+            return false;
+        } else return true;
+    }
+
 
 }
 
