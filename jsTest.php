@@ -36,5 +36,7 @@ $a->testA = function ($p1, $p2) {
 $ret = $a->executeString("PHP.testA(12345,'bbb');");
 var_dump(__LINE__, $ret);
 
-
+require_once __DIR__ . '/PubFuncPhp/TamPub1.hphp';
+$sTemp = \TamPub1\DelphiString::copy("谭江天",2,2);
+print(\TamPub1\DelphiString::pos("江天", "0000000谭江天", 5) ."\r\n");
 ?>

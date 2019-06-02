@@ -1,0 +1,40 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: admin
+ * Date: 2019/6/2 0002
+ * Time: 下午 6:22
+ */
+
+namespace TamPub1;
+
+class DelphiString {
+    /**
+     * 兼容Delphi的从1开始的copy
+     * @param $value string 需要拷贝的字串
+     * @param $startPos int 从1开始的起始位置
+     * @param $len int 需要拷贝的长度
+     * @return string 子字符串
+     */
+    public static function copy($value, $startPos, $len) {
+        if ($startPos <= 0) $startPos = 1;
+        if ($len > (strlen($value) - $startPos + 1)) $len = strlen($value) - $startPos + 1;
+        if ($len <= 0) return "";
+        return mb_substr($value, $startPos - 1, $len, "utf-8");
+    }
+
+    /**
+     * 兼容Delphi的从1开始的搜索
+     * @param $subString string 需要搜索的字串
+     * @param $value string 被搜索的字串
+     * @param $startPos int 起始搜索位置（从1开始）
+     * @return int 大于等于1标识搜索到了，否则返回0
+     */
+    public static function pos($subString, $value, $startPos) {
+        $pos = mb_strpos($value, $subString, $startPos - 1, "utf-8");
+        return $pos ? $pos + 1 : 0;
+    }
+}
+
+
+
