@@ -291,10 +291,167 @@ class StringFunc {
         } else return true;
     }
 
-
 }
 
+/**
+ * 树结构
+ * Class Tree
+ * @package TamPub1
+ */
+class Tree {
+    public $children = array();
+    /**
+     * @var Tree
+     */
+    public $parent;
+    /**
+     * @var Tree
+     */
+    public $value;
+    /**
+     * @var Tree
+     */
+    public $current;
+
+    public function __construct() {
+        $this->parent = null;
+    }
+
+    public function getFirst(): Tree {
+        $current = $this;
+        return $current;
+    }
+
+    /**
+     * 以非递归形式实现的找下一个，当前节点存放在current中，仅凭current即可定位下一个节点位置
+     * @return Tree
+     */
+    public function getNext(): Tree {
+        if ($this->current == null) return null;
+        //找最左边的子节点，找不到向下继续
+
+        if (count($this->current->children) > 0) {
+            $this->current = $this->current->children[0];
+            return $this->current;
+        }
+        //是否是自身
+        if ($this->current === $this) {
+            $this->current = null;
+            return null;
+        }
+        //找右邻的兄弟节点，找不到则返回父级继续找，如果父级等于自身则结束。
+        while (true) {
+            $node = getNextBrother($this->current);
+            if ($node != null) {
+                $this->current = $node;
+                return $this->current;
+            }
+            if ($this->current->parent == null) {
+                $this->current = null;
+                return null;
+            }
+            $this->current = $this->current->parent;
+            if ($this->current === $this) {
+                //遍历结束
+                $this->current = null;
+                return null;
+            }
+        }
+    }
+
+    /**
+     * 获取下一个同级的节点
+     * @param $node Tree
+     * @return null|string
+     */
+    public function getNextBrother(Tree $node): Tree {
+        if ($node->parent == null) return null;
+        for ($i = 0; $i < count($node->parent->children); $i++) {
+            if ($node->parent->children[$i] === $node) {
+                if ($i + 1 >= count($node->parent->children)) {
+                    return null;
+                } else {
+                    return $node->parent->children[$i + 1];
+                }
+            }
+        }
+        return null;
+    }
+
+    public function addValue($value): Tree {
+        return insertValue(count($this->children), $value);
+    }
+
+    public function addNode(Tree $node): Tree {
+        return insertNode(count($this->children), $node);
+    }
+
+    public function insertNode(int $index, Tree $node): Tree {
+        array_splice($this->children, $index, 0, $node);
+        $node->parent = $this;
+        return $node;
+    }
+
+    public function insertValue(int $index, $value): Tree {
+        $item = new Tree();
+        $item->value = $value;
+        insertNode($index, $item);
+        return $item;
+    }
+
+    public function addFirst($value): Tree {
+        return insertValue(0, $value);
+    }
 
 
+    public function remove(Tree $node): bool {
+        if ($node->parent == null) {
+            return false;
+        }
+        return Etc::arrayDeleteObject($node->parent->children, $node);
+    }
+
+    public function clear() {
+        $this->children = array();
+        $this->current = null;
+    }
+
+    /**
+     * 获取元素的数量（包含根节点）
+     * @return int
+     */
+    public function getCount(): int {
+        $result = 0;
+        while (true) {
+            if ($result == 0) {
+                if (getFirst() == null) break;
+            } else {
+                if (getNext() == null) break;
+            }
+            $result++;
+        }
+        return $result;
+    }
+}
+
+class Etc {
+    /**
+     * 删除数组中指定的对象
+     * @param array $array 数组
+     * @param object $object 需要删除的元素
+     * @return bool 没找到返回false
+     */
+    public static function arrayDeleteObject(array $array, $object): bool {
+        for ($i = 0; $i < count($array); $i++) {
+            if ($array[$i] === $object) {
+                array_splice($array, $i, 1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+}
 
 

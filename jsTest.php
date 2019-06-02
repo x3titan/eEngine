@@ -40,7 +40,20 @@ require_once __DIR__ . '/PubFuncPhp/TamPub1.hphp';
 $sTemp = "谭江天1234567谭江天";
 
 print ("====\r\n");
-print(\TamPub1\StringFunc::isLetter('中') ? "true" : "false");
+class A {
+    public $a = array(10);
+}
+$a = array();
+array_push($a, new A());
+array_push($a, new A());
+$b = new A();
+array_push($a, $b);
+array_push($a, new A());
+//$a = array_diff($a, $b);
+array_splice($a, 1, 1, null);
+print ($a);
+//print($a === null? "true" : "false");
+
 
 
 ?>
