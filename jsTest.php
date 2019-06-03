@@ -48,22 +48,41 @@ print ("======\r\n");
 \TamPub1\ConfigFileXml::writeString("/home/tam/epage/test.xml", "f1/f2/f3", "sldjfslfsassadf加防腐剂");
 \TamPub1\ConfigFileXml::writeIntAttr("/home/tam/epage/test.xml", "f1/f2/f3", "subKey2", 1234);
 $a = "salj以中国的世界df;l世界sa";
-print(mb_ereg_replace("世界","百度",$a));
-/*
-$xml = simplexml_load_file("/home/tam/epage/test.xml");
-print($xml->getName() . "\r\n");
-$item = $xml->xpath("/root/field2");
+print(mb_ereg_replace("世界", "百度", $a));
 
-print ("\r\n");
 
-//foreach($xml->children() as $period) {
-//    $study[] = get_object_vars($period);//获取对象全部属性，返回数组
-//}
-//$item = $xml->addChild("period", "谭江天");
-//$item->addAttribute("attr1", "value1");
-//$item->addAttribute("attr2", "value2");
-$xml->asXml("/home/tam/epage/test.xml");
-*/
+class A {
+    public function getField(): string {
+        return "sjsjjssj";
+    }
+
+    public function setField(string $value): void {
+        print($value);
+    }
+}
+
+class Item {
+    private $kkk = "我是kkk";
+
+    public function __get($name) {
+        if (isset($this->$name)) {
+            echo "pri_name:" . $this->$name . "\r\n";
+            return $this->$name;
+        } else {
+            echo "不存在" . $name;
+            return null;
+        }
+    }
+
+    public function __set($name, $value) {
+        // TODO: Implement __set() method.
+        print($name . "=" . $value . "\r\n");
+    }
+}
+
+$a = new Item();
+print($a->kkk);
+//print("=====" . $a->$field);
 
 
 ?>
