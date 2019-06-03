@@ -824,10 +824,18 @@ class ConfigFileXml {
             return $value;
         }
     }
-
-
 }
 
+/**
+ * 文件操作及数据存取类
+ * Class FileOperation
+ * @package TamPub1
+ */
+class FileOperation {
+    public static function exists(string $filename): bool {
+        return file_exists($filename);
+    }
+}
 
 
 
