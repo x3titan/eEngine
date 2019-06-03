@@ -8,7 +8,9 @@
 
 namespace Solution;
 
-require_once __DIR__ . '/../PubFuncPhp/TamPub1.hphp';
+use TamPub1;
+
+//require_once __DIR__ . '/../PubFuncPhp/TamPub1.hphp';
 
 /**
  * 页面基础类
@@ -30,4 +32,74 @@ public string filename = ""; //本页在硬盘存在的物理路径和文件名
 public DateTime fileLastWriteTime = DateTime.Now; //本页面文件在物理硬盘上的上次被修改时间
 public object lockObject = new object();
 */
+}
+
+namespace Solution\Page;
+
+use TamClass1\PropertyList;
+use TamPub1\StringFunc;
+
+/**
+ * 控件类
+ * Class Control
+ * @package Solution\Page
+ */
+class Control {
+    private $fName = "";
+    /**
+     * 控件类型
+     * @var string
+     */
+    public $type = "";
+    /**
+     * 控件如果是temp名字开头的（临时控件），则此值是temp后面的序号，为快速生成名字算法使用
+     * @var int
+     */
+    public $tempSn = -1;
+    /**
+     * @var PropertyList
+     */
+    public $property;
+    /// <summary>public System.Windows.Forms.TreeNode displayTreeNode = null;</summary>
+    public $displayTreeNode = null;
+
+    public function __construct() {
+        $this->property = new PropertyList();
+    }
+
+    public function __get($name) {
+        if ($name === "name") {
+            return $this->fName;
+        } else {
+            return "";
+        }
+    }
+
+    public function __set($name, $value) {
+        if ($name === "name") {
+            $this->fName = $value;
+            if (StringFunc::copy($this->fName, 0, 4) === "temp") {
+                $temp = StringFunc::copy($this->fName, 4, 10000);
+                if (StringFunc::isInt($temp)) {
+                    $this->tempSn = (int)$temp;
+                } else {
+                    $this->tempSn = -1;
+                }
+            } else $this->tempSn = -1;
+        }
+    }
+
+    public function assign(Control $value): void {
+        $this->name = $value->name;
+        $this->type = $value->type;
+        $this->tempSn = $value->tempSn;
+        $this->property->assign($value->property);
+        $this->displayTreeNode = $value->displayTreeNode;
+    }
+
+    public function  clone(): Control {
+        $result = new Control();
+        $result->assign($this);
+        return $result;
+    }
 }
