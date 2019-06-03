@@ -1,0 +1,63 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: admin
+ * Date: 2019/6/3 0003
+ * Time: 下午 8:30
+ */
+
+namespace ScriptEngine;
+
+use TamPub1\StringFunc;
+
+require_once __DIR__ . '/../PubFuncPhp/TamPub1.hphp';
+
+//DSN=91rpg;UID=sa;PWD=****; //ODBC连接字串
+class DBConnection {
+    public $items = array();
+
+    public function getItemByName(string $name): DBConnection\Item {
+        for ($i = 0; $i < count($this->items); $i++) {
+            if ($this->items[$i]->name === $name) {
+                return $this->items[$i];
+            }
+        }
+        return null;
+    }
+
+    public function add(string $name, string $connectionString): string {
+        if ($this->getItemByName($name) != null) {
+            return "错误：变量名已经存在";
+        }
+        if (StringFunc::length($name) <= 0) {
+            return "错误：变量名为空";
+        }
+        $item = new DBConnection\Item();
+        $item->name = $name;
+        $item->connectionString = $connectionString;
+        array_push($items, $item);
+        return "";
+    }
+
+    public function modifyName(string $oldName, string $newName): string {
+        $item = $this->getItemByName($oldName);
+        if ($item == null) {
+            return "错误：变量名(" . $oldName . ")无法找到";
+        }
+        if ($oldName === $newName) {
+            return "";
+        }
+        if ($this->getItemByName($newName) != null) {
+            return "错误：新的变量名字(" . $newName . ")已经被使用了";
+        }
+        $item->name = $newName;
+        return "";
+    }
+}
+
+namespace ScriptEngine\DBConnection;
+class Item {
+    public $name = "";
+    public $connectionString = "";
+    public $timeout = -1;
+}
