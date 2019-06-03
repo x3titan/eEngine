@@ -143,7 +143,7 @@ class StringFunc {
      * @return string
      */
     public static function trim(string $value): string {
-        return trim($value);
+        return preg_replace('/(^\s+)|(\s+$)/u', '', $value);
     }
 
     /**
@@ -162,6 +162,17 @@ class StringFunc {
      */
     public static function toLower(string $value): string {
         return mb_strtolower($value, self::$encoding);
+    }
+
+    /**
+     * 为保证代码兼容性封装的字符串替换函数
+     * @param string $value 原始字串
+     * @param string $find 需要寻找的字串
+     * @param string $newOne 需要替换的新的字串
+     * @return string
+     */
+    public static function replace(string $value, string $find, string $newOne): string {
+        return mb_ereg_replace($find, $newOne, $value);
     }
 
     /**
@@ -577,7 +588,6 @@ class ConfigFileXml {
             $path .= "/" . $p[$i];
             $node = self::selectSingleNode($xmlDoc, $path);
             if ($node == null) {
-                //node = $xmlDoc . CreateElement(p[$i]);
                 if ($lastNode == null) {
                     $node = $xmlDoc->addChild($p[$i]);
                 } else {
@@ -600,7 +610,7 @@ class ConfigFileXml {
         return true;
     }
 
-    public static function writeStringSubKey(string $filename, string $key, string $subKey, string $value): bool {
+    public static function writeStringAttr(string $filename, string $key, string $subKey, string $value): bool {
         if (!self::checkFile($filename)) return false;
         if (self::checkKey($filename, $key) < 0) return false;
         $xmlDoc = simplexml_load_file($filename);
@@ -619,8 +629,8 @@ class ConfigFileXml {
         return self::writeString($filename, $key, $value);
     }
 
-    public static function writeIntSubKey(string $filename, string $key, string $subKey, int $value): bool {
-        return self::writeStringSubKey($filename, $key, $subKey, $value);
+    public static function writeIntAttr(string $filename, string $key, string $subKey, int $value): bool {
+        return self::writeStringAttr($filename, $key, $subKey, $value);
     }
 
     public static function readString(string $filename, string $key, string $defaultValue): string {
@@ -636,12 +646,12 @@ class ConfigFileXml {
         return $result;
     }
 
-    public static function readStringSubKey(string $filename, string $key, string $subKey, string $defaultValue): string {
+    public static function readStringAttr(string $filename, string $key, string $subKey, string $defaultValue): string {
         if (!self::checkFile($filename)) return $defaultValue;
         if (self::checkKey($filename, $key) < 0) return $defaultValue;
         $xmlDoc = simplexml_load_file($filename);
         $node = self::selectSingleNode($xmlDoc, self::$rootName . "/" . $key);
-        $result = readString(node, subKey, defaultValue);
+        $result = self::readStringAttrFromNode($node, $subKey, $defaultValue);
         $xmlDoc->asXML($filename);
         return $result;
     }
@@ -650,9 +660,112 @@ class ConfigFileXml {
         return (int)self::readString($filename, $key, $defaultValue);
     }
 
-    public static function readIntSubKey(string $filename, string $key, string $subKey, int $defaultValue): int {
-        return (int)self::readStringSubKey($filename, $key, $subKey, $defaultValue);
+    public static function readIntAttr(string $filename, string $key, string $subKey, int $defaultValue): int {
+        return (int)self::readStringAttr($filename, $key, $subKey, $defaultValue);
     }
 
+    /**
+     * 自动创建项目（如果项目不存在的话）
+     * @param \SimpleXMLElement $doc
+     * @param string $key
+     * @return \SimpleXMLElement
+     */
+    public static function create(\SimpleXMLElement $doc, string $key): \SimpleXMLElement {
+        $node = null;
+        $key = StringFunc::deleteFrontChar($key, '/');
+        $key = StringFunc::deleteRearChar($key, '/');
+        $s = StringFunc::split('/', $key);
+        for ($i = 0; $i < count($s); $i++) {
+            $path = "";
+            for ($j = 0; $j <= $i; $j++) {
+                $path = $path . '/' . $s[$j];
+            }
+            if (self::selectSingleNode($doc, $path) != null) {
+                $node = self::selectSingleNode($doc, $path);
+                continue;
+            }
+            if ($i == 0) {
+                $node = $doc->addChild($s[$i]);
+            } else {
+                $node = $node->addChild($s[$i]);
+            }
+        }
+        return $node;
+    }
+
+    /**
+     * 在node下创建一个子节点，子节名字允许重复
+     * @param \SimpleXMLElement $doc
+     * @param \SimpleXMLElement $node
+     * @param string $key
+     * @return \SimpleXMLElement
+     */
+    public static function createFromNode(\SimpleXMLElement $doc, \SimpleXMLElement $node, string $key): \SimpleXMLElement {
+        return $node->addChild($key);
+    }
+
+    public static function readStringFromNode(\SimpleXMLElement $node, string $defaultValue): string {
+        if ($node == null) return "";
+        if (StringFunc::copy($node[0], 0, StringFunc::length("<![CDATA[")) === "<![CDATA[") {
+            $result = StringFunc::replace($node[0], "&amp;", "&");
+        } else {
+            $result = $node[0];
+        }
+        return $result;
+    }
+
+    public static function readStringAttrFromNode(\SimpleXMLElement $node, string $subKey, string $defaultValue): string {
+        if ($node == null) return "";
+        if (!$node->attributes()->$subKey) {
+            $node->addAttribute($subKey, $defaultValue);
+        }
+        return $node->attributes()->$subKey;
+    }
+
+    public static function writeStringFromNode(\SimpleXMLElement $node, string $value): bool {
+        if ($node == null) return false;
+        $node[0] = $value;
+        return true;
+    }
+
+    public static function writeStringAttrFromNode(\SimpleXMLElement $node, string $subKey, string $value): bool {
+        if ($node == null) return false;
+        $node->$subKey = $value;
+        return true;
+    }
+
+    public static function readIntFromNode(\SimpleXMLElement $node, int $defaultValue): int {
+        return (int)self::readStringFromNode($node, $defaultValue);
+    }
+
+    public static function readIntAttrFromNode(\SimpleXMLElement $node, string $subKey, int $defaultValue): int {
+        return (int)self::readStringAttrFromNode($node, $subKey, $defaultValue);
+    }
+
+    public static function writeIntFromNode(\SimpleXMLElement $node, int $value): bool {
+        return self::writeStringFromNode($node, $value);
+    }
+
+    public static function writeIntAttrFromNode(\SimpleXMLElement $node, string $subKey, int $value): bool {
+        return self::writeStringAttrFromNode($node, $subKey, $value);
+    }
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
