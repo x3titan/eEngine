@@ -12,8 +12,8 @@ use TamPub1\StringFunc;
 
 require_once __DIR__ . '/../PubFuncPhp/TamPub1.hphp';
 
-//DSN=91rpg;UID=sa;PWD=****; //ODBC连接字串
 class DBConnection {
+    //DSN=91rpg;UID=sa;PWD=****; //ODBC连接字串
     public $items = array();
 
     public function getItemByName(string $name): DBConnection\Item {
