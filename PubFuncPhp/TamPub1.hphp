@@ -184,7 +184,7 @@ class StringFunc {
      * @return int 大于等于0标识搜索到了，否则返回-1
      */
     public static function pos(string $subString, string $value, int $startPos): int {
-        $pos = mb_strpos($value, $subString, $startPos - 1, self::$encoding);
+        $pos = mb_strpos($value, $subString, $startPos, self::$encoding);
         return $pos ? $pos : -1;
     }
 
@@ -482,4 +482,59 @@ class Etc {
 
 }
 
+/**
+ * 基于Xml格式的配置文件读写
+ * Class ConfigFileXml
+ * @package TamPub1
+ */
+class ConfigFileXml {
+    public static $rootName = "root";
+
+    private static function checkFile(string $filename): bool {
+        if (file_exists($filename)) return true;
+        $xml = new \SimpleXMLElement("<?xml version=\"1.0\" encoding=\"UTF-8\"?><" . self::$rootName . " />");
+        $xml->asXml($filename);
+        return true;
+    }
+
+    /**
+     * 检测并创建Key
+     * @param string $filename
+     * @param string $key
+     * @return int -1:error; 0:success; 1:newkey
+     */
+    public static function checkKey(string $filename, string $key): int {
+        $xml = simplexml_load_file($filename);
+        if (!$xml) return -1; //can not load xml file
+        //System . Xml . XmlNode node = null;
+        $nodes = $xml->xpath("/" . self::$rootName);
+        if (count($nodes) <= 0) return -1;
+        $lastNode = $nodes[0];
+        //System . Xml . XmlElement newNode = null;
+        $sp = 0;
+        $result = 0;
+        $nodeName = "";
+        while (true) {
+            if ($sp >= StringFunc::length($key)) break;
+            $sp1 = StringFunc::pos('/', $key, $sp);
+            if ($sp1 < 0) {
+                $sp1 = StringFunc::length($key);
+            }
+            $nodeName = StringFunc::copy($key,$sp, $sp1 - $sp);
+            $nodes = $xml->xpath("/" . self::$rootName . "/" .  StringFunc::copy($key ,0, $sp1));
+            if (count($nodes) <=0 ) {
+                $newNode = $lastNode->addChild($nodeName);
+                $node = $newNode;
+                $result = 1;
+            } else {
+                $node = $nodes[0];
+            }
+            $lastNode = $node;
+            $sp = $sp1 + 1;
+        }
+        $xml->asXml($filename);
+        return $result;
+    }
+
+}
 

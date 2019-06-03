@@ -44,6 +44,23 @@ print(trim($sTemp));
 
 //print($a === null? "true" : "false");
 
+\TamPub1\ConfigFileXml::checkKey("/home/tam/epage/test.xml", "a/c/b/c/d")
+
+/*
+$xml = simplexml_load_file("/home/tam/epage/test.xml");
+print($xml->getName() . "\r\n");
+$item = $xml->xpath("/root/field2");
+
+print ("\r\n");
+
+//foreach($xml->children() as $period) {
+//    $study[] = get_object_vars($period);//获取对象全部属性，返回数组
+//}
+//$item = $xml->addChild("period", "谭江天");
+//$item->addAttribute("attr1", "value1");
+//$item->addAttribute("attr2", "value2");
+$xml->asXml("/home/tam/epage/test.xml");
+*/
 
 
 ?>
