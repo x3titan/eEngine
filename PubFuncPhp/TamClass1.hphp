@@ -1,0 +1,257 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: admin
+ * Date: 2019/6/3 0003
+ * Time: 下午 9:31
+ */
+
+namespace TamClass1;
+
+use TamPub1\StringFunc;
+
+/**
+ * 属性列表
+ * Class PropertyList
+ * @package TamClass1
+ */
+class PropertyList {
+    public $items = array(); //PropertyListItem
+
+    /**
+     * 不存在则自动增加
+     * @param string $name
+     * @return PropertyList\PropertyListItem
+     */
+    public function getItem(string $name): PropertyList\PropertyListItem {
+        $insertPos = 0;
+        $index = $this->getItemIndex($name, $insertPos);
+        if ($index >= 0) {
+            return $this->items [$index];
+        }
+
+        $item = new PropertyList\PropertyListItem();
+        $item->name = $name;
+        array_splice($this->items, $insertPos, 0, $item);
+        return $item;
+    }
+
+    /**
+     * 仅搜索
+     * @param string $name
+     * @return PropertyList\PropertyListItem
+     */
+    public function findItem(string $name): PropertyList\PropertyListItem {
+        $insertPos = 0;
+        $index = $this->getItemIndex($name, $insertPos);
+        if ($index < 0) {
+            return null;
+        } else {
+            return $this->items[$index];
+        }
+    }
+
+    /**
+     * 获取元素的位置，没找到返回-1，并推荐insertPos插入位置
+     * @param string $name
+     * @param int $insertPos
+     * @return int
+     */
+    private function getItemIndex(string $name, int &$insertPos): int {
+        if (count($this->items) <= 0) {
+            $insertPos = 0;
+            return -1;
+        }
+
+        $fp = count($this->items);
+        $rp = 0;
+        while ($fp > $rp) {
+            $p = ($fp + $rp) / 2;
+            $r = StringFunc::compare($name, $this->items[$p]->name);
+            if ($r > 0) {
+                $rp = $p + 1;
+            } else if ($r < 0) {
+                $fp = $p;
+            } else {
+                return $p;
+            }
+        }
+        if ($r > 0) {
+            $insertPos = $p + 1;
+        } else {
+            $insertPos = $p;
+        }
+        return -1;
+    }
+
+    /**
+     * 增加一个新的属性，如果属性存在则更新，不存在则新建
+     * @param PropertyList\PropertyListItem $item
+     */
+    public function addProperty(PropertyList\PropertyListItem $item): void {
+        $current = $this->getItem($item->name);
+        $current->assign($item);
+    }
+
+    public function clone(): PropertyList {
+        $result = new PropertyList();
+        $result->assign($this);
+        return $result;
+    }
+
+    public function assign(PropertyList $value): void {
+        $this->items = array();
+        for ($i = 0; $i < count($value->items); $i++) {
+            $this->addProperty($value->items[$i]->clone());
+        }
+    }
+
+    /**
+     * 删除category相同的元素
+     * @param string $category
+     */
+    public function deleteCategory(string $category): void {
+        $index = 0;
+        while ($index < count($this->items)) {
+            if ($this->items[$index]->category === $category) {
+                array_splice($this->items, $index, 1);
+            } else {
+                $index++;
+            }
+        }
+    }
+}
+
+
+/**
+ * 多类型变量
+ * Class Variant
+ * @package TamClass1
+ */
+class Variant {
+    private $data = "";
+    /**
+     * 取值：string, int, double, color, enum
+     * @var string
+     */
+    public $defaultType = "string";
+    public $enumData = array(); //string[]
+
+    public function __get($name) {
+        if ($name === "asInt32") {
+            return (int)$this->data;
+        } else if ($name === "asString") {
+            return $this->data;
+        } else if ($name === "asDouble") {
+            return (float)$this->data;
+        } else if ($name === "asObject") {
+            if ($this->defaultType === "string") {
+                return $this->asString;
+            } else if ($this->defaultType === "int") {
+                return $this->asInt32;
+            } else if ($this->defaultType === "double") {
+                return $this->asDouble;
+            } else if ($this->defaultType === "color") {
+                return $this->asColor;
+            } else if ($this->defaultType === "enum") {
+                return $this->asString;
+            } else {
+                return $this->asString;
+            }
+        } else if ($name === "asColor") { //对外目前不提供color功能，归为字符串
+            return $this->data;
+        } else {
+            return $this->data;
+        }
+    }
+
+    public function __set($name, $value) {
+        if ($name === "asInt32") {
+            $this->data = (string)$value;
+        } else if ($name === "asString") {
+            $this->data = $value;
+        } else if ($name === "asString") {
+            $this->data = (string)$value;
+        } else if ($name === "asObject") {
+            if ($this->defaultType === "string") {
+                $this->asString = $value;
+            } else if ($this->defaultType === "int") {
+                $this->asInt32 = (int)$value;
+            } else if ($this->defaultType === "double") {
+                $this->asDouble = (float)$value;
+            } else if ($this->defaultType === "color") {
+                $this->asColor = (string)$value;
+            } else if ($this->defaultType === "enum") {
+                $this->asString = $value;
+            } else {
+                $this->asString = $value;
+            }
+        } else if ($name === "asColor") {
+            $this->data = (string)$value;
+        }
+    }
+
+    public function assign(Variant $value): void {
+        $this->data = $value->data;
+        $this->defaultType = $value->defaultType;
+        $this->enumData = array();
+        for ($i = 0; $i < count($value->enumData); $i++) {
+            array_push($this->enumData, $value->enumData[$i]);
+        }
+    }
+
+    public function clone(): Variant {
+        $result = new Variant();
+        $result->assign($this);
+        return $result;
+    }
+}
+
+namespace TamClass1\PropertyList;
+
+use TamClass1\Variant;
+
+class PropertyListItem {
+    /**
+     * 内部标识名字，不区分大小写
+     * @var string
+     */
+    public $name = "";
+    /**
+     * 显示名称
+     * @var string
+     */
+    public $displayName = "";
+    /**
+     * 分类
+     * @var string
+     */
+    public $category = "";
+    /**
+     * @var Variant
+     */
+    public $value;
+    /**
+     * @var Variant
+     */
+    public $defaultValue;
+
+    public function __construct() {
+        $this->value = new Variant();
+        $this->defaultValue = new Variant();
+    }
+
+    public function assign(PropertyListItem $value): void {
+        $this->name = $value->name;
+        $this->displayName = $value->displayName;
+        $this->category = $value->category;
+        $this->value->assign($value->value);
+        $this->defaultValue->assign($value->defaultValue);
+    }
+
+    public function clone(): PropertyListItem {
+        $result = new PropertyListItem();
+        $result->assign($this);
+        return $result;
+    }
+}
