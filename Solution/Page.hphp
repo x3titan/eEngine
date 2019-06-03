@@ -1,0 +1,33 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Jesse Tam
+ * Date: 2019/6/3 0003
+ * Time: 下午 8:54
+ */
+
+namespace Solution;
+
+require_once __DIR__ . '/../PubFuncPhp/TamPub1.hphp';
+
+/**
+ * 页面基础类
+ * Class Page
+ * @package Solution
+ */
+class Page {
+    /**
+     * @var \TamPub1\Tree Solution.Item
+     */
+    public $projectItem = null;
+    /*
+public TamPub1.Tree<Control> controls = new TamPub1.Tree<Control>();
+public TamPub1.Tree<Control> divRoot = null;
+public ScriptEngine.TaskSet taskSet = new ScriptEngine.TaskSet();
+public string createControlType = ""; //需要创建的控件类型，空表示用户不需要创建控件
+    public const int touchSize = 3; //触点1/2大小
+public string filename = ""; //本页在硬盘存在的物理路径和文件名
+public DateTime fileLastWriteTime = DateTime.Now; //本页面文件在物理硬盘上的上次被修改时间
+public object lockObject = new object();
+*/
+}
