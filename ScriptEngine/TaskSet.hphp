@@ -8,8 +8,6 @@
 
 namespace ScriptEngine;
 
-require_once __DIR__ . '/../PubFuncPhp/TamPub1.hphp';
-
 use TamPub1\StringFunc;
 
 class TaskSet {
