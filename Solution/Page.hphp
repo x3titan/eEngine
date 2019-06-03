@@ -8,6 +8,8 @@
 
 namespace Solution;
 
+use MongoDB\BSON\ObjectId;
+use ScriptEngine\TaskSet;
 use TamPub1;
 
 //require_once __DIR__ . '/../PubFuncPhp/TamPub1.hphp';
@@ -19,19 +21,55 @@ use TamPub1;
  */
 class Page {
     /**
-     * @var \TamPub1\Tree Solution.Item
+     * @var \TamPub1\Tree Tree<Solution.Item>
      */
     public $projectItem = null;
-    /*
-public TamPub1.Tree<Control> controls = new TamPub1.Tree<Control>();
-public TamPub1.Tree<Control> divRoot = null;
-public ScriptEngine.TaskSet taskSet = new ScriptEngine.TaskSet();
-public string createControlType = ""; //需要创建的控件类型，空表示用户不需要创建控件
-    public const int touchSize = 3; //触点1/2大小
-public string filename = ""; //本页在硬盘存在的物理路径和文件名
-public DateTime fileLastWriteTime = DateTime.Now; //本页面文件在物理硬盘上的上次被修改时间
-public object lockObject = new object();
-*/
+    /**
+     * @var \TamPub1\Tree Tree<Control>
+     */
+    public $controls = null;
+    /**
+     * @var \TamPub1\Tree Tree<Control>
+     */
+    public $divRoot = null;
+    /**
+     * @var TaskSet
+     */
+    public $taskSet = null;
+    /**
+     * 需要创建的控件类型，空表示用户不需要创建控件
+     * @var string
+     */
+    public $createControlType = "";
+    /**
+     * //触点1/2大小
+     * @var int
+     */
+    public $touchSize = 3;
+    /**
+     * 本页在硬盘存在的物理路径和文件名
+     * @var string
+     */
+    public $filename = "";
+    /**
+     * 本页面文件在物理硬盘上的上次被修改时间
+     * @var int
+     */
+    public $fileLastWriteTime = 0;
+    /**
+     * Object类型，目前暂时用不上
+     * @var null
+     */
+    public $lockObject = null;
+
+    public function __construct() {
+        $this->controls = new TamPub1\Tree();
+        $this->taskSet = new TaskSet();
+        $this->fileLastWriteTime = time();
+        $this->lockObject = null;
+    }
+
+
 }
 
 namespace Solution\Page;
