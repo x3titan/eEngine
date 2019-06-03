@@ -80,8 +80,8 @@ class Item {
     }
 }
 
-$a = new Item();
-print($a->kkk);
+$a = "0011231a";
+print(is_numeric($a)?"true":"false");
 //print("=====" . $a->$field);
 
 
