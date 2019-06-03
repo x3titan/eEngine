@@ -84,5 +84,7 @@ $a = "0011231a";
 print(is_numeric($a)?"true":"false");
 //print("=====" . $a->$field);
 
-
+print("\r\n======================\r\n");
+$d = time();
+print(Date("Y-m-d H:i:s", $d));
 ?>
