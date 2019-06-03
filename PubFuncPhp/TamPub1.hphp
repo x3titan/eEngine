@@ -332,6 +332,15 @@ class StringFunc {
     }
 
     /**
+     * （兼容性）判断一个字符串是不是整数
+     * @param string $value
+     * @return bool
+     */
+    public static function isInt(string $value): bool {
+        return is_numeric($value) && !strpos($value, '.');
+    }
+
+    /**
      * 判断一个字符串是否是浮点数,不支持e的形式，用于替换缓慢的convert.toDouble判断形势
      * @param string $value
      * @return bool
