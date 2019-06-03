@@ -119,6 +119,16 @@ class StringFunc {
     }
 
     /**
+     * 为保证代码兼容性封装的分割函数
+     * @param string $value 被分割的字符串
+     * @param string $seperator 分割标记
+     * @return array
+     */
+    public static function split(string $value, string $seperator): array {
+        return mb_split($seperator, $value);
+    }
+
+    /**
      * 获取一个字符的编码
      * @param string $char 字符串
      * @return int 编码
@@ -492,15 +502,31 @@ class ConfigFileXml {
 
     private static function checkFile(string $filename): bool {
         if (file_exists($filename)) return true;
-        $xml = new \SimpleXMLElement("<?xml version=\"1.0\" encoding=\"UTF-8\"?><" . self::$rootName . " />");
+        $xml = new \SimpleXMLElement("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n" .
+            "<" . self::$rootName . ">\r\n" .
+            "</" . self::$rootName . ">\r\n"
+        );
         $xml->asXml($filename);
         return true;
     }
 
     /**
+     * 为兼容考虑，增加选节点函数，节点有重复的则选择第一个匹配的
+     * @param \SimpleXMLElement $xmlDoc 载入缓存的xml文档
+     * @param string $path 路径信息，不包含root，如: /field1/field2
+     * @return \SimpleXMLElement
+     */
+    private static function selectSingleNode(\SimpleXMLElement $xmlDoc, string $path) {
+        $path = StringFunc::addFrontChar($path, '/');
+        $nodes = $xmlDoc->xpath($path);
+        if (count($nodes) <= 0) return null;
+        return $nodes[0];
+    }
+
+    /**
      * 检测并创建Key
      * @param string $filename
-     * @param string $key
+     * @param string $key 形式如: key1/key2/key3
      * @return int -1:error; 0:success; 1:newkey
      */
     public static function checkKey(string $filename, string $key): int {
@@ -513,21 +539,18 @@ class ConfigFileXml {
         //System . Xml . XmlElement newNode = null;
         $sp = 0;
         $result = 0;
-        $nodeName = "";
         while (true) {
             if ($sp >= StringFunc::length($key)) break;
             $sp1 = StringFunc::pos('/', $key, $sp);
             if ($sp1 < 0) {
                 $sp1 = StringFunc::length($key);
             }
-            $nodeName = StringFunc::copy($key,$sp, $sp1 - $sp);
-            $nodes = $xml->xpath("/" . self::$rootName . "/" .  StringFunc::copy($key ,0, $sp1));
-            if (count($nodes) <=0 ) {
+            $nodeName = StringFunc::copy($key, $sp, $sp1 - $sp);
+            $node = self::selectSingleNode($xml, self::$rootName . "/" . StringFunc::copy($key, 0, $sp1));
+            if ($node == null) {
                 $newNode = $lastNode->addChild($nodeName);
                 $node = $newNode;
                 $result = 1;
-            } else {
-                $node = $nodes[0];
             }
             $lastNode = $node;
             $sp = $sp1 + 1;
@@ -535,6 +558,48 @@ class ConfigFileXml {
         $xml->asXml($filename);
         return $result;
     }
+
+    /**
+     * 按照路径创建节点，如果节点已经存在则不创建
+     * @param \SimpleXMLElement $xmlDoc
+     * @param string $path
+     * @return \SimpleXMLElement -1:error; 0:success; 1:newkey
+     */
+    public static function createPath(\SimpleXMLElement $xmlDoc, string $path): \SimpleXMLElement {
+        $node = null;
+        $lastNode = null;
+        $path = StringFunc::deleteFrontChar($path, '/');
+        $path = StringFunc::deleteRearChar($path, '/');
+        $p = StringFunc::split($path, '/');
+        if (count($p) <= 0) return null;
+        $path = "";
+        for ($i = 0; $i < count($p); $i++) {
+            $path .= "/" . $p[$i];
+            $node = self::selectSingleNode($xmlDoc, $path);
+            if ($node == null) {
+                //node = $xmlDoc . CreateElement(p[$i]);
+                if ($lastNode == null) {
+                    $node = $xmlDoc->addChild($p[$i]);
+                } else {
+                    $node = $lastNode->addChild($p[$i]);
+                }
+            }
+            $lastNode = $node;
+        }
+        return $node;
+    }
+
+    public static function writeString(string $filename, string $key, string $value): bool {
+        if (!self::checkFile($filename)) return false;
+        if (self::checkKey($filename, $key) < 0) return false;
+        $xmlDoc = simplexml_load_file($filename);
+        $node = self::selectSingleNode($xmlDoc, self::$rootName . "/" . $key);
+        if ($node == null) return false;
+        $node[0]  = $value;
+        $xmlDoc->asXML($filename);
+        return true;
+    }
+
 
 }
 

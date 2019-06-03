@@ -44,7 +44,8 @@ print(trim($sTemp));
 
 //print($a === null? "true" : "false");
 
-\TamPub1\ConfigFileXml::checkKey("/home/tam/epage/test.xml", "a/c/b/c/d")
+//\TamPub1\ConfigFileXml::checkKey("/home/tam/epage/test.xml", "a/c/b/c/d");
+\TamPub1\ConfigFileXml::writeString("/home/tam/epage/test.xml", "f1/f2/f3", "sldjfslfsassadf加防腐剂");
 
 /*
 $xml = simplexml_load_file("/home/tam/epage/test.xml");
