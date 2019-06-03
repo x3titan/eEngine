@@ -10,6 +10,7 @@ namespace Solution;
 
 use MongoDB\BSON\ObjectId;
 use ScriptEngine\TaskSet;
+use Solution\Page\Control;
 use TamPub1;
 
 //require_once __DIR__ . '/../PubFuncPhp/TamPub1.hphp';
@@ -62,13 +63,51 @@ class Page {
      */
     public $lockObject = null;
 
+    //public $gridLine = new GridLine(); //界面功能不需要做
+
     public function __construct() {
         $this->controls = new TamPub1\Tree();
         $this->taskSet = new TaskSet();
         $this->fileLastWriteTime = time();
         $this->lockObject = null;
+        $this->init();
     }
 
+    private function init(): void {
+        $this->controls->clear();
+        $this->divRoot = $this->controls->addValue(new Control());
+        $this->divRoot->value->type = "DivRoot";
+        $this->divRoot->value->name = "divRoot";
+        $this->initControlProperty($this->divRoot->value);
+        $this->divRoot->value->property->getItem("left")->value->asInt32 = 0;
+        $this->divRoot->value->property->getItem("top")->value->asInt32 = 0;
+        $this->divRoot->value->property->getItem("width")->value->asInt32 = 1000;
+        $this->divRoot->value->property->getItem("height")->value->asInt32 = 800;
+        $this->divRoot->value->property->getItem("dockX")->value->asString = "center";
+        $this->divRoot->value->property->getItem("backgroundColor")->value->asString = "ffffff";
+        $this->divRoot->value->property->getItem("bgColorEnabled")->value->asString = "true";
+    }
+
+    //virtual function
+    public function loadFromFile(string $filename): string {
+        if (!TamPub1\FileOperation::exists($filename)) {
+            return "页面文件不存在：" + filename;
+        }
+        /* 做到这里，需要研究获取文件修改时间、需要研究通过字符串载入xmlDoc
+        if ((TamPub1\StringFunc::toUpper($this->filename) === TamPub1\StringFunc::toUpper($filename)) && $fileLastWriteTime . Equals(fi . LastWriteTime)) return "";
+        System . Xml . XmlDocument doc = new System . Xml . XmlDocument();
+            try {
+                doc . Load(filename);
+            } catch (Exception) {
+                return "页面文件不存在:" + filename;
+            }
+            loadFromString(doc . InnerXml);
+            fileLastWriteTime = fi . LastWriteTime;
+            this . filename = filename;
+            //Etc.Pub.log.writeCommon("load page: " + filename);
+            return "";
+        }
+*/
 
 }
 
