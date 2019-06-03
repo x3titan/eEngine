@@ -37,21 +37,11 @@ $ret = $a->executeString("PHP.testA(12345,'bbb');");
 var_dump(__LINE__, $ret);
 
 require_once __DIR__ . '/PubFuncPhp/TamPub1.hphp';
-$sTemp = "谭江天1234567谭江天";
+require_once __DIR__ . '/ScriptEngine/TaskSet.hphp';
+$sTemp = "      谭江天1234567谭江天     \r\n";
+print ($sTemp);
+print(trim($sTemp));
 
-print ("====\r\n");
-class A {
-    public $a = array(10);
-}
-$a = array();
-array_push($a, new A());
-array_push($a, new A());
-$b = new A();
-array_push($a, $b);
-array_push($a, new A());
-//$a = array_diff($a, $b);
-array_splice($a, 1, 1, null);
-print ($a);
 //print($a === null? "true" : "false");
 
 

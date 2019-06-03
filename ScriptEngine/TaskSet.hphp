@@ -1,0 +1,98 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Jesse Tam
+ * Date: 2019/6/3 0003
+ * Time: 上午 9:52
+ */
+
+namespace ScriptEngine;
+
+require_once __DIR__ . '/../PubFuncPhp/TamPub1.hphp';
+
+use TamPub1\StringFunc;
+
+class TaskSet {
+    public $items = array();
+
+    /**
+     * 增加一个新的元素，自动起名字
+     * @return TaskSet\Item
+     */
+    public function add(): TaskSet\Item {
+        $i = 1;
+        while (true) {
+            $newName = "taskSet" . $i;
+            if (self::getByName($newName) == null) break;
+            $i++;
+        }
+
+        array_push($this->items, new TaskSet\Item($newName));
+        return $this->items[count($this->items) - 1];
+    }
+
+    public function getByName(string $name): TaskSet\Item {
+        for ($i = 0; $i < count($this->items); $i++) {
+            if ($this->items[$i]->name === $name) return $this->items[$i];
+        }
+        return null;
+    }
+
+    /**
+     * 改名字，失败返回空
+     * @param string $oldName
+     * @param string $newName
+     * @return TaskSet\Item
+     */
+    public function rename(string $oldName, string $newName): TaskSet\Item {
+        $newName = StringFunc::trim($newName);
+        if (StringFunc::length($newName) == 0) return null;
+        $result = self::getByName($oldName);
+        if ($result == null) return null;
+        if (self::getByName($newName) != null) return null;
+        $result->name = $newName;
+        return $result;
+    }
+
+    /**
+     * 将index位置的元素移动distance的距离，返回false表示没进行任何操作
+     * @param int $index
+     * @param int $distance
+     * @return bool
+     */
+    public function move(int $index, int $distance): bool {
+        $d = $index + $distance;
+        if ($d == $index) return false;
+        if ($d < 0) return false;
+        if ($d >= count($this->items)) return false;
+        $temp = $this->items[$d];
+        $this->items[$d] = $this->items[$index];
+        $this->items[$index] = $temp;
+        return true;
+    }
+
+}
+
+namespace ScriptEngine\TaskSet;
+class Item {
+    /**
+     * @var string 名字
+     */
+    public $name = "";
+    /**
+     * @var string 请求
+     */
+    public $script1 = "";
+    /**
+     * @var string 处理
+     */
+    public $script2 = "";
+    /**
+     * @var string 回应
+     */
+    public $script3 = "";
+
+    public function __construct(string $name) {
+        $this->name = $name;
+    }
+}
