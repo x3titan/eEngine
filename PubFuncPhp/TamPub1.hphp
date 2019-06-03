@@ -199,6 +199,21 @@ class StringFunc {
     }
 
     /**
+     * 比较两个字串的大小
+     * @param string $value1 第一个字符串
+     * @param string $value2 第二个字符串
+     * @param bool $caseSensitive 是否大小写敏感
+     * @return int 第一个值小于等于大于，分别返回-1,0,1
+     */
+    public static function compare(string $value1, string $value2, bool $caseSensitive = true): int {
+        if ($caseSensitive) {
+            return strcmp($value1, $value2);
+        } else {
+            return strcasecmp($value1, $value2);
+        }
+    }
+
+    /**
      * 从0开始的搜索
      * @param string $subString 需要搜索的字串
      * @param string $value 被搜索的字串
