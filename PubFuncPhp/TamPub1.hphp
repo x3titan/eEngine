@@ -8,6 +8,7 @@
 
 namespace TamPub1;
 
+
 class DelphiString {
     public static $encoding = "utf-8";
 
@@ -198,13 +199,13 @@ class StringFunc {
     }
 
     /**
-     * 兼容Delphi的从1开始的搜索
+     * 从0开始的搜索
      * @param string $subString 需要搜索的字串
      * @param string $value 被搜索的字串
      * @param int $startPos 起始搜索位置（从0开始）
      * @return int 大于等于0标识搜索到了，否则返回-1
      */
-    public static function pos(string $subString, string $value, int $startPos): int {
+    public static function pos(string $subString, string $value, int $startPos = 0): int {
         $pos = mb_strpos($value, $subString, $startPos, self::$encoding);
         return $pos ? $pos : -1;
     }
@@ -748,6 +749,55 @@ class ConfigFileXml {
 
     public static function writeIntAttrFromNode(\SimpleXMLElement $node, string $subKey, int $value): bool {
         return self::writeStringAttrFromNode($node, $subKey, $value);
+    }
+
+    public static function readHexFromNode(\SimpleXMLElement $node, int $defaultValue): int {
+        return hexdec(self::readStringFromNode($node, dechex($defaultValue)));
+    }
+
+    public static function readHexAttrFromNode(\SimpleXMLElement $node, string $subKey, int $defaultValue) {
+        return hexdec(self::readStringAttrFromNode($node, $subKey, dechex($defaultValue)));
+    }
+
+    public static function writeHexFromNode(\SimpleXMLElement $node, int $value): bool {
+        return self::writeStringFromNode($node, dechex($value));
+    }
+
+    public static function writeHexAttrFromNode(\SimpleXMLElement $node, string $subKey, int $value): bool {
+        return self::writeStringAttrFromNode($node, $subKey, dechex($value));
+    }
+
+    public static function appendAttr(\SimpleXMLElement $doc, \SimpleXMLElement $node, string $key, string $value): void {
+        $node->addAttribute($key, $value);
+    }
+
+    /**
+     * 把一个普通字串转换为CData形式的数据
+     * @param string $value
+     * @return string
+     */
+    public static function getCData(string $value): string {
+        return "<![CDATA[" . StringFunc::replace($value, "]]>", "]]]]><![CDATA[>") . "]]>";
+    }
+
+    public static function getCDataText(string $value): string {
+        return self::getCData(StringFunc::replace(StringFunc::replace($value, "\r\n", "\n"), "\n", "\r\n"));
+    }
+
+    /**
+     * 自动判断是否有产生CData形式数据的必要
+     * @param string $value
+     * @return string
+     */
+    public static function getDDataTextAuto(string $value): string {
+        $value = StringFunc::replace($value, "&", "&amp;");
+        if (StringFunc::pos('<', $value) >= 0) {
+            return self::getCDataText($value);
+        } else if (StringFunc::pos('>', $value) >= 0) {
+            return self::getCDataText($value);
+        } else {
+            return $value;
+        }
     }
 
 
