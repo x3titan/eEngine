@@ -595,11 +595,64 @@ class ConfigFileXml {
         $xmlDoc = simplexml_load_file($filename);
         $node = self::selectSingleNode($xmlDoc, self::$rootName . "/" . $key);
         if ($node == null) return false;
-        $node[0]  = $value;
+        $node[0] = $value;
         $xmlDoc->asXML($filename);
         return true;
     }
 
+    public static function writeStringSubKey(string $filename, string $key, string $subKey, string $value): bool {
+        if (!self::checkFile($filename)) return false;
+        if (self::checkKey($filename, $key) < 0) return false;
+        $xmlDoc = simplexml_load_file($filename);
+        $node = self::selectSingleNode($xmlDoc, self::$rootName . "/" . $key);
+        if ($node == null) return false;
+        if (!$node->attributes()->$subKey) {
+            $node->addAttribute($subKey, $value);
+        } else {
+            $node->attributes()->$subKey = $value;
+        }
+        $xmlDoc->asXML($filename);
+        return true;
+    }
+
+    public static function writeInt(string $filename, string $key, int $value): bool {
+        return self::writeString($filename, $key, $value);
+    }
+
+    public static function writeIntSubKey(string $filename, string $key, string $subKey, int $value): bool {
+        return self::writeStringSubKey($filename, $key, $subKey, $value);
+    }
+
+    public static function readString(string $filename, string $key, string $defaultValue): string {
+        if (!self::checkFile($filename)) return $defaultValue;
+        $ckResult = self::checkKey($filename, $key);
+        if ($ckResult < 0) return $defaultValue;
+        $xmlDoc = simplexml_load_file($filename);
+        $node = self::selectSingleNode($xmlDoc, self::$rootName . "/" . $key);
+        if ($node == null) return "";
+        if ($ckResult == 1) $node[0] = $defaultValue;
+        $result = $node[0];
+        $xmlDoc->asXML($filename);
+        return $result;
+    }
+
+    public static function readStringSubKey(string $filename, string $key, string $subKey, string $defaultValue): string {
+        if (!self::checkFile($filename)) return $defaultValue;
+        if (self::checkKey($filename, $key) < 0) return $defaultValue;
+        $xmlDoc = simplexml_load_file($filename);
+        $node = self::selectSingleNode($xmlDoc, self::$rootName . "/" . $key);
+        $result = readString(node, subKey, defaultValue);
+        $xmlDoc->asXML($filename);
+        return $result;
+    }
+
+    public static function readInt(string $filename, string $key, int $defaultValue): int {
+        return (int)self::readString($filename, $key, $defaultValue);
+    }
+
+    public static function readIntSubKey(string $filename, string $key, string $subKey, int $defaultValue): int {
+        return (int)self::readStringSubKey($filename, $key, $subKey, $defaultValue);
+    }
 
 }
 
