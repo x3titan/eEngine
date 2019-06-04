@@ -81,10 +81,12 @@ class Item {
 }
 
 print("\r\n=a)=====================\r\n");
-$filename = "/home/tam/epage/test.xml";
-$xml = simplexml_load_file($filename);
-print($xml->saveXML());
-
+class X {
+    public static function get(): ?X {
+        return null;
+    }
+}
+X::get();
 
 
 
