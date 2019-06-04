@@ -1,0 +1,79 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Jesse Tam
+ * Date: 2019/6/4 0004
+ * Time: 下午 11:41
+ */
+
+namespace Solution;
+
+
+use Solution\ControlPrototype\ControlPrototypeItem;
+
+class ControlPrototype {
+    /**
+     * @var array ControlPrototypeItem[]
+     */
+    public $items = array();
+
+    public function __construct() {
+        //ControlPrototypeItem item;
+        $item = new ControlPrototypeItem();
+        $item->name = "Panel";
+        array_push($this->items, $item);
+        $item = new ControlPrototypeItem();
+        $item->name = "Link";
+        array_push($this->items, $item);
+        $item = new ControlPrototypeItem();
+        $item->name = "Edit";
+        array_push($this->items, $item);
+        $item = new ControlPrototypeItem();
+        $item->name = "TableTitle";
+        array_push($this->items, $item);
+        //TableTitleItem 自动创建，用户手工不必创建
+        //$item = new ControlPrototypeItem();
+        //$item->name = "TableTitleItem";
+        //$this->items->Add($item);
+        $item = new ControlPrototypeItem();
+        $item->name = "TableBody";
+        array_push($this->items, $item);
+        //TableBodyItem 自动创建，用户手工不必创建
+        $item = new ControlPrototypeItem();
+        $item->name = "RichEdit";
+        array_push($this->items, $item);
+        $item = new ControlPrototypeItem();
+        $item->name = "LayoutX";
+        array_push($this->items, $item);
+        $item = new ControlPrototypeItem();
+        $item->name = "LayoutY";
+        array_push($this->items, $item);
+        $item = new ControlPrototypeItem();
+        $item->name = "FileUpload";
+        array_push($this->items, $item);
+        $item = new ControlPrototypeItem();
+        $item->name = "CheckBox";
+        array_push($this->items, $item);
+        $item = new ControlPrototypeItem();
+        $item->name = "Button";
+        array_push($this->items, $item);
+    }
+
+    public function getItemByName(string $name): ControlPrototypeItem {
+        for ($i = 0;
+             $i < count($this->items);
+             $i++) {
+            if ($this->items[$i]->name === $name) {
+                return $this->items[$i];
+            }
+        }
+        return null;
+    }
+}
+
+
+namespace Solution\ControlPrototype;
+
+class ControlPrototypeItem {
+    public $name = "";
+}
