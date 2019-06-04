@@ -1,0 +1,111 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Jesse Tam
+ * Date: 2019/6/4 0004
+ * Time: 下午 11:52
+ */
+
+namespace Solution;
+
+
+class Solution {
+
+}
+
+namespace Solution\Solution;
+
+use ScriptEngine\ScriptEngine;
+use Solution\Page;
+
+class Item {
+    /**
+     * @var int 工程名字
+     */
+    public static $ITEM_TYPE_PROJECT = 10;
+    /**
+     * @var int 目录
+     */
+    public static $ITEM_TYPE_FOLDER = 20;
+    /**
+     * @var int 工程描述文件
+     */
+    public static $ITEM_TYPE_PROJECTFILE = 30;
+    /**
+     * @var int 页面描述文件
+     */
+    public static $ITEM_TYPE_PAGE = 40;
+    /**
+     * @var int 图片文件
+     */
+    public static $ITEM_TYPE_IMAGE = 50;
+    public $type = self::$ITEM_TYPE_PROJECT;
+    //project本身部分
+    /**
+     * @var bool 项目是否被正确载入
+     */
+    public $enabled = false;
+    public $projectName = "";
+    public $projectFolderName = "";
+    public $projectPath = "";
+    /**
+     * @var string 项目在物理硬盘上的路径和文件名
+     */
+    public $projectFilePathName = "";
+    /**
+     * @var int 项目文件在物理硬盘上，上次被修改的时间
+     */
+    public $projectLastModifyTime = time();
+    /**
+     * @var \ScriptEngine\DBConnection
+     */
+    public $dbConnection = null;
+    /**
+     * @var string 目录
+     */
+    public $folderName = "";
+    /**
+     * @var string 目录别名
+     */
+    public $folderAlias = "";
+    //页面描述文件和图片文件
+    public $filename = "";
+    /**
+     * @var Page 页面数据
+     */
+    public $page = null;
+    //皮肤数据
+    public skin = new Etc.Skin();
+    //显示部分
+    //public System.Windows.Forms.TreeNode displayTreeNode = null;
+public object displayTreeNode = null;
+public override String ToString() {
+String result = "";
+switch (type) {
+case ITEM_TYPE_PROJECT:
+result = projectName + "(" + projectFolderName + ")";
+break;
+case ITEM_TYPE_FOLDER:
+if (folderAlias.Length > 0) {
+result = folderName + "(" + folderAlias + ")";
+}
+
+else
+result = folderName;
+break;
+case ITEM_TYPE_PROJECTFILE:
+result = filename;
+break;
+case ITEM_TYPE_PAGE:
+result = filename;
+break;
+case ITEM_TYPE_IMAGE:
+result = filename;
+break;
+default:
+result = "非法类型代码：" + type;
+break;
+}
+return result;
+}
+}
