@@ -22,26 +22,19 @@ class ScriptEngine {
 
     /// <summary>获取嵌入模式的字串结果</summary>
     public function getInlineResult(string $value): string {
-        /*
-        List<InlineScript . Item > inlineScript = InlineScript . decode(value);
-object obj;
-for (int i = 0; i < inlineScript . Count; i++) {
-            if (inlineScript[i] . type == InlineScript . Item . TYPE_TEXT) continue;
-            try {
-                obj = engine . Run(inlineScript[i] . text);
-                if (obj == null) {
-                    inlineScript[i] . text = "";
-                } else {
-                    inlineScript[i] . text = obj . ToString();
-                }
-            } catch (Exception e) {
-                inlineScript[i] . text = e . Message;
+        $inlineScript = InlineScript::decode($value);
+        //object obj;
+        for ($i = 0; $i < count($inlineScript); $i++) {
+            if ($inlineScript[$i]->type == InlineScript\Item::$TYPE_TEXT) continue;
+            $obj = $this->engine->executeString($inlineScript[$i]->text);
+            if ($obj == null) {
+                $inlineScript[$i]->text = "";
+            } else {
+                $inlineScript[$i]->text = $obj;
             }
-            }
-            return InlineScript . join(inlineScript);
-        */
+        }
+        return InlineScript::join($inlineScript);
     }
-
 }
 
 namespace ScriptEngine\ScriptEngine;
