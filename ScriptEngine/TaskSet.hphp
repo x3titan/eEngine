@@ -69,6 +69,12 @@ class TaskSet {
         return true;
     }
 
+    /**
+     * 为保证兼容性提供的清除记录功能
+     */
+    public function clear(): void {
+        $this->items = array();
+    }
 }
 
 namespace ScriptEngine\TaskSet;
@@ -90,7 +96,7 @@ class Item {
      */
     public $script3 = "";
 
-    public function __construct(string $name) {
+    public function __construct(string $name = "") {
         $this->name = $name;
     }
 }
