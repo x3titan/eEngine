@@ -17,6 +17,10 @@ use TamPub1\StringFunc;
  * @package ScriptEngine
  */
 class InlineScript {
+    /**
+     * @param string $inlineScript
+     * @return array Item[]
+     */
     public static function decode(string $inlineScript): array {
         $result = array();
         $temp = array();
