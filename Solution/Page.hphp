@@ -91,10 +91,11 @@ class Page {
     //virtual function
     public function loadFromFile(string $filename): string {
         if (!TamPub1\FileOperation::exists($filename)) {
-            return "页面文件不存在：" + filename;
+            return "页面文件不存在：" . $filename;
         }
-        /* 做到这里，需要研究获取文件修改时间、需要研究通过字符串载入xmlDoc
-        if ((TamPub1\StringFunc::toUpper($this->filename) === TamPub1\StringFunc::toUpper($filename)) && $fileLastWriteTime . Equals(fi . LastWriteTime)) return "";
+        $time = filemtime($filename);
+        if ((TamPub1\StringFunc::toUpper($this->filename) === TamPub1\StringFunc::toUpper($filename)) && ($this->fileLastWriteTime == $time)) return "";
+        /*
         System . Xml . XmlDocument doc = new System . Xml . XmlDocument();
             try {
                 doc . Load(filename);
@@ -106,8 +107,8 @@ class Page {
             this . filename = filename;
             //Etc.Pub.log.writeCommon("load page: " + filename);
             return "";
+        */
         }
-*/
 
 }
 
