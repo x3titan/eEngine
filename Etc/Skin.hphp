@@ -16,6 +16,7 @@ class Skin {
 namespace Etc\Skin;
 
 use TamClass1\Rectangle;
+use TamPub1\ConfigFileXml;
 use TamPub1\FileOperation;
 
 
@@ -106,62 +107,54 @@ class Item {
     public function loadXml(string $xmlFilename): bool {
         $this->filepath = FileOperation::extractFilePath($xmlFilename);
         $this->name = FileOperation::getFileNameWithoutExtension($xmlFilename);
-        $doc = new XmlDocument();
-        try {
-            doc . Load(xmlFilename);
-        } catch
-        (Exception) {
-            return false;
-        }
+        if (!FileOperation::exists($xmlFilename)) return false;
+        $doc = simplexml_load_file($xmlFilename);
         //读取控件
         //XmlNode node;
-        $node = doc . SelectSingleNode("/skin/clipMode");
-        if (node == null) {
-            clipMode = "9x";
+        $node = $doc->xpath("/skin/clipMode");
+        if (!$node) {
+            $this->clipMode = "9x";
         } else {
-            clipMode = TamPub1 . ConfigFileXml . readString(node, "9x");
+            $node = $node[0];
+            $this->clipMode = ConfigFileXml::readStringFromNode($node, "9x");
         }
-        node = doc . SelectSingleNode("/skin/imageType");
-        if (node == null) return false;
-        imageType = TamPub1 . ConfigFileXml . readString(node, "");
-        node = doc . SelectSingleNode("/skin/displayName");
-        if (node == null) return false;
-        displayName = TamPub1 . ConfigFileXml . readString(node, "");
+        $node = $doc->xpath("/skin/imageType");
+        if (!$node) return false;
+        $this->imageType = ConfigFileXml::readStringFromNode($node[0], "");
+        $node = $doc->xpath("/skin/displayName");
+        if (!$node) return false;
+        $this->displayName = ConfigFileXml::readStringFromNode($node[0], "");
         //resizable area
-        node = doc . SelectSingleNode("/skin/resizableArea/left");
-        if (node == null) return false;
-        resizableArea . X = TamPub1 . ConfigFileXml . readInt32(node, 0);
-        node = doc . SelectSingleNode("/skin/resizableArea/top");
-        if (node == null) return false;
-        resizableArea . Y = TamPub1 . ConfigFileXml . readInt32(node, 0);
-        node = doc . SelectSingleNode("/skin/resizableArea/width");
-        if (node == null) return false;
-        resizableArea . Width = TamPub1 . ConfigFileXml . readInt32(node, 0);
-        node = doc . SelectSingleNode("/skin/resizableArea/height");
-        if (node == null) return false;
-        resizableArea . Height = TamPub1 . ConfigFileXml . readInt32(node, 0);
+        $node = $doc->xpath("/skin/resizableArea/left");
+        if (!$node) return false;
+        $this->resizableArea->X = ConfigFileXml::readIntFromNode($node[0], 0);
+        $node = $doc->xpath("/skin/resizableArea/top");
+        if (!$node) return false;
+        $this->resizableArea->Y = ConfigFileXml::readIntFromNode($node[0], 0);
+        $node = $doc->xpath("/skin/resizableArea/width");
+        if (!$node) return false;
+        $this->resizableArea->Width = ConfigFileXml::readIntFromNode($node[0], 0);
+        $node = $doc->xpath("/skin/resizableArea/height");
+        if (!$node) return false;
+        $this->resizableArea->Height = ConfigFileXml::readIntFromNode($node[0], 0);
         //client area
-        node = doc . SelectSingleNode("/skin/clientArea/left");
-        if (node == null) return false;
-        clientArea . X = TamPub1 . ConfigFileXml . readInt32(node, 0);
-        node = doc . SelectSingleNode("/skin/clientArea/top");
-        if (node == null) return false;
-        clientArea . Y = TamPub1 . ConfigFileXml . readInt32(node, 0);
-        node = doc . SelectSingleNode("/skin/clientArea/width");
-        if (node == null) return false;
-        clientArea . Width = TamPub1 . ConfigFileXml . readInt32(node, 0);
-        node = doc . SelectSingleNode("/skin/clientArea/height");
-        if (node == null) return false;
-        clientArea . Height = TamPub1 . ConfigFileXml . readInt32(node, 0);
-        try {
-            Image i = Image . FromFile(imgPathName);
-                    image = new Bitmap(i);
-                    i . Dispose();
-                } catch {
-            return false;
-        }
+        $node = $doc->xpath("/skin/clientArea/left");
+        if (!$node) return false;
+        $this->clientArea->X = ConfigFileXml::readIntFromNode($node[0], 0);
+        $node = $doc->xpath("/skin/clientArea/top");
+        if (!$node) return false;
+        $this->clientArea->Y = ConfigFileXml::readIntFromNode($node[0], 0);
+        $node = $doc->xpath("/skin/clientArea/width");
+        if (!$node) return false;
+        $this->clientArea->Width = ConfigFileXml::readIntFromNode($node[0], 0);
+        $node = $doc->xpath("/skin/clientArea/height");
+        if (!$node) return false;
+        $this->clientArea->Height = ConfigFileXml::readIntFromNode($node[0], 0);
+        //    Image i = Image->FromFile(imgPathName);
         return true;
     }
+
+    
 
 
 }
