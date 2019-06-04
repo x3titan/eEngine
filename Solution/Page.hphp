@@ -95,20 +95,90 @@ class Page {
         }
         $time = filemtime($filename);
         if ((TamPub1\StringFunc::toUpper($this->filename) === TamPub1\StringFunc::toUpper($filename)) && ($this->fileLastWriteTime == $time)) return "";
-        /*
-        System . Xml . XmlDocument doc = new System . Xml . XmlDocument();
-            try {
-                doc . Load(filename);
-            } catch (Exception) {
-                return "页面文件不存在:" + filename;
-            }
-            loadFromString(doc . InnerXml);
-            fileLastWriteTime = fi . LastWriteTime;
-            this . filename = filename;
-            //Etc.Pub.log.writeCommon("load page: " + filename);
-            return "";
-        */
+        $doc = simplexml_load_file($filename);
+        if (!$doc) {
+            return "页面文件不存在:" . $filename;
         }
+        $this->loadFromString($doc->saveXML());
+        $this->fileLastWriteTime = $time;
+        $this->filename = $filename;
+        //Etc.Pub.log.writeCommon("load page: " + filename);
+        return "";
+    }
+
+    public function loadFromString(string $buff): void {
+        $this->init();
+        $doc = simplexml_load_string($buff);
+        //System.Xml.XmlNode node;
+        $item = null;
+        //读取控件
+        //string pName, pValue;
+        $nodes = $doc->xpath("/page/controls/control");
+        for ($i = 0; $i < count($nodes); $i++) {
+            $node = $nodes[$i];
+            $node = $node->attributes()->pathname;
+            if (!$node) continue;
+            $pathname = $node;
+            $item = $this->createPath($this->controls, $pathname);
+            $node = $nodes[$i];
+            $node = $node->attributes()->type;
+            if (!$node) continue;
+            $item->value->type = $node;
+            if ($item->value->name === "divRoot") {
+                //仅为兼容旧程序设计，脚本全部为新版本后可删除本语句
+                $item->value->type = "DivRoot";
+            }
+            $this->initControlProperty($item->value);
+            for ($j = 0; $j < count($nodes[$i]->children()); $j++) {
+                $node = $nodes[$i]->children()[$j];
+                //if ($node->  NodeType == System . Xml . XmlNodeType . Comment) continue;
+                $pName = $node->getName();
+                $pValue = TamPub1\ConfigFileXml::readStringFromNode($node, $item->value->property->getItem($pName)->defaultValue->asString);
+                $item->value->property->getItem($pName)->value->asString = $pValue;
+            }
+        }
+        //读取TaskSet
+        $this->taskSet->clear();
+        $nodes = $doc->xpath("/page/taskSet/taskSetItem");
+        //ScriptEngine.TaskSet.Item taskSetItem;
+        for ($i = 0; $i < count($nodes); $i++) {
+            $node = $nodes[$i];
+            $node = $node->attributes()->name;
+            if (!$node) continue;
+            $taskSetItem = new \ScriptEngine\TaskSet\Item();
+            $taskSetItem->name = $node;
+            array_push($this->taskSet->items, $taskSetItem);
+            for ($j = 0; $j < count($nodes[$i]->children()); $j++) {
+                $node = $nodes[$i]->children()[$j];
+                //if ($node->NodeType == System . Xml -> XmlNodeType -> Comment) continue;
+                if ($node->getName() === "script1") {
+                    $taskSetItem->script1 = TamPub1\ConfigFileXml::readStringFromNode($node, "");
+                } else if ($node->getName() === "script2") {
+                    $taskSetItem->script2 = TamPub1\ConfigFileXml::readStringFromNode($node, "");
+                } else if ($node->getName() === "script3") {
+                    $taskSetItem->script3 = TamPub1\ConfigFileXml::readStringFromNode($node, "");
+                }
+            }
+        }
+        //读取gridLine
+        /* 不必读取了
+        gridLine -> items -> Clear();
+            $nodes = doc -> SelectNodes("/page/gridLines/gridLine");
+            for ($i = 0; $i < $nodes->Count; $i++) {
+                $node = $nodes[$i]->Attributes->GetNamedItem("type");
+                if ($node == null) continue;
+                if ($node->Value->Equals("v")) {
+                    $node = $nodes[$i]->Attributes->GetNamedItem("value");
+                    if ($node == null) continue;
+                    gridLine -> addV(TamPub1->ConfigFileXml->readInt32($node, 10));
+            } else if ($node->Value->Equals("h")) {
+                    $node = $nodes[$i]->Attributes->GetNamedItem("value");
+                    if ($node == null) continue;
+                    gridLine -> addH(TamPub1->ConfigFileXml->readInt32($node, 10));
+            }
+            }
+        */
+    }
 
 }
 
