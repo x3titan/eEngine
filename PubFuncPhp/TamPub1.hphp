@@ -857,6 +857,18 @@ class FileOperation {
         return file_exists($filename);
     }
 
+    public static function pathExists(string $path): bool {
+        return is_dir($path);
+    }
+
+    public static function createDir(string $path): bool {
+        return mkdir($path, 0777, true);
+    }
+
+    public static function deleteFile(string $filename): bool {
+        return unlink($filename);
+    }
+
     /**
      * 从全路径的文件名提取路径名，末尾包含"\"或者"/"
      * @param string $filePathName 一个带路径的文件名
@@ -898,10 +910,21 @@ class FileOperation {
     public static function getFileNameWithoutExtension($filePathName): string {
         $filename = self::extractFileName($filePathName);
         $index = StringFunc::lastIndexOf($filename, '.');
-        if ($index<0) return $filename;
+        if ($index < 0) return $filename;
         return StringFunc::copy($filename, 0, $index);
     }
 
+    public static function getFolderName(string $path): string {
+        if ($path == "") return "";
+        $path = StringFunc::deleteRearChar($path, '\\');
+        $path = StringFunc::deleteRearChar($path, '/');
+        $pos = StringFunc::lastIndexOf($path, '/');
+        if ($pos < 0) {
+            $pos = StringFunc::lastIndexOf($path, '\\');
+            if ($pos < 0) return $path;
+        }
+        return StringFunc::copy($path, $pos + 1, 999999);
+    }
 }
 
 
