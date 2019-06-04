@@ -1,0 +1,14 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Jesse Tam
+ * Date: 2019/6/4 0004
+ * Time: 下午 11:25
+ */
+
+namespace ScriptEngine;
+
+
+class SqlResultSet {
+
+}
