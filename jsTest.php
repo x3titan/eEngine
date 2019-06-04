@@ -80,11 +80,15 @@ class Item {
     }
 }
 
-$a = "0011231a";
-print(is_numeric($a)?"true":"false");
-//print("=====" . $a->$field);
+print("\r\n=a)=====================\r\n");
+$filename = "/home/tam/epage/test.xml";
+$xml = simplexml_load_file($filename);
+print($xml->saveXML());
 
-print("\r\n======================\r\n");
+
+
+
+print("\r\n=b)=====================\r\n");
 $d = time();
 print(Date("Y-m-d H:i:s", $d));
 ?>
