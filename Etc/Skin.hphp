@@ -1,0 +1,167 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Jesse Tam
+ * Date: 2019/6/5 0005
+ * Time: 上午 12:05
+ */
+
+namespace Etc;
+
+
+class Skin {
+
+}
+
+namespace Etc\Skin;
+
+use TamClass1\Rectangle;
+
+
+/**
+ * Class Item
+ * @package Etc\Skin
+ * @property string imgPathName
+ */
+class Item {
+    public $projectName = "";  //生成新的皮肤前缀会按照这个作为参考
+    public static $CREATOR_SYSTEM = "system"; //系统自带
+    public static $CREATOR_CUSTOM = "custom"; //用户生成
+    /// <summary>磁盘存储的路径</summary>
+    public $filepath = "";
+    /// <summary>文件名字和图片名字(必须是一样的)</summary>
+    public $name = "";
+    /// <summary>皮肤切割模式，9x:九宫格切割；LR3x:左右3切割</summary>
+    public $clipMode = "9x";
+    /// <summary>图片文件的类型（扩展名），如：bmp,jpg</summary>
+    public $imageType = "";
+    /// <summary>创建者 ，CREATOR_SYSTEM/CUSTOM</summary>
+    public $creator = 0;
+    /// <summary>命名后的名字，暂时不用</summary>
+    public $displayName = "";
+    /**
+     * @var \TamClass1\Rectangle 可变区域位置
+     */
+    public $resizableArea;
+    /**
+     * @var \TamClass1\Rectangle 用户（显示）区域位置
+     */
+    public $clientArea;
+    /// <summary>图片缓存</summary>
+    public $image = null; //Bitmap???
+
+    public function __construct() {
+        $this->creator = self::$CREATOR_SYSTEM;
+        $this->resizableArea = new \TamClass1\Rectangle();
+        $this->clientArea = new \TamClass1\Rectangle();
+    }
+
+    public function __get($name) {
+        if ($name === "imgPathName") {
+            return $this->filepath . $this->name . "." . $this->imageType;
+        } else if ($name === "xmlFilename") {
+            return $this->filepath . $this->name . ".xml";
+        } else if ($name === "setSkinSourceCode") {
+            return "ee.setSkin(ee.getControl(\"控件名字\"), " .
+                "\"/项目名字/skins/" . $this->name . "." . $this->imageType . "\"" .
+                ",\"" . $this->clipMode . "\"" .
+                "," . $this->image->Width .
+                "," . $this->image->Height .
+                "," . $this->resizableArea->Left .
+                "," . $this->resizableArea->Top .
+                "," . $this->resizableArea->Width .
+                "," . $this->resizableArea->Height .
+                "," . $this->clientArea->Left .
+                "," . $this->clientArea->Top .
+                "," . $this->clientArea->Width .
+                "," . $this->clientArea->Height .
+                ");";
+        } else return "";
+    }
+
+    public function __set($name, $value) {
+    }
+
+    public function assign(Item $value): void {
+        $this->filepath = $value->filepath;
+        $this->name = $value->name;
+        $this->clipMode = $value->clipMode;
+        $this->imageType = $value->imageType;
+        $this->displayName = $value->displayName;
+        $this->resizableArea = new Rectangle($value->resizableArea->X, $value->resizableArea->Y, $value->resizableArea->Width, $value->resizableArea->Height);
+        $this->clientArea = new Rectangle($value->clientArea->X, $value->clientArea->Y, $value->clientArea->Width, $value->clientArea->Height);
+        if ($value->image == null) {
+            $this->image = null;
+        }
+        // else { $this->image = $value->image->Clone() as Bitmap; } //no use and no operation
+    }
+
+    public function clone(): Item {
+        $result = new Item();
+        $result->assign($this);
+        return $result;
+    }
+
+    public function loadXml(string $xmlFilename): bool {
+        $this->filepath = TamPub1 . FileOperation . extractFilePath(xmlFilename);
+        $this->name = Path . GetFileNameWithoutExtension(xmlFilename);
+        $doc = new XmlDocument();
+        try {
+            doc . Load(xmlFilename);
+        } catch
+        (Exception) {
+            return false;
+        }
+        //读取控件
+        //XmlNode node;
+        $node = doc . SelectSingleNode("/skin/clipMode");
+        if (node == null) {
+            clipMode = "9x";
+        } else {
+            clipMode = TamPub1 . ConfigFileXml . readString(node, "9x");
+        }
+        node = doc . SelectSingleNode("/skin/imageType");
+        if (node == null) return false;
+        imageType = TamPub1 . ConfigFileXml . readString(node, "");
+        node = doc . SelectSingleNode("/skin/displayName");
+        if (node == null) return false;
+        displayName = TamPub1 . ConfigFileXml . readString(node, "");
+        //resizable area
+        node = doc . SelectSingleNode("/skin/resizableArea/left");
+        if (node == null) return false;
+        resizableArea . X = TamPub1 . ConfigFileXml . readInt32(node, 0);
+        node = doc . SelectSingleNode("/skin/resizableArea/top");
+        if (node == null) return false;
+        resizableArea . Y = TamPub1 . ConfigFileXml . readInt32(node, 0);
+        node = doc . SelectSingleNode("/skin/resizableArea/width");
+        if (node == null) return false;
+        resizableArea . Width = TamPub1 . ConfigFileXml . readInt32(node, 0);
+        node = doc . SelectSingleNode("/skin/resizableArea/height");
+        if (node == null) return false;
+        resizableArea . Height = TamPub1 . ConfigFileXml . readInt32(node, 0);
+        //client area
+        node = doc . SelectSingleNode("/skin/clientArea/left");
+        if (node == null) return false;
+        clientArea . X = TamPub1 . ConfigFileXml . readInt32(node, 0);
+        node = doc . SelectSingleNode("/skin/clientArea/top");
+        if (node == null) return false;
+        clientArea . Y = TamPub1 . ConfigFileXml . readInt32(node, 0);
+        node = doc . SelectSingleNode("/skin/clientArea/width");
+        if (node == null) return false;
+        clientArea . Width = TamPub1 . ConfigFileXml . readInt32(node, 0);
+        node = doc . SelectSingleNode("/skin/clientArea/height");
+        if (node == null) return false;
+        clientArea . Height = TamPub1 . ConfigFileXml . readInt32(node, 0);
+        try {
+            Image i = Image . FromFile(imgPathName);
+                    image = new Bitmap(i);
+                    i . Dispose();
+                } catch {
+            return false;
+        }
+        return true;
+    }
+
+
+
+}
