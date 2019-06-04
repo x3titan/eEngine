@@ -16,6 +16,7 @@ class Skin {
 namespace Etc\Skin;
 
 use TamClass1\Rectangle;
+use TamPub1\FileOperation;
 
 
 /**
@@ -103,8 +104,8 @@ class Item {
     }
 
     public function loadXml(string $xmlFilename): bool {
-        $this->filepath = TamPub1 . FileOperation . extractFilePath(xmlFilename);
-        $this->name = Path . GetFileNameWithoutExtension(xmlFilename);
+        $this->filepath = FileOperation::extractFilePath($xmlFilename);
+        $this->name = FileOperation::getFileNameWithoutExtension($xmlFilename);
         $doc = new XmlDocument();
         try {
             doc . Load(xmlFilename);
@@ -161,7 +162,6 @@ class Item {
         }
         return true;
     }
-
 
 
 }
