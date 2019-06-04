@@ -17,6 +17,8 @@ namespace Solution\Solution;
 
 use ScriptEngine\ScriptEngine;
 use Solution\Page;
+use TamPub1\Etc;
+use TamPub1\StringFunc;
 
 class Item {
     /**
@@ -39,7 +41,7 @@ class Item {
      * @var int 图片文件
      */
     public static $ITEM_TYPE_IMAGE = 50;
-    public $type = self::$ITEM_TYPE_PROJECT;
+    public $type;
     //project本身部分
     /**
      * @var bool 项目是否被正确载入
@@ -55,7 +57,7 @@ class Item {
     /**
      * @var int 项目文件在物理硬盘上，上次被修改的时间
      */
-    public $projectLastModifyTime = time();
+    public $projectLastModifyTime;
     /**
      * @var \ScriptEngine\DBConnection
      */
@@ -74,38 +76,45 @@ class Item {
      * @var Page 页面数据
      */
     public $page = null;
-    //皮肤数据
-    public skin = new Etc.Skin();
+    /**
+     * @var \Etc\Skin 皮肤数据
+     */
+    public $skin;
     //显示部分
     //public System.Windows.Forms.TreeNode displayTreeNode = null;
-public object displayTreeNode = null;
-public override String ToString() {
-String result = "";
-switch (type) {
-case ITEM_TYPE_PROJECT:
-result = projectName + "(" + projectFolderName + ")";
-break;
-case ITEM_TYPE_FOLDER:
-if (folderAlias.Length > 0) {
-result = folderName + "(" + folderAlias + ")";
-}
+    //public object displayTreeNode = null;
 
-else
-result = folderName;
-break;
-case ITEM_TYPE_PROJECTFILE:
-result = filename;
-break;
-case ITEM_TYPE_PAGE:
-result = filename;
-break;
-case ITEM_TYPE_IMAGE:
-result = filename;
-break;
-default:
-result = "非法类型代码：" + type;
-break;
-}
-return result;
-}
+    public function __construct() {
+        $this->type = self::$ITEM_TYPE_PROJECT;
+        $this->projectLastModifyTime = time();
+        $this->skin = new \Etc\Skin();
+    }
+
+    public function ToString(): string {
+        $result = "";
+        switch ($this->type) {
+            case self::$ITEM_TYPE_PROJECT:
+                $result = $this->projectName . "(" . $this->projectFolderName . ")";
+                break;
+            case self::$ITEM_TYPE_FOLDER:
+                if (StringFunc::length($this->folderAlias) > 0) {
+                    $result = $this->folderName . "(" . $this->folderAlias . ")";
+                } else
+                    $result = $this->folderName;
+                break;
+            case self::$ITEM_TYPE_PROJECTFILE:
+                $result = $this->filename;
+                break;
+            case self::$ITEM_TYPE_PAGE:
+                $result = $this->filename;
+                break;
+            case self::$ITEM_TYPE_IMAGE:
+                $result = $this->filename;
+                break;
+            default:
+                $result = "非法类型代码：" . $this->type;
+                break;
+        }
+        return $result;
+    }
 }
