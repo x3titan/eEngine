@@ -65,6 +65,8 @@ class PropertyList {
 
         $fp = count($this->items);
         $rp = 0;
+        $p = 0; //disable warning
+        $r = 0; //disable warning
         while ($fp > $rp) {
             $p = ($fp + $rp) / 2;
             $r = StringFunc::compare($name, $this->items[$p]->name);
@@ -127,6 +129,11 @@ class PropertyList {
  * 多类型变量
  * Class Variant
  * @package TamClass1
+ * @property string $asString
+ * @property int asInt32
+ * @property float asDouble
+ * @property string asObject
+ * @property int asColor
  */
 class Variant {
     private $data = "";
