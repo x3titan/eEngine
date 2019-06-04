@@ -835,6 +835,35 @@ class FileOperation {
     public static function exists(string $filename): bool {
         return file_exists($filename);
     }
+
+    /// <summary>从全路径的文件名提取路径名，末尾包含"\"或者"/"</summary>
+    /// <param name="filePathName">一个带路径的文件名</param>
+public static string extractFilePath(string filePathName) {
+int index = filePathName.LastIndexOf('\\');
+if (index < 0) {
+index = filePathName.LastIndexOf('/');
+if (index < 0) {
+return filePathName;
+}
+}
+return filePathName.Substring(0, index + 1);
+}
+
+/// <summary>从全路径的文件名，提取单纯的文件名</summary>
+/// <param name="filePathName"></param>
+/// <returns></returns>
+public static string extractFileName(string filePathName) {
+    int index = filePathName.LastIndexOf('\\');
+            if (index < 0) {
+                index = filePathName.LastIndexOf('/');
+                if (index < 0) {
+                    return filePathName;
+                }
+            }
+            index += 2;
+            return DelphiString.copy(filePathName, index, filePathName.Length);
+        }
+
 }
 
 
