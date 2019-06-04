@@ -8,7 +8,118 @@
 
 namespace ScriptEngine;
 
+use ScriptEngine\InlineScript\Item;
+use TamPub1\StringFunc;
 
+/**
+ * ...text...<% ...script... %> ...text... 形式的嵌入式脚本
+ * Class InlineScript
+ * @package ScriptEngine
+ */
 class InlineScript {
+    public static function decode(string $inlineScript): array {
+        $result = array();
+        $temp = array();
+        $sp = 0;
+        $type = Item::$TYPE_TEXT;
+        //Item $item;
+        //char $ch;
+        while ($sp < StringFunc::length($inlineScript)) {
+            $ch = StringFunc::copy($inlineScript, $sp, 1);
+            if ($type == Item::$TYPE_TEXT) {
+                if ($ch == '<') {
+                    $sp++;
+                    if ($sp >= StringFunc::length($inlineScript)) {
+                        array_push($temp, $ch);
+                        break;
+                    }
 
+                    $ch = StringFunc::copy($inlineScript, $sp, 1);
+                    if ($ch == '%') {
+                        $item = new Item();
+                        $item->text = implode("", $temp);
+                        $temp = array();
+                        $item->type = $type;
+                        $type = Item::$TYPE_SCRIPT;
+                        array_push($result, $item);
+                        $sp++;
+                        continue;
+                    }
+                    array_push($temp, '<');
+                    continue;
+                }
+            } else {
+                if ($ch == '%') {
+                    $sp++;
+                    if ($sp >= StringFunc::length($inlineScript)) {
+                        array_push($temp, $ch);
+                        break;
+                    }
+                    $ch = $inlineScript[$sp];
+                    if ($ch == '>') {
+                        $item = new Item();
+                        $item->text = implode("", $temp);
+                        $temp = array();
+                        $item->$type = $type;
+                        $type = Item::$TYPE_TEXT;
+                        array_push($result, $item);
+                        $sp++;
+                        continue;
+                    }
+                    array_push($temp, '%');
+                    continue;
+                }
+            }
+            array_push($temp, $ch);
+            $sp++;
+        }
+        $item = new Item();
+        $item->text = implode("", $temp);
+        $item->$type = $type;
+        array_push($result, $item);
+        //删除空项目
+        $sp = 0;
+        while ($sp < count($result)) {
+            if ($result[$sp]->text->Length <= 0) {
+                array_splice($result, $sp, 1);
+            } else {
+                $sp++;
+            }
+        }
+        //合并连续的类型
+        $sp = 0;
+        while ($sp < count($result) - 1) {
+            if ($result[$sp]->$type == $result[$sp + 1]->$type) {
+                $result[$sp + 1]->text = $result[$sp]->text + $result[$sp + 1]->text;
+                array_splice($result, $sp, 1);
+            } else {
+                $sp++;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * 把value中的所有text部分全部拼接起来
+     * @param array $value
+     * @return string
+     */
+    public static function join(array $value): string {
+        $result = array();
+        for ($i = 0; $i < count($value); $i++) {
+            array_push($result, $value[$i]->text);
+        }
+        return implode("", $result);
+    }
+}
+
+
+
+namespace ScriptEngine\InlineScript;
+
+class Item {
+    public $text = "";
+    public $type = 0;
+    public static $TYPE_TEXT = 10;
+    public static $TYPE_SCRIPT = 20;
 }
