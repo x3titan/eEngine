@@ -9,6 +9,97 @@
 namespace ScriptEngine;
 
 
-class SqlResultSet {
+use ScriptEngine\SqlResultSet\SqlResult;
+use TamPub1\StringFunc;
 
+class SqlResultSet {
+    /**
+     * @var array SqlResult[]
+     */
+    public $items = array();
+
+    public function add(string $name, string $sqlConnection, string $sqlString): string {
+        if ($this->getItemByName($name) != null) {
+            return "错误：变量名已经存在";
+        }
+
+        if (StringFunc::length($name) <= 0) {
+            return "错误：变量名为空";
+        }
+        $item = new SqlResult();
+        $item->name = $name;
+        $item->sqlConnection = $sqlConnection;
+        $item->sqlString = $sqlString;
+        array_push($this->items, $item);
+        return "";
+    }
+
+    public function getItemByName(string $name): ? SqlResult {
+        for ($i = 0; $i < count($this->items); $i++) {
+            if ($this->items[$i]->name === $name) {
+                return $this->items[$i];
+            }
+        }
+        return null;
+    }
+
+    public function modifyName(string $oldName, string $newName): string {
+        $sqlResult = $this->getItemByName($oldName);
+        if ($sqlResult == null) {
+            return "错误：变量名(" . $oldName . ")无法找到";
+        }
+        if ($oldName === $newName) {
+            return "";
+        }
+        if ($this->getItemByName($newName) != null) {
+            return "错误：新的变量名字(" . $newName . ")已经被使用了";
+        }
+        $sqlResult->name = $newName;
+        return "";
+    }
+
+    public function modifySqlConnection(string $varName, string $sqlConnection): string {
+        $sqlResult = $this->getItemByName($varName);
+        if ($sqlResult == null) {
+            return "错误：变量名(" . $varName . ")无法找到";
+        }
+        $sqlResult->sqlConnection = $sqlConnection;
+        return "";
+    }
+
+    public function modifySqlString(string $varName, string $sqlString): string {
+        $sqlResult = $this->getItemByName($varName);
+        if ($sqlResult == null) {
+            return "错误：变量名(" . $varName . ")无法找到";
+        }
+        $sqlResult->sqlString = $sqlString;
+        return "";
+    }
+}
+
+namespace ScriptEngine\SqlResultSet;
+
+class SqlResult {
+    /**
+     * @var string 变量名字
+     */
+    public $name = "";
+    /**
+     * @var string 用户原始的sql字串
+     */
+    public $sqlString = "";
+    /**
+     * @var string 解码后的sql字串
+     */
+    public $sqlStringDecode = "";
+    /// <summary>odbc connection</summary>
+    //public System.Data.Odbc.OdbcConnection odbcConnection = null;
+    /// <summary>sql command变量</summary>
+    //public System.Data.Odbc.OdbcCommand odbcCommand = null;
+    /// <summary>sql结果集</summary>
+    //public System.Data.Odbc.OdbcDataReader sqlResult = null;
+    /**
+     * @var string 数据库连接名字
+     */
+    public $sqlConnection = "";
 }
