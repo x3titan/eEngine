@@ -553,7 +553,7 @@ class ConfigFileXml {
      * @param string $path 路径信息，不包含root，如: /field1/field2
      * @return \SimpleXMLElement
      */
-    private static function selectSingleNode(\SimpleXMLElement $xmlDoc, string $path) {
+    private static function selectSingleNode(\SimpleXMLElement $xmlDoc, string $path): ? \SimpleXMLElement {
         $path = StringFunc::addFrontChar($path, '/');
         $nodes = $xmlDoc->xpath($path);
         if (count($nodes) <= 0) return null;
