@@ -180,6 +180,1398 @@ class Page {
         */
     }
 
+    public static function initControlProperty(Control $control): void {
+        $property = new  \TamClass1\PropertyList\PropertyListItem();
+        $doc = simplexml_load_file('');
+        $doc->attributes()->sss = 100;
+        /* @var $property ->defaultValue->asInt32 int */
+
+        //通用参数--尺寸和位置
+        $property->name = "left";
+        $property->displayName = "横坐标";
+        $property->category = "尺寸和位置";
+        $property->value->asInt32 = 100;
+        $property->defaultValue->asInt32 = 100;
+        $property->value->defaultType = "int";
+        $control->property->addProperty($property);
+
+        $property->name = "top";
+        $property->displayName = "纵坐标";
+        $property->category = "尺寸和位置";
+        $property->value->asInt32 = 100;
+        $property->defaultValue->asInt32 = 100;
+        $property->value->defaultType = "int";
+        $control->property->addProperty($property);
+
+        $property->name = "width";
+        $property->displayName = "宽度";
+        $property->category = "尺寸和位置";
+        $property->value->asInt32 = 100;
+        $property->defaultValue->asInt32 = 100;
+        $property->value->defaultType = "int";
+        $control->property->addProperty($property);
+
+        $property->name = "height";
+        $property->displayName = "高度";
+        $property->category = "尺寸和位置";
+        $property->value->asInt32 = 100;
+        $property->defaultValue->asInt32 = 100;
+        $property->value->defaultType = "int";
+        $control->property->addProperty($property);
+
+        $property->name = "leftRatio";
+        $property->displayName = "横坐标相对父控件宽度的比例";
+        $property->category = "尺寸和位置";
+        $property->value->asDouble = 0;
+        $property->defaultValue->asDouble = 0;
+        $property->value->defaultType = "float";
+        $control->property->addProperty($property);
+
+        $property->name = "topRatio";
+        $property->displayName = "纵坐标相对父控件高度的比例";
+        $property->category = "尺寸和位置";
+        $property->value->asDouble = 0;
+        $property->defaultValue->asDouble = 0;
+        $property->value->defaultType = "float";
+        $control->property->addProperty($property);
+
+        $property->name = "widthRatio";
+        $property->displayName = "宽度相对父控件宽度的比例";
+        $property->category = "尺寸和位置";
+        $property->value->asDouble = 0;
+        $property->defaultValue->asDouble = 0;
+        $property->value->defaultType = "float";
+        $control->property->addProperty($property);
+
+        $property->name = "heightRatio";
+        $property->displayName = "高度相对父控件高度的比例";
+        $property->category = "尺寸和位置";
+        $property->value->asDouble = 0;
+        $property->defaultValue->asDouble = 0;
+        $property->value->defaultType = "float";
+        $control->property->addProperty($property);
+
+        $property->name = "sizeRatio";
+        $property->displayName = "高度与宽度的比值";
+        $property->category = "尺寸和位置";
+        $property->value->asDouble = 0;
+        $property->defaultValue->asDouble = 0;
+        $property->value->defaultType = "float";
+        $control->property->addProperty($property);
+
+        $property->name = "dockX";
+        $property->displayName = "水平方向停靠模式";
+        $property->category = "尺寸和位置";
+        $property->value->asString = "disabled";
+        $property->defaultValue->asString = "disabled";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("disabled,ratio,left,right,center,fill", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "dockY";
+        $property->displayName = "垂直方向停靠模式";
+        $property->category = "尺寸和位置";
+        $property->value->asString = "disabled";
+        $property->defaultValue->asString = "disabled";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("disabled,ratio,top,bottom,center,fill", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "lockRatio";
+        $property->displayName = "锁定纵横比模式";
+        $property->category = "尺寸和位置";
+        $property->value->asString = "false";
+        $property->defaultValue->asString = "false";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "outerLeft";
+        $property->displayName = "外部边距（左）";
+        $property->category = "尺寸和位置";
+        $property->value->asInt32 = 0;
+        $property->defaultValue->asInt32 = 0;
+        $property->value->defaultType = "int";
+        $control->property->addProperty($property);
+
+        $property->name = "outerRight";
+        $property->displayName = "外部边距（右）";
+        $property->category = "尺寸和位置";
+        $property->value->asInt32 = 0;
+        $property->defaultValue->asInt32 = 0;
+        $property->value->defaultType = "int";
+        $control->property->addProperty($property);
+
+        $property->name = "outerTop";
+        $property->displayName = "外部边距（上）";
+        $property->category = "尺寸和位置";
+        $property->value->asInt32 = 0;
+        $property->defaultValue->asInt32 = 0;
+        $property->value->defaultType = "int";
+        $control->property->addProperty($property);
+
+        $property->name = "outerBottom";
+        $property->displayName = "外部边距（下）";
+        $property->category = "尺寸和位置";
+        $property->value->asInt32 = 0;
+        $property->defaultValue->asInt32 = 0;
+        $property->value->defaultType = "int";
+        $control->property->addProperty($property);
+
+        $property->name = "bindControl";
+        $property->displayName = "粘滞参考控件。bindLeft,bindRight,bindTop,bindBottom属性参考此控件的位置和大小粘滞本控件。粘滞属性(bind)一般用在同级控件相互保持位置的场景下。";
+        $property->category = "尺寸和位置";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "memo";
+        $control->property->addProperty($property);
+
+        $property->name = "bindLeft";
+        $property->displayName = "左边界粘滞位置";
+        $property->category = "尺寸和位置";
+        $property->value->asString = "disabled";
+        $property->defaultValue->asString = "disabled";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("disabled,left,center,right", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "bindRight";
+        $property->displayName = "右边界粘滞位置";
+        $property->category = "尺寸和位置";
+        $property->value->asString = "disabled";
+        $property->defaultValue->asString = "disabled";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("disabled,left,center,right", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "bindTop";
+        $property->displayName = "上边界粘滞位置";
+        $property->category = "尺寸和位置";
+        $property->value->asString = "disabled";
+        $property->defaultValue->asString = "disabled";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("disabled,top,center,bottom", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "bindBottom";
+        $property->displayName = "下边界粘滞位置";
+        $property->category = "尺寸和位置";
+        $property->value->asString = "disabled";
+        $property->defaultValue->asString = "disabled";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("disabled,top,center,bottom", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "scrollPosX";
+        $property->displayName = "滚动X位置";
+        $property->category = "尺寸和位置";
+        $property->value->asInt32 = 0;
+        $property->defaultValue->asInt32 = 0;
+        $property->value->defaultType = "int";
+        $control->property->addProperty($property);
+
+        $property->name = "minWidth";
+        $property->displayName = "最小宽度，不能工作在ratio模式，0表示无效";
+        $property->category = "尺寸和位置";
+        $property->value->asInt32 = 0;
+        $property->defaultValue->asInt32 = 0;
+        $property->value->defaultType = "int";
+        $control->property->addProperty($property);
+
+        $property->name = "minHeight";
+        $property->displayName = "最小高度，不能工作在ratio模式，0表示无效";
+        $property->category = "尺寸和位置";
+        $property->value->asInt32 = 0;
+        $property->defaultValue->asInt32 = 0;
+        $property->value->defaultType = "int";
+        $control->property->addProperty($property);
+
+        $property->name = "scrollPosY";
+        $property->displayName = "滚动Y位置";
+        $property->category = "尺寸和位置";
+        $property->value->asInt32 = 0;
+        $property->defaultValue->asInt32 = 0;
+        $property->value->defaultType = "int";
+        $control->property->addProperty($property);
+
+        //通用参数--背景
+        $property->name = "backgroundColor";
+        $property->displayName = "背景颜色";
+        $property->category = "背景";
+        $property->value->asString = "808080";
+        $property->defaultValue->asString = "808080";
+        $property->value->defaultType = "color";
+        $control->property->addProperty($property);
+
+        $property->name = "bgColorEnabled";
+        $property->displayName = "是否具有背景颜色";
+        $property->category = "背景";
+        $property->value->asString = "false";
+        $property->defaultValue->asString = "false";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "backgroundImg";
+        $property->displayName = "背景图片名字";
+        $property->category = "背景";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "imageFile";
+        $control->property->addProperty($property);
+
+        $property->name = "backgroundImgMode";
+        $property->displayName = "背景图片模式";
+        $property->category = "背景";
+        $property->value->asString = "trim"; //trim:剪裁填充,fill:留边填充,stretch:拉伸填满，center:无比例缩放居中，normal：无比例缩放左上角放置
+        $property->defaultValue->asString = "trim";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("trim,fill,stretch,center,normal", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "imgTitle";
+        $property->displayName = "背景图片的title属性，当用户鼠标悬停在图片上会以hint的形式显示";
+        $property->category = "背景";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "jsMix";
+        $control->property->addProperty($property);
+
+        $property->name = "imgAlt";
+        $property->displayName = "背景图片的Alt属性，一般用于提示和被搜索引擎收录";
+        $property->category = "背景";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "jsMix";
+        $control->property->addProperty($property);
+
+        $property->name = "backgroundSkin";
+        $property->displayName = "背景皮肤纹理ID";
+        $property->category = "背景";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "skin";
+        $control->property->addProperty($property);
+
+        $property->name = "alpha";
+        $property->displayName = "背景颜色半透明指数(浮点数)：0不透明,1全透明";
+        $property->category = "背景";
+        $property->value->asDouble = 0;
+        $property->defaultValue->asDouble = 0;
+        $property->value->defaultType = "double";
+        $control->property->addProperty($property);
+
+        //通用参数--文字
+        $property->name = "text";
+        $property->displayName = "文字";
+        $property->category = "文字";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "memo";
+        $control->property->addProperty($property);
+
+        $property->name = "fontFamily";
+        $property->displayName = "文字字体";
+        $property->category = "文字";
+        $property->value->asString = "宋体";
+        $property->defaultValue->asString = "宋体";
+        $property->value->defaultType = "enumFree";
+        $property->value->enumData = TamPub1\StringFunc::split("宋体,楷体,黑体,微软雅黑,Helvetica,Arial,Tahoma", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "fontSize";
+        $property->displayName = "文字大小，单位pt";
+        $property->category = "文字";
+        $property->value->asInt32 = 9;
+        $property->defaultValue->asInt32 = 9;
+        $property->value->defaultType = "int";
+        $control->property->addProperty($property);
+
+        $property->name = "fontSizeAuto";
+        $property->displayName = "自适应屏幕大小的文字，单位为浏览器窗口长宽最短值可以容纳的文字数量,0为无效";
+        $property->category = "文字";
+        $property->value->asInt32 = 0;
+        $property->defaultValue->asInt32 = 0;
+        $property->value->defaultType = "int";
+        $control->property->addProperty($property);
+
+        $property->name = "fontColor";
+        $property->displayName = "文字颜色";
+        $property->category = "文字";
+        $property->value->asString = "000000";
+        $property->defaultValue->asString = "000000";
+        $property->value->defaultType = "color";
+        $control->property->addProperty($property);
+
+        $property->name = "fontBold";
+        $property->displayName = "文字粗体";
+        $property->category = "文字";
+        $property->value->asString = "false";
+        $property->defaultValue->asString = "false";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "fontItalic";
+        $property->displayName = "文字斜体";
+        $property->category = "文字";
+        $property->value->asString = "false";
+        $property->defaultValue->asString = "false";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "fontUnderline";
+        $property->displayName = "文字下划线";
+        $property->category = "文字";
+        $property->value->asString = "false";
+        $property->defaultValue->asString = "false";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "hAlign";
+        $property->displayName = "文字水平位置";
+        $property->category = "文字";
+        $property->value->asString = "center";
+        $property->defaultValue->asString = "center";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("left,center,right", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "vAlign";
+        $property->displayName = "文字垂直位置";
+        $property->category = "文字";
+        $property->value->asString = "center";
+        $property->defaultValue->asString = "center";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("top,center,bottom", ',');
+        $control->property->addProperty($property);
+
+        //通用参数--杂项
+        $property->name = "note";
+        $property->displayName = "备注说明";
+        $property->category = "通用";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "memo";
+        $control->property->addProperty($property);
+
+        $property->name = "layerName";
+        $property->displayName = "层级名字";
+        $property->category = "通用";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "string";
+        $control->property->addProperty($property);
+
+        $property->name = "layerVisible";
+        $property->displayName = "layer是否可见，仅在设计阶段使用";
+        $property->category = "通用";
+        $property->value->asString = "true";
+        $property->defaultValue->asString = "true";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "cursor";
+        $property->displayName = "光标形状";
+        $property->category = "通用";
+        $property->value->asString = "auto";
+        $property->defaultValue->asString = "auto";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("auto,default,crosshair,pointer,move,e-resize,ne-resize,nw-resize,n-resize,se-resize,sw-resize,s-resize,w-resize,text,wait,help", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "autoScroll";
+        $property->displayName = "如果子控件溢出显示范围，则可以让用户滚动查看";
+        $property->category = "通用";
+        $property->value->asString = "false";
+        $property->defaultValue->asString = "false";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+        $control->property->addProperty($property);
+
+        //事件
+        $property->name = "onClick";
+        $property->displayName = "点击事件";
+        $property->category = "事件";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "jsMix";
+        $control->property->addProperty($property);
+
+        $property->name = "onMouseEnter";
+        $property->displayName = "鼠标进入";
+        $property->category = "事件";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "jsMix";
+        $control->property->addProperty($property);
+
+        $property->name = "onMouseLeave";
+        $property->displayName = "鼠标移出";
+        $property->category = "事件";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "jsMix";
+        $control->property->addProperty($property);
+
+        $property->name = "onImageLoad";
+        $property->displayName = "图片载入完成,传入参数sender表示控件本身";
+        $property->category = "事件";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "jsMix";
+        $control->property->addProperty($property);
+
+        $property->name = "onMouseDown";
+        $property->displayName = "鼠标压下或者触摸屏按下事件，传入参数：sender:触发事件的控件; event:原始事件; x,y:相对于整个浏览器的压下坐标";
+        $property->category = "事件";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "jsMix";
+        $control->property->addProperty($property);
+
+        $property->name = "onMouseUp";
+        $property->displayName = "鼠标弹起或者触摸屏手指离开事件，传入参数：sender:触发事件的控件; event:原始事件; x,y:相对于整个浏览器的弹起坐标";
+        $property->category = "事件";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "jsMix";
+        $control->property->addProperty($property);
+
+        $property->name = "onMouseMove";
+        $property->displayName = "鼠标移动或者触摸屏手指滑动事件，传入参数：sender:触发事件的控件; event:原始事件; x,y:相对于整个浏览器的手指或者鼠标坐标";
+        $property->category = "事件";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "jsMix";
+        $control->property->addProperty($property);
+
+        //动画1,2
+        $property->name = "aniAlpha";
+        $property->displayName = "alpha动画";
+        $property->category = "动画1";
+        $property->value->asString = "null:无";
+        $property->defaultValue->asString = "null:无";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("null:无,whiteAlpha:白色淡出,appear:渐变出现,disappear:渐变消失", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "ani2Alpha";
+        $property->displayName = "alpha动画";
+        $property->category = "动画2";
+        $property->value->asString = "null:无";
+        $property->defaultValue->asString = "null:无";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("null:无,whiteAlpha:白色淡出,appear:渐变出现,disappear:渐变消失", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "aniPos";
+        $property->displayName = "位置动画";
+        $property->category = "动画1";
+        $property->value->asString = "null:无";
+        $property->defaultValue->asString = "null:无";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split(
+            "null:无,lockCenter:锁定中心点,leftBonus:左侧落入,topBonus:顶部落入,rightBonus:右侧落入,bottomBonus:底部落入" .
+            ",leftFlyIn:左侧飞入,topFlyIn:顶部飞入,rightFlyIn:右侧飞入,bottomFlyIn:底部飞入" .
+            ",jump:原地跳跃,leftFlyOut:左侧飞出,rightFlyOut:右侧飞出,topFlyOut:顶部飞出,bottomFlyOut:底部飞出",
+            ',');
+        $control->property->addProperty($property);
+
+        $property->name = "ani2Pos";
+        $property->displayName = "位置动画";
+        $property->category = "动画2";
+        $property->value->asString = "null:无";
+        $property->defaultValue->asString = "null:无";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split(
+            "null:无,lockCenter:锁定中心点,leftBonus:左侧落入,topBonus:顶部落入,rightBonus:右侧落入,bottomBonus:底部落入" .
+            ",leftFlyIn:左侧飞入,topFlyIn:顶部飞入,rightFlyIn:右侧飞入,bottomFlyIn:底部飞入" .
+            ",jump:原地跳跃,leftFlyOut:左侧飞出,rightFlyOut:右侧飞出,topFlyOut:顶部飞出,bottomFlyOut:底部飞出",
+            ',');
+        $control->property->addProperty($property);
+
+        $property->name = "aniSize";
+        $property->displayName = "大小动画";
+        $property->category = "动画1";
+        $property->value->asString = "null:无";
+        $property->defaultValue->asString = "null:无";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("null:无,tinyZoom:轻微放大,tinyZoomOut:轻微缩小,tinyExpand:轻微由正常变大,tinyExtract:轻微由大变正常,pointAppear:点扩展出现,pointDisappear:收缩消失成点", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "ani2Size";
+        $property->displayName = "大小动画";
+        $property->category = "动画2";
+        $property->value->asString = "null:无";
+        $property->defaultValue->asString = "null:无";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("null:无,tinyZoom:轻微放大,tinyZoomOut:轻微缩小,tinyExpand:轻微由正常变大,tinyExtract:轻微由大变正常,pointAppear:点扩展出现,pointDisappear:收缩消失成点", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "aniAutoStart";
+        $property->displayName = "控件载入后是否自动播放";
+        $property->category = "动画1";
+        $property->value->asString = "false";
+        $property->defaultValue->asString = "false";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "ani2AutoStart";
+        $property->displayName = "控件载入后是否自动播放";
+        $property->category = "动画2";
+        $property->value->asString = "false";
+        $property->defaultValue->asString = "false";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "aniDelay";
+        $property->displayName = "延迟播放的毫秒数";
+        $property->category = "动画1";
+        $property->value->asInt32 = 0;
+        $property->defaultValue->asInt32 = 0;
+        $property->value->defaultType = "int";
+        $control->property->addProperty($property);
+
+        $property->name = "ani2Delay";
+        $property->displayName = "延迟播放的毫秒数";
+        $property->category = "动画2";
+        $property->value->asInt32 = 0;
+        $property->defaultValue->asInt32 = 0;
+        $property->value->defaultType = "int";
+        $control->property->addProperty($property);
+
+        //这个准备去掉，因为动画开始是肯定显示的，启动时机在延迟结束后
+        /*
+    $property.name = "aniAutoShow";
+    $property.displayName = "开始播放后是否自动显示";
+    $property.category = "动画1";
+    $property.value.asString = "true";
+    $property.defaultValue.asString = "true";
+    $property.value.defaultType = "enum";
+    $property.value.enumData = "true,false".Split(',');
+    control.$property.addProperty($property);
+    */
+
+        $property->name = "aniAutoHide";
+        $property->displayName = "播放完成后是否自动隐藏";
+        $property->category = "动画1";
+        $property->value->asString = "false";
+        $property->defaultValue->asString = "false";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+        $control->property->addProperty($property);
+
+        $property->name = "ani2AutoHide";
+        $property->displayName = "播放完成后是否自动隐藏";
+        $property->category = "动画2";
+        $property->value->asString = "true";
+        $property->defaultValue->asString = "true";
+        $property->value->defaultType = "enum";
+        $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+        $control->property->addProperty($property);
+
+        $control->property->addProperty($property);
+        $property->name = "onAniStart";
+        $property->displayName = "动画开始播放事件（不包含延时）,参数（sender）";
+        $property->category = "动画1";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "jsMix";
+        $control->property->addProperty($property);
+
+        $control->property->addProperty($property);
+        $property->name = "onAni2Start";
+        $property->displayName = "动画开始播放事件（不包含延时）,参数（sender）";
+        $property->category = "动画2";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "jsMix";
+        $control->property->addProperty($property);
+
+        $property->name = "onAniEnd";
+        $property->displayName = "动画播放完成事件,参数（sender）";
+        $property->category = "动画1";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "jsMix";
+        $control->property->addProperty($property);
+
+        $property->name = "onAni2End";
+        $property->displayName = "动画播放完成事件,参数（sender）";
+        $property->category = "动画2";
+        $property->value->asString = "";
+        $property->defaultValue->asString = "";
+        $property->value->defaultType = "jsMix";
+        $control->property->addProperty($property);
+
+        //其他类型控件在这里加入专有属性
+        if ($control->type === "DivRoot") {
+            $property->name = "onPageCreate";
+            $property->displayName = "页面开始载入，刚刚进入JS脚本执行位置时";
+            $property->category = "DivRoot";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+
+            $property->name = "onPageLoad";
+            $property->displayName = "页面载入完成，准备开始载入页面控件之前";
+            $property->category = "DivRoot";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+
+            $property->name = "onControlLoad";
+            $property->displayName = "控件全部载入完成";
+            $property->category = "DivRoot";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+
+            $property->name = "pageTitle";
+            $property->displayName = "页面的标题，如果填写string则表示本页面仅返回字符串（onPageLoad内容）";
+            $property->category = "DivRoot";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+
+            $property->name = "pageHead";
+            $property->displayName = "页面<head>标签中需要嵌入的内容";
+            $property->category = "DivRoot";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+
+            $property->name = "createSearchText";
+            $property->displayName = "是否创建搜索文本，搜索文本是在页面内隐藏存在的静态文字内容，方便搜索引擎抓取和收录。搜索文本包含所有控件的背景图片，图片Alt，图片title，文本";
+            $property->category = "DivRoot";
+            $property->value->asString = "false";
+            $property->defaultValue->asString = "false";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+            $control->property->addProperty($property);
+
+            $property->name = "onSlideUp";
+            $property->displayName = "触摸屏上划,默认关闭，需要调用eb.setTouchEnabled(true)才能有效";
+            $property->category = "事件";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+
+            $property->name = "onSlideDown";
+            $property->displayName = "触摸屏下划,默认关闭，需要调用eb.setTouchEnabled(true)才能有效";
+            $property->category = "事件";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+
+            $property->name = "onSlideLeft";
+            $property->displayName = "触摸屏左划,默认关闭，需要调用eb.setTouchEnabled(true)才能有效";
+            $property->category = "事件";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+
+            $property->name = "onSlideRight";
+            $property->displayName = "触摸屏右划,默认关闭，需要调用eb.setTouchEnabled(true)才能有效";
+            $property->category = "事件";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+        }
+        if ($control->type === "Link") {
+            $property->name = "linkInternal";
+            $property->displayName = "内部页面链接";
+            $property->category = "Link";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "memo";
+            $control->property->addProperty($property);
+
+            $property->name = "linkExternal";
+            $property->displayName = "外部页面链接";
+            $property->category = "Link";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "memo";
+            $control->property->addProperty($property);
+
+            $property->name = "params";
+            $property->displayName = "Get参数";
+            $property->category = "Link";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "urlParams";
+            $control->property->addProperty($property);
+        }
+        if ($control->type === "Edit") {
+            $property->name = "inputText";
+            $property->displayName = "输入文字";
+            $property->category = "Edit";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "memo";
+            $control->property->addProperty($property);
+
+            $property->name = "inputPassword";
+            $property->displayName = "是否是输入密码的形式";
+            $property->category = "Edit";
+            $property->value->asString = "false";
+            $property->defaultValue->asString = "false";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+            $control->property->addProperty($property);
+
+            $property->name = "multiLine";
+            $property->displayName = "是否是多行输入形式";
+            $property->category = "Edit";
+            $property->value->asString = "false";
+            $property->defaultValue->asString = "false";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+            $control->property->addProperty($property);
+
+            $property->name = "inputFont";
+            $property->displayName = "输入文字字体";
+            $property->category = "Edit";
+            $property->value->asString = "宋体";
+            $property->defaultValue->asString = "宋体";
+            $property->value->defaultType = "enumFree";
+            $property->value->enumData = TamPub1\StringFunc::split("宋体,楷体,黑体,Arial,Tahoma", ',');
+            $control->property->addProperty($property);
+
+            $property->name = "inputFontSize";
+            $property->displayName = "输入文字大小";
+            $property->category = "Edit";
+            $property->value->asInt32 = 9;
+            $property->defaultValue->asInt32 = 9;
+            $property->value->defaultType = "int";
+            $control->property->addProperty($property);
+
+            $property->name = "inputFontSizeAuto";
+            $property->displayName = "自适应屏幕大小的输入框文字，单位为浏览器窗口长宽最短值可以容纳的文字数量,0为无效";
+            $property->category = "Edit";
+            $property->value->asInt32 = 0;
+            $property->defaultValue->asInt32 = 0;
+            $property->value->defaultType = "int";
+            $control->property->addProperty($property);
+
+            $property->name = "inputFontColor";
+            $property->displayName = "输入文字颜色";
+            $property->category = "Edit";
+            $property->value->asString = "000000";
+            $property->defaultValue->asString = "000000";
+            $property->value->defaultType = "color";
+            $control->property->addProperty($property);
+
+            $property->name = "inputFontBold";
+            $property->displayName = "文字粗体";
+            $property->category = "Edit";
+            $property->value->asString = "false";
+            $property->defaultValue->asString = "false";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+            $control->property->addProperty($property);
+
+            $property->name = "inputHint";
+            $property->displayName = "输入框是否带有提示内容。如果为true表示：用户未输入内容时输入框显示text属性中的内容，字体以“文字”组属性组为准。";
+            $property->category = "Edit";
+            $property->value->asString = "true";
+            $property->defaultValue->asString = "true";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+            $control->property->addProperty($property);
+
+            $property->name = "onFocus";
+            $property->displayName = "输入框获得输入焦点,传入参数sender：发生事件的控件";
+            $property->category = "Edit";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+
+            $property->name = "onFocusLost";
+            $property->displayName = "输入框失去输入焦点,传入参数sender：发生事件的控件";
+            $property->category = "Edit";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+
+            $property->name = "onChange";
+            $property->displayName = "输入框内容发生改变时触发,传入参数sender：发生事件的控件";
+            $property->category = "Edit";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+        }
+        if ($control->type === "TableTitle") {
+            $property->name = "columnCount";
+            $property->displayName = "列数量";
+            $property->category = "TableTitle";
+            $property->value->asInt32 = 4;
+            $property->defaultValue->asInt32 = 4;
+            $property->value->defaultType = "int";
+            $control->property->addProperty($property);
+
+            $property->name = "tableBody";
+            $property->displayName = "列表内容";
+            $property->category = "TableTitle";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "memo";
+            $control->property->addProperty($property);
+
+            $property->name = "lockTableBody";
+            $property->displayName = "锁定TableBody使其位于本控件下方并且宽度一致";
+            $property->category = "TableTitle";
+            $property->value->asString = "true";
+            $property->defaultValue->asString = "true";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+            $control->property->addProperty($property);
+        }
+        if ($control->type === "TableTitleItem") {
+            $property->name = "heavy";
+            $property->displayName = "列宽权重";
+            $property->category = "TableTitleItem";
+            $property->value->asDouble = 100;
+            $property->defaultValue->asDouble = 100;
+            $property->value->defaultType = "float";
+            $control->property->addProperty($property);
+
+            $property->name = "heavyEnabled";
+            $property->displayName = "是否采用列宽权重方式";
+            $property->category = "TableTitleItem";
+            $property->value->asString = "true";
+            $property->defaultValue->asString = "true";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+            $control->property->addProperty($property);
+
+            $property->name = "onUpdate";
+            $property->displayName = "更新题头文本内容，传入参数:sender(当前被更新的单元格),text(新的文本内容)";
+            $property->category = "TableTitleItem";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+        }
+        if ($control->type === "TableBody") {
+            $property->name = "rowCount";
+            $property->displayName = "行数量";
+            $property->category = "TableBody";
+            $property->value->asInt32 = 10;
+            $property->defaultValue->asInt32 = 10;
+            $property->value->defaultType = "int";
+            $control->property->addProperty($property);
+
+            $property->name = "tableTitle";
+            $property->displayName = "题头";
+            $property->category = "TableBody";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "memo";
+            $control->property->addProperty($property);
+
+            $property->name = "autoClear";
+            $property->displayName = "页面载入后，是否自动删除表格中的所有数据";
+            $property->category = "TableBody";
+            $property->value->asString = "true";
+            $property->defaultValue->asString = "true";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+            $control->property->addProperty($property);
+
+            $property->name = "dynamicMode";
+            $property->displayName = "是否采用动态模式。动态模式：在动态模式下表格无任何数据，后续载入的数据会全部显示出来，autoScroll属性需要设置为true才可以滚动看到可见区域以外的数据；" .
+                "非动态模式：初始状态下即显示rowCount行数据，后续载入的数据也只显示rowCount行，可见区域外不会有任何数据。";
+            $property->category = "TableBody";
+            $property->value->asString = "false";
+            $property->defaultValue->asString = "false";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+            $control->property->addProperty($property);
+        }
+        if ($control->type === "TableBodyItem") {
+            $property->name = "onUpdate";
+            $property->displayName = "更新单元格文本内容，传入参数:sender(当前被更新的单元格),text(新的文本内容)";
+            $property->category = "TableBodyItem";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+        }
+        if ($control->type === "LayoutX") {
+            $property->name = "fieldCount";
+            $property->displayName = "列数量";
+            $property->category = "LayoutX";
+            $property->value->asInt32 = 3;
+            $property->defaultValue->asInt32 = 3;
+            $property->value->defaultType = "int";
+            $control->property->addProperty($property);
+        }
+        if ($control->type === "LayoutY") {
+            $property->name = "fieldCount";
+            $property->displayName = "行数量";
+            $property->category = "LayoutY";
+            $property->value->asInt32 = 3;
+            $property->defaultValue->asInt32 = 3;
+            $property->value->defaultType = "int";
+            $control->property->addProperty($property);
+        }
+        if ($control->type === "LayoutXItem") {
+            $property->name = "heavy";
+            $property->displayName = "列宽权重";
+            $property->category = "LayoutXItem";
+            $property->value->asDouble = 100;
+            $property->defaultValue->asDouble = 100;
+            $property->value->defaultType = "float";
+            $control->property->addProperty($property);
+
+            $property->name = "heavyEnabled";
+            $property->displayName = "是否采用列宽权重方式，否则则取width的实际大小";
+            $property->category = "LayoutXItem";
+            $property->value->asString = "true";
+            $property->defaultValue->asString = "true";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+            $control->property->addProperty($property);
+        }
+        if ($control->type === "LayoutYItem") {
+            $property->name = "heavy";
+            $property->displayName = "行高权重";
+            $property->category = "LayoutYItem";
+            $property->value->asDouble = 100;
+            $property->defaultValue->asDouble = 100;
+            $property->value->defaultType = "float";
+            $control->property->addProperty($property);
+
+            $property->name = "heavyEnabled";
+            $property->displayName = "是否采用行高权重方式，否则则取height的实际大小";
+            $property->category = "LayoutYItem";
+            $property->value->asString = "true";
+            $property->defaultValue->asString = "true";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+            $control->property->addProperty($property);
+        }
+        if ($control->type === "FileUpload") {
+            $property->name = "autoUpload";
+            $property->displayName = "是否在用户选择完文件后自动上传";
+            $property->category = "FileUpload";
+            $property->value->asString = "true";
+            $property->defaultValue->asString = "true";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+            $control->property->addProperty($property);
+
+            $property->name = "onUploadStartC";
+            $property->displayName = "客户端代码，调用FileUpload.start()后触发，或者autoUpload为true，用户选择完文件后自动触发，可向服务端onUploadStartS()发送eio数据。" .
+                "传入参数：filePath(路径),fileName(文件名),fileExt(文件扩展名)；本函数中任意位置执行return语句则取消本次文件上传。";
+            $property->category = "FileUpload";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+
+            $property->name = "onUploadStartS";
+            $property->displayName = "服务端代码，客户端开始上传文件后触发，可以接收用户端的eio数据。" .
+                "传入参数：fileName(文件名),fileExt(文件扩展名)；传出参数：newFileName(存放的文件路径和文件名)," .
+                "cancelUpload(是否取消本次上传,取消上传后，客户端会触发onUploadError事件),errorString(取消上传的原因)";
+            $property->category = "FileUpload";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+
+            $property->name = "onUploadProgress";
+            $property->displayName = "上传进度：文件上传过程中不断触发。传入参数：filePath(路径),fileName(文件名),fileExt(文件扩展名)," .
+                "sizeCurrent(当前上传字节数),sizeTotal(文件总大小)。";
+            $property->category = "FileUpload";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+
+            $property->name = "onUploadError";
+            $property->displayName = "上传过程中遇到的错误，包括客户端调用FileUpload.stop()、服务器禁止上传和传输过程中断。" .
+                "传入参数：filePath(路径),fileName(文件名),fileExt(文件扩展名)," .
+                "errorCode(错误代码),errorString(错误中文描述)。";
+            $property->category = "FileUpload";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+
+            $property->name = "onUploadCompleteC";
+            $property->displayName = "客户端代码，上传完成事件：上传完成后客户端触发，可以接收来自服务端onUploadCompleteS()事件的eio数据。" .
+                "传入参数：filePath(路径),fileName(文件名),fileExt(文件扩展名)；";
+            $property->category = "FileUpload";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+
+            $property->name = "onUploadCompleteS";
+            $property->displayName = "服务端代码，上传完成事件：上传完成后在服务端触发，可以添加eio数据传送到后续触在前台触发的onUploadCompleteC()事件。" .
+                "传入参数：fileName(用户上传的文件名),fileExt(用户上传文件的扩展名),newFileName(由onUploadStartS()计算出来的服务器端保存的文件名和路径)；";
+            $property->category = "FileUpload";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+        }
+        if ($control->type === "CheckBox") {
+            $property->name = "backgroundColor1";
+            $property->displayName = "背景颜色";
+            $property->category = "CheckBox";
+            $property->value->asString = "808080";
+            $property->defaultValue->asString = "808080";
+            $property->value->defaultType = "color";
+            $control->property->addProperty($property);
+
+            $property->name = "bgColorEnabled1";
+            $property->displayName = "是否具有背景颜色";
+            $property->category = "CheckBox";
+            $property->value->asString = "false";
+            $property->defaultValue->asString = "false";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+            $control->property->addProperty($property);
+
+            $property->name = "backgroundImg1";
+            $property->displayName = "背景图片名字";
+            $property->category = "CheckBox";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "imageFile";
+            $control->property->addProperty($property);
+
+            $property->name = "backgroundImgMode1";
+            $property->displayName = "背景图片模式";
+            $property->category = "CheckBox";
+            $property->value->asString = "trim"; //trim:剪裁填充,fill:留边填充,stretch:拉伸填满，center:无比例缩放居中，normal：无比例缩放左上角放置
+            $property->defaultValue->asString = "trim";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("trim,fill,stretch,center,normal", ',');
+            $control->property->addProperty($property);
+
+            $property->name = "backgroundSkin1";
+            $property->displayName = "背景皮肤纹理ID";
+            $property->category = "CheckBox";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "skin";
+            $control->property->addProperty($property);
+
+            $property->name = "checkValue";
+            $property->displayName = "选择结果0未勾选，1已勾选。程序可以通过checkbox1.checkValue的形式读取其值";
+            $property->category = "CheckBox";
+            $property->value->asString = "0";
+            $property->defaultValue->asString = "0";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("0,1", ',');
+            $control->property->addProperty($property);
+
+            $property->name = "onValueChange";
+            $property->displayName = "checkValue发生变化时触发。传入参数sender:checkbox本身，value:改变后的值";
+            $property->category = "CheckBox";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "jsMix";
+            $control->property->addProperty($property);
+        }
+        if ($control->type === "Button") {
+            $property->name = "backgroundColor1";
+            $property->displayName = "鼠标经过时背景颜色";
+            $property->category = "Button";
+            $property->value->asString = "808080";
+            $property->defaultValue->asString = "808080";
+            $property->value->defaultType = "color";
+            $control->property->addProperty($property);
+
+            $property->name = "backgroundColor2";
+            $property->displayName = "鼠标压下时背景颜色";
+            $property->category = "Button";
+            $property->value->asString = "808080";
+            $property->defaultValue->asString = "808080";
+            $property->value->defaultType = "color";
+            $control->property->addProperty($property);
+
+            $property->name = "bgColorEnabled1";
+            $property->displayName = "鼠标经过时是否具有背景颜色";
+            $property->category = "Button";
+            $property->value->asString = "false";
+            $property->defaultValue->asString = "false";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+            $control->property->addProperty($property);
+
+            $property->name = "bgColorEnabled2";
+            $property->displayName = "鼠标压下时是否具有背景颜色";
+            $property->category = "Button";
+            $property->value->asString = "false";
+            $property->defaultValue->asString = "false";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("true,false", ',');
+            $control->property->addProperty($property);
+
+            $property->name = "backgroundImg1";
+            $property->displayName = "鼠标经过时背景图片名字";
+            $property->category = "Button";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "imageFile";
+            $control->property->addProperty($property);
+
+            $property->name = "backgroundImg2";
+            $property->displayName = "鼠标压下时背景图片名字";
+            $property->category = "Button";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "imageFile";
+            $control->property->addProperty($property);
+
+            $property->name = "backgroundImgMode1";
+            $property->displayName = "鼠标经过时背景图片模式";
+            $property->category = "Button";
+            $property->value->asString = "trim"; //trim:剪裁填充,fill:留边填充,stretch:拉伸填满，center:无比例缩放居中，normal：无比例缩放左上角放置
+            $property->defaultValue->asString = "trim";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("trim,fill,stretch,center,normal", ',');
+            $control->property->addProperty($property);
+
+            $property->name = "backgroundImgMode2";
+            $property->displayName = "鼠标压下时背景图片模式";
+            $property->category = "Button";
+            $property->value->asString = "trim"; //trim:剪裁填充,fill:留边填充,stretch:拉伸填满，center:无比例缩放居中，normal：无比例缩放左上角放置
+            $property->defaultValue->asString = "trim";
+            $property->value->defaultType = "enum";
+            $property->value->enumData = TamPub1\StringFunc::split("trim,fill,stretch,center,normal", ',');
+            $control->property->addProperty($property);
+
+            $property->name = "backgroundSkin1";
+            $property->displayName = "鼠标经过时背景皮肤纹理ID";
+            $property->category = "Button";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "skin";
+            $control->property->addProperty($property);
+
+            $property->name = "backgroundSkin2";
+            $property->displayName = "鼠标压下时背景皮肤纹理ID";
+            $property->category = "Button";
+            $property->value->asString = "";
+            $property->defaultValue->asString = "";
+            $property->value->defaultType = "skin";
+            $control->property->addProperty($property);
+
+            $property->name = "fontColor1";
+            $property->displayName = "鼠标经过时文字颜色";
+            $property->category = "Button";
+            $property->value->asString = "000000";
+            $property->defaultValue->asString = "000000";
+            $property->value->defaultType = "color";
+            $control->property->addProperty($property);
+
+            $property->name = "fontColor2";
+            $property->displayName = "鼠标压下时文字颜色";
+            $property->category = "Button";
+            $property->value->asString = "000000";
+            $property->defaultValue->asString = "000000";
+            $property->value->defaultType = "color";
+            $control->property->addProperty($property);
+
+            $property->name = "downX";
+            $property->displayName = "鼠标压下后整个按钮x位移点数";
+            $property->category = "Button";
+            $property->value->asInt32 = 1;
+            $property->defaultValue->asInt32 = 1;
+            $property->value->defaultType = "int";
+            $control->property->addProperty($property);
+
+            $property->name = "downY";
+            $property->displayName = "鼠标压下后整个按钮y位移点数";
+            $property->category = "Button";
+            $property->value->asInt32 = 2;
+            $property->defaultValue->asInt32 = 2;
+            $property->value->defaultType = "int";
+            $control->property->addProperty($property);
+        }
+    }
+
+    /**
+     * 在control下根据路径创建或者搜索控件
+     * @param TamPub1\Tree $control
+     * @param string $path
+     * @return TamPub1\Tree
+     */
+    public static function createPath(TamPub1\Tree $control, string $path): ? TamPub1\Tree {
+        $path = TamPub1\StringFunc::deleteFrontChar($path, '/');
+        $path = TamPub1\StringFunc::deleteRearChar($path, '/');
+        $node = $control;
+        $s = TamPub1\StringFunc::split($path, '/');
+        for ($i = 0; $i < count($s); $i++) {
+            if (self::getFolder($node, $s[$i]) != null) {
+                $node = self::getFolder($node, $s[$i]);
+                continue;
+            }
+            $node = $node->addValue(new Control());
+            $node->value->name = $s[$i];
+        }
+        return $node;
+    }
+
+    /// <summary>在control下根据控件的路径和名字搜索控件，找不到返回空</summary>
+    public static function getControlByPathName(TamPub1\Tree $control, string $path): ? TamPub1\Tree {
+        $path = TamPub1\StringFunc:: deleteFrontChar($path, '/');
+        $path = TamPub1\StringFunc:: deleteRearChar($path, '/');
+        $node = $control;
+        $s = TamPub1\StringFunc::split($path, '/');
+        for ($i = 0; $i < count($s); $i++) {
+            if (self::getFolder($node, $s[$i]) != null) {
+                $node = self::getFolder($node, $s[$i]);
+                continue;
+            } else return null;
+        }
+        return $node;
+    }
+
+    /**
+     * 按名称搜索control下一级的控件，找不到返回空
+     * @param TamPub1\Tree $control
+     * @param string $controlName
+     * @return null|TamPub1\Tree
+     */
+    private static function getFolder(TamPub1\Tree $control, string $controlName): ? TamPub1\Tree {
+        for ($i = 0; $i < count($control->children); $i++) {
+            if (!($control->children[$i]->value->name === $controlName)) continue;
+            return $control->children[$i];
+        }
+        return null;
+    }
+
+    /**
+     * 返回的路径后面带"/"
+     * @param TamPub1\Tree $control
+     * @return string
+     */
+    public static function getPath(TamPub1\Tree $control): string {
+        if ($control->parent == null) return "";
+        $result = "/";
+        while (($control = $control->parent) != null) {
+            if ($control->parent == null) break;
+            $result = "/" . $control->value->name . $result;
+        }
+        return $result;
+    }
+
+    /// <summary>根据控件的类型，自动产生一个新的全局不重复的控件名字</summary>
+    private $generateControlNameBuff = array(); //bool
+
+    protected function generateControlName(TamPub1\Tree $control, bool $tempName = false): string {
+        //int i;
+        //string $result;
+        //TamPub1->Tree < Control> $item;
+        $bak = $this->controls->current;
+
+        if ($tempName) {
+            //获取tempSn最大值
+            $maxSn = 1;
+            $i = 0;
+            while (true) {
+                if ($i == 0) {
+                    $item = $this->controls->getFirst();
+                } else {
+                    $item = $this->controls->getNext();
+                }
+                $i++;
+                if ($item == null) break;
+                if ($item === $control) continue;
+                if ($item->parent == null) continue;
+                if ($item->value->tempSn > $maxSn) $maxSn = $item->value->tempSn;
+            }
+            //初始化数组
+            while (count($this->generateControlNameBuff) <= $maxSn) array_push($this->generateControlNameBuff, false);
+            for ($i = 0; $i < count($this->generateControlNameBuff); $i++) $this->generateControlNameBuff[$i] = false;
+            //填充数组
+            $i = 0;
+            while (true) {
+                if ($i == 0) {
+                    $item = $this->controls->getFirst();
+                } else {
+                    $item = $this->controls->getNext();
+                }
+                $i++;
+                if ($item == null) break;
+                if ($item === $control) continue;
+                if ($item->parent == null) continue;
+                if ($item->value->tempSn < 0) continue;
+                $this->generateControlNameBuff[$item->value->tempSn] = true;
+            }
+            //查询第一个有效tempSn
+            for ($i = 1; $i < count($this->generateControlNameBuff); $i++) {
+                if (!$this->generateControlNameBuff[$i]) break;
+            }
+            //返回结果
+            $control->value->name = "temp" . $i;
+            $this->controls->current = $bak;
+            return $control->value->name;
+        }
+
+        $i = 0;
+        while (true) {
+            if ($i == 0) { //原有的名字优先
+                if ($control->value->name->Length > 0) {
+                    $result = $control->value->name;
+                } else {
+                    $i++;
+                    continue;
+                }
+            } else {
+                $result = TamPub1\StringFunc::toLower($control->value->type) . $i;
+            }
+            $j = 0;
+            $exists = false;
+            while (true) {
+                if ($j == 0) {
+                    $item = $this->controls->getFirst();
+                } else {
+                    $item = $this->controls->getNext();
+                }
+                $j++;
+                if ($item == null) break;
+                if ($item === $control) continue;
+                if ($item->parent == null) continue;
+                if ($item->value->tempSn >= 0) continue;
+                if ($item->value->name->Equals($result)) {
+                    $exists = true;
+                    break;
+                }
+            }
+            $i++;
+            if (!$exists) break;
+        }
+        $control->value->name = $result;
+        $this->controls->current = $bak;
+        return $result;
+    }
 }
 
 namespace Solution\Page;
