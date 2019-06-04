@@ -1572,6 +1572,32 @@ class Page {
         $this->controls->current = $bak;
         return $result;
     }
+
+    /**
+     * 根据名字获取控件，区分大小写
+     * @param TamPub1\Tree $divRoot
+     * @param string $controlName
+     * @return null|TamPub1\Tree
+     */
+    public static function getControlByName(TamPub1\Tree $divRoot, string $controlName): ? TamPub1\Tree {
+        $bak = $divRoot->current;
+        $item = null;
+        while (true) {
+            if ($item == null) {
+                $item = $divRoot->getFirst();
+            } else {
+                $item = $divRoot->getNext();
+            }
+            if ($item == null) break;
+            if ($item->value == null) continue;
+            if ($item->value->name === $controlName) {
+                $divRoot->current = $bak;
+                return $item;
+            }
+        }
+        $divRoot->current = $bak;
+        return null;
+    }
 }
 
 namespace Solution\Page;
