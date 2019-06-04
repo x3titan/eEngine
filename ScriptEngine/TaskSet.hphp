@@ -19,6 +19,7 @@ class TaskSet {
      */
     public function add(): TaskSet\Item {
         $i = 1;
+        $newName = ""; //disable warning
         while (true) {
             $newName = "taskSet" . $i;
             if (self::getByName($newName) == null) break;
