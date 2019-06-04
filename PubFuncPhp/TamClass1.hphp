@@ -262,3 +262,42 @@ class PropertyListItem {
         return $result;
     }
 }
+
+namespace TamClass1;
+
+/**
+ * 为保证兼容性制作的方框数据类
+ * Class Rectangle
+ * @package TamClass1
+ * @property int Left //left side
+ * @property int Top //top side
+ */
+class Rectangle {
+    public $X = 0;
+    public $Y = 0;
+    public $Width = 0;
+    public $Height = 0;
+
+    public function __construct(int $x = 0, int $y = 0, int $width = 0, int $height = 0) {
+        $this->X = $x;
+        $this->Y = $y;
+        $this->Width = $width;
+        $this->Height = $height;
+    }
+
+    public function __get($name) {
+        if ($name === "Left") {
+            return $this->X;
+        } else if ($name === "Top") {
+            return $this->Y;
+        } else return 0;
+    }
+
+    public function __set($name, $value) {
+        if ($name === "Left") {
+            $this->X = $value;
+        } else if ($name === "Top") {
+            $this->Y = $value;
+        }
+    }
+}
