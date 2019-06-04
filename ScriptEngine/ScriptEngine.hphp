@@ -10,5 +10,44 @@ namespace ScriptEngine;
 
 
 class ScriptEngine {
+    //public Noesis.Javascript.JavascriptContext engine = null;
+    /**
+     * @var \V8Js
+     */
+    public $engine = null;
 
+    public function __construct() {
+        $this->engine = new \V8Js();
+    }
+
+    /// <summary>获取嵌入模式的字串结果</summary>
+    public function getInlineResult(string $value): string {
+        /*
+        List<InlineScript . Item > inlineScript = InlineScript . decode(value);
+object obj;
+for (int i = 0; i < inlineScript . Count; i++) {
+            if (inlineScript[i] . type == InlineScript . Item . TYPE_TEXT) continue;
+            try {
+                obj = engine . Run(inlineScript[i] . text);
+                if (obj == null) {
+                    inlineScript[i] . text = "";
+                } else {
+                    inlineScript[i] . text = obj . ToString();
+                }
+            } catch (Exception e) {
+                inlineScript[i] . text = e . Message;
+            }
+            }
+            return InlineScript . join(inlineScript);
+        */
+    }
+
+}
+
+namespace ScriptEngine\ScriptEngine;
+
+class SystemConsole {
+    public function Print(string $iString): void {
+        print($iString . "\r\n");
+    }
 }
