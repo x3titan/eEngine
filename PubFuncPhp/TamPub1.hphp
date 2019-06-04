@@ -226,6 +226,27 @@ class StringFunc {
     }
 
     /**
+     * 逆向查找$find首次出现的位置
+     * @param string $value 母字串
+     * @param string $find 需要查找的内容
+     * @param int $startPos 开始查找的位置，首字母为0，最后一个字母为-1，默认-1
+     * @param bool $caseSensitive 是否大小写敏感，默认敏感
+     * @return int 出现的位置，没找到返回-1
+     */
+    public static function lastIndexOf(string $value, string $find, int $startPos = -1, bool $caseSensitive = true): int {
+        if ($startPos < 0) $startPos = self::length($value) + $startPos;
+        $findLen = self::length($find);
+        if (!$caseSensitive) {
+            $find = self::toUpper($find);
+            $value = self::toUpper($value);
+        }
+        for ($i = min($startPos, self::length($value) - $findLen); $i >= 0; $i--) {
+            if (copy($value, $i, $findLen) === $find) return $i;
+        }
+        return -1;
+    }
+
+    /**
      * 在字符串末尾加一个字符，如果这个字符已经存在则不加
      * @param string $value
      * @param string $ch
@@ -836,33 +857,50 @@ class FileOperation {
         return file_exists($filename);
     }
 
-    /// <summary>从全路径的文件名提取路径名，末尾包含"\"或者"/"</summary>
-    /// <param name="filePathName">一个带路径的文件名</param>
-public static string extractFilePath(string filePathName) {
-int index = filePathName.LastIndexOf('\\');
-if (index < 0) {
-index = filePathName.LastIndexOf('/');
-if (index < 0) {
-return filePathName;
-}
-}
-return filePathName.Substring(0, index + 1);
-}
-
-/// <summary>从全路径的文件名，提取单纯的文件名</summary>
-/// <param name="filePathName"></param>
-/// <returns></returns>
-public static string extractFileName(string filePathName) {
-    int index = filePathName.LastIndexOf('\\');
-            if (index < 0) {
-                index = filePathName.LastIndexOf('/');
-                if (index < 0) {
-                    return filePathName;
-                }
+    /**
+     * 从全路径的文件名提取路径名，末尾包含"\"或者"/"
+     * @param string $filePathName 一个带路径的文件名
+     * @return string
+     */
+    public static function extractFilePath(string $filePathName): string {
+        $index = StringFunc::lastIndexOf($filePathName, '\\');
+        if ($index < 0) {
+            $index = StringFunc::lastIndexOf($filePathName, '/');
+            if ($index < 0) {
+                return $filePathName;
             }
-            index += 2;
-            return DelphiString.copy(filePathName, index, filePathName.Length);
         }
+        return StringFunc::copy($filePathName, 0, $index + 1);
+    }
+
+    /**
+     * 从全路径的文件名，提取单纯的文件名
+     * @param string $filePathName
+     * @return string
+     */
+    public static function extractFileName(string $filePathName): string {
+        $index = StringFunc::lastIndexOf($filePathName, '\\');
+        if ($index < 0) {
+            $index = StringFunc::lastIndexOf($filePathName, '/');
+            if ($index < 0) {
+                return $filePathName;
+            }
+        }
+        $index++;
+        return StringFunc::copy($filePathName, $index, StringFunc::length($filePathName));
+    }
+
+    /**
+     * 从全路径的文件名中提取不含扩展名和路径的文件名，兼容linux和windows文件系统
+     * @param $filePathName
+     * @return string
+     */
+    public static function getFileNameWithoutExtension($filePathName): string {
+        $filename = self::extractFileName($filePathName);
+        $index = StringFunc::lastIndexOf($filename, '.');
+        if ($index<0) return $filename;
+        return StringFunc::copy($filename, 0, $index);
+    }
 
 }
 
