@@ -9,6 +9,378 @@
 namespace Solution;
 
 
-class PageWeb {
+use TamPub1\DelphiString;
+use TamPub1\StringBuilder;
+use TamPub1\StringFunc;
+use TamPub1\Tree;
 
+class PageWeb extends Page {
+    /**
+     * @var \ScriptEngine\ScriptEngine
+     */
+    public $scriptEngine = null;
+    /**
+     * @var ScriptDatabase
+     */
+    private $scriptDatabase = null;
+    /**
+     * @var ScriptES
+     */
+    private $scriptES = null;
+    /**
+     * @var Solution
+     */
+    public $solution = null;
+
+    /**
+     * @var StringBuilder
+     */
+    public $jsStringSearchText;
+    public $jsStringSearchTextEnabled = false;
+
+    public function __construct() {
+        parent::__construct();
+        $this->jsStringSearchText = new StringBuilder();
+    }
+
+    public function disposeScriptEngine(): void {
+        /*
+        if (scriptDatabase != null) {
+            scriptDatabase . dispose();
+            scriptDatabase = null;
+        }
+        if (scriptES != null) {
+            if (scriptES . wsProxy != null) {
+                scriptES . wsProxy . Dispose();
+                scriptES . wsProxy = null;
+            }
+            scriptES = null;
+        }
+        if (scriptEngine != null) {
+            scriptEngine . engine . SetParameter("session", null);
+            scriptEngine . engine . SetParameter("request", null);
+            scriptEngine . engine . SetParameter("response", null);
+            scriptEngine . engine . SetParameter("es", null);
+            scriptEngine . engine . SetParameter("db", null);
+            scriptEngine . engine . SetParameter("console", null);
+            scriptEngine . dispose();
+            scriptEngine = null;
+        }
+        */
+    }
+
+
+    private function generateJsStringPanel(Tree $control): string {
+        $result = new StringBuilder();
+        //string parentName;
+        //string sTemp, sTemp1, sTemp2;
+        //生成div
+        //c = createPanel($("divRoot"), "control1", "303030", 500, 10, 400, 200);
+        //relative
+        if ($control === $this->divRoot) {
+            $parentName = "divRoot";
+        } else {
+            $parentName = "ee_" . $control->parent->value->name;
+        }
+        $sTemp = "";
+        if ($control->value->property->getItem("bgColorEnabled")->value->asString === "true") {
+            $sTemp = $control->value->property->getItem("backgroundColor")->value->asString;
+        }
+        $result->Append(
+            "c = createPanel(\$g(\"" . $parentName . "\"), \"ee_" . $control->value->name .
+            "\", \"" . $sTemp . "\", " .
+            $control->value->property->getItem("left")->value->asInt32 . ", " .
+            $control->value->property->getItem("top")->value->asInt32 . ", " .
+            $control->value->property->getItem("width")->value->asInt32 . ", " .
+            $control->value->property->getItem("height")->value->asInt32 . ");\n"
+        );
+        //outer: eb.setOuter(c,ol,ot,or,ob);
+        if (($control->value->property->getItem("outerLeft")->value->asInt32 != 0) ||
+            ($control->value->property->getItem("outerTop")->value->asInt32 != 0) ||
+            ($control->value->property->getItem("outerRight")->value->asInt32 != 0) ||
+            ($control->value->property->getItem("outerBottom")->value->asInt32 != 0)) {
+            $result->Append(
+                "eb.setOuter(c," .
+                $control->value->property->getItem("outerLeft")->value->asInt32 . "," .
+                $control->value->property->getItem("outerTop")->value->asInt32 . "," .
+                $control->value->property->getItem("outerRight")->value->asInt32 . "," .
+                $control->value->property->getItem("outerBottom")->value->asInt32 . ");\n"
+            );
+        }
+        //cursor
+        if (!$control->value->property->getItem("cursor")->value->asString === "auto") {
+            .
+            $result->Append("c.style.cursor=\"" . $control->value->property->getItem("cursor")->value->asString . "\";\n");
+        }
+        //alpha
+        if ($control->value->property->getItem("alpha")->value->asDouble != 0) {
+            $result->Append(
+                "eb.setAlpha(c," .
+                max(0, min(100, floor((1 - $control->value->property->getItem("alpha")->value->asDouble) * 100))) .
+                ");\n"
+            );
+        }
+        //最小宽度和最小高度
+        if ($control->value->property->getItem("minWidth")->value->asInt32 > 0) {
+            $result->Append("c.minWidth=" . $control->value->property->getItem("minWidth")->value->asInt32 . ";\n");
+        }
+        if ($control->value->property->getItem("minHeight")->value->asInt32 > 0) {
+            $result->Append("c.minHeight=" . $control->value->property->getItem("minHeight")->value->asInt32 . ";\n");
+        }
+        //生成皮肤
+        $project = $this->solution->getProject($this->projectItem); //TamPub1 . Tree < Solution . Item>
+        if (StringFunc::length($control->value->property->getItem("backgroundSkin")->value->asString) > 0) {
+            //缓存载入皮肤
+            if ($project->value->skin == null) {
+                $project->value->skin = new Etc . Skin();
+            }
+            //Etc . Skin . Item
+            $skinItem = $project->value->skin->loadXml($project->value->projectPath . "skins\\" .
+                $control->value->property->getItem("backgroundSkin")->value->asString . ".xml");
+            //addSkin(c, "/project2/skin1", 82, 54, 9, 9, 63, 35);
+            try {
+                $result->Append(
+                    "addSkin(c, \"/" . $project->value->projectFolderName . "/skins/" .
+                    $control->value->property->getItem("backgroundSkin")->value->asString . "." . $skinItem->imageType . "\"," .
+                    "\"" . $skinItem->clipMode . "\"," .
+                    $skinItem->image->Width . "," .
+                    $skinItem->image->Height . "," .
+                    $skinItem->resizableArea->X . "," .
+                    $skinItem->resizableArea->Y . "," .
+                    $skinItem->resizableArea->Width . "," .
+                    $skinItem->resizableArea->Height . "," .
+                    $skinItem->clientArea->X . "," .
+                    $skinItem->clientArea->Y . "," .
+                    $skinItem->clientArea->Width . "," .
+                    $skinItem->clientArea->Height . ");\n"
+                );
+            } catch (\Exception $e) {
+            }
+        }
+        //生成背景图片
+        //ee.setImage(c,"/project2/新的页面1/20120615102010_0878.jpg","trim","alt","title");
+        if (StringFunc::length($control->value->property->getItem("backgroundImg")->value->asString) > 0) {
+            if (DelphiString::copy($control->value->property->getItem("backgroundImg")->value->asString, 1, 4) === "url:") {
+                $sTemp = $control->value->property->getItem("backgroundImg")->value->asString;
+            } else {
+                $sTemp = "/" . $project->value->projectFolderName .
+                    StringFunc:: addRearChar(Solution::getPath($this->projectItem), '/') .
+                    $control->value->property->getItem("backgroundImg")->value->asString;
+            }
+            $sTemp1 = $this->scriptEngine->getInlineResult(
+                StringFunc::replace(StringFunc::replace(StringFunc::replace(StringFunc::replace(
+                    $control->value->property->getItem("imgAlt")->value->asString,
+                    "\\", "\\\\"), "\"", "\\\""), "\r\n", "\n"), "\n", "\\n")
+            );
+            $sTemp2 = $this->scriptEngine->getInlineResult(
+                StringFunc::replace(StringFunc::replace(StringFunc::replace(StringFunc::replace(
+                    $control->value->property->getItem("imgTitle")->value->asString,
+                    "\\", "\\\\"), "\"", "\\\""), "\r\n", "\n"), "\n", "\\n")
+            );
+            $result->Append(
+                "ee.setImage(c,\"" . $sTemp . "\",\"" .
+                $control->value->property->getItem("backgroundImgMode")->value->asString . "\"" .
+                ",\"" . $sTemp1 . "\"" .
+                ",\"" . $sTemp2 . "\")\n"
+            );
+            if ($this->jsStringSearchTextEnabled) {
+                $this->jsStringSearchText->Append(
+                    "<img src = \"cache" . $sTemp . "\"" .
+                    " alt=\"" . $sTemp1 . "\"" .
+                    " title=\"" . $sTemp2 . "\"" .
+                    " />\n"
+                );
+            }
+        }
+        //生成内部文字
+        //addText(c,"假如我们在一个布局中为了美观对齐，有时我们需容文字都","center","middle","宋体",9,"e0f000","bold");
+        if (StringFunc::length($control->value->property->getItem("text")->value->asString) > 0) {
+            //result += "TDIV_Current.style.whiteSpace = \"pre-wrap\";\n"; //换行
+            $hAlign = "center";
+            if ($control->value->property->getItem("hAlign")->value->asString === "left") {
+                $hAlign = "left";
+            } else if ($control->value->property->getItem("hAlign")->value->asString === "right") {
+                $hAlign = "right";
+            }
+            $vAlign = "middle";
+            if ($control->value->property->getItem("vAlign")->value->asString === "top") {
+                $vAlign = "top";
+            } else if ($control->value->property->getItem("vAlign")->value->asString === "bottom") {
+                $vAlign = "bottom";
+            }
+            $sTemp = $this->scriptEngine->getInlineResult($control->value->property->getItem("text")->value->asString);
+            $result->Append(
+                "addText(c, \"" .
+                StringFunc::replace(StringFunc::replace(StringFunc::replace(
+                    $sTemp, "\"", "\\\""), "\r\n", "\n"), "\n", "<br/>") .
+                "\", \"" . $hAlign . "\", \"" . $vAlign .
+                "\", \"" . $control->value->property->getItem("fontFamily")->value->asString .
+                "\", " . $control->value->property->getItem("fontSize")->value->asString . ", \"" .
+                $control->value->property->getItem("fontColor")->value->asString . "\", \"" .
+                ($control->value->property->getItem("fontBold")->value->asString === "true" ? "bold" : "normal") . "\");\n"
+            );
+            //文字自适应
+            //eb.setFontSizeAuto(c, xx);
+            if ($control->value->property->getItem("fontSizeAuto")->value->asInt32 > 0) {
+                $result->Append("eb.setFontSizeAuto(c, " . $control->value->property->getItem("fontSizeAuto")->value->asInt32 . ");\n");
+            }
+            if ($this->jsStringSearchTextEnabled) {
+                $this->jsStringSearchText->Append(
+                    StringFunc::replace(StringFunc::replace(StringFunc::replace(StringFunc::replace(
+                        $sTemp, "<", "&lt;"), ">", "&gt;"), "\r\n", "\n"), "\n", "<br/>") .
+                    "<br/>"
+                );
+            }
+        }
+        //note
+        if ($control->value->property->getItem("note")->value->asString . Length > 0) {
+            $sTemp = scriptEngine . getInlineResult($control->value->property->getItem("note")->value->asString);
+            $result->Append("c.note=\"" + $sTemp . Replace("\"", "\\\"") . Replace("\r\n", "\n") . Replace("\n", "<br/>") + "\";\n");
+        }
+        //dock
+        if (!$control->value->property->getItem("dockX")->value->asString . Equals("disabled") ||
+            !$control->value->property->getItem("dockY")->value->asString . Equals("disabled")) {
+            $result->Append(
+                "eb.setDock(c,\"" + $control->value->property->getItem("dockX")->value->asString + "\",\"" +
+                $control->value->property->getItem("dockY")->value->asString + "\");\n"
+            );
+        }
+        //bind
+        if ($control->value->property->getItem("bindControl")->value->asString . Length > 0) {
+            $result->Append("eb.setBind(c,\"" + $control->value->property->getItem("bindControl")->value->asString + "\",\"" +
+                $control->value->property->getItem("bindLeft")->value->asString + "\",\"" +
+                $control->value->property->getItem("bindTop")->value->asString + "\",\"" +
+                $control->value->property->getItem("bindRight")->value->asString + "\",\"" +
+                $control->value->property->getItem("bindBottom")->value->asString + "\");\n"
+            );
+        }
+        //ratio
+        if ($control->value->property->getItem("dockX")->value->asString . Equals("ratio")) {
+            $result->Append("c.leftRatio=" + $control->value->property->getItem("leftRatio")->value->asDouble + ";\n");
+            $result->Append("c.widthRatio=" + $control->value->property->getItem("widthRatio")->value->asDouble + ";\n");
+        }
+        if ($control->value->property->getItem("dockY")->value->asString . Equals("ratio")) {
+            $result->Append("c.topRatio=" + $control->value->property->getItem("topRatio")->value->asDouble + ";\n");
+            $result->Append("c.heightRatio=" + $control->value->property->getItem("heightRatio")->value->asDouble + ";\n");
+        }
+        if ($control->value->property->getItem("lockRatio")->value->asString . Equals("true")) {
+            $result->Append("c.sizeRatio=" + $control->value->property->getItem("sizeRatio")->value->asDouble + ";\n");
+            $result->Append("c.lockRatio=true;\n");
+        }
+        //生成动画
+        if ((!getColonStringValue($control->value->property->getItem("ani2Alpha")->value->asString) . Equals("null")) ||
+            (!getColonStringValue($control->value->property->getItem("ani2Pos")->value->asString) . Equals("null")) ||
+            (!getColonStringValue($control->value->property->getItem("ani2Size")->value->asString) . Equals("null"))) {
+            //eb.setAni(c, "whiteAlpha", "leftBonus", null, 1000, true, false);
+            $result->Append("eb.setAni2(c,1,\"" + getColonStringValue($control->value->property->getItem("ani2Alpha")->value->asString) +
+                "\", \"" + getColonStringValue($control->value->property->getItem("ani2Pos")->value->asString) +
+                "\", \"" + getColonStringValue($control->value->property->getItem("ani2Size")->value->asString) +
+                "\", " + $control->value->property->getItem("ani2Delay")->value->asString +
+                ", " + $control->value->property->getItem("ani2AutoHide")->value->asString +
+                ");\n"
+            );
+            if (($control->value->property->getItem("onAni2Start")->value->asString . Length > 0) ||
+                ($control->value->property->getItem("onAni2End")->value->asString . Length > 0)) {
+                $result->Append("eb.setAniEvent(c,1,\nfunction(sender) {\n" +
+                    scriptEngine . getInlineResult($control->value->property->getItem("onAni2Start")->value->asString) + "\n},\n");
+                $result->Append("function(sender) {\n" +
+                    scriptEngine . getInlineResult($control->value->property->getItem("onAni2End")->value->asString) + "\n}\n);\n");
+            }
+        }
+        if ((!getColonStringValue($control->value->property->getItem("aniAlpha")->value->asString) . Equals("null")) ||
+            (!getColonStringValue($control->value->property->getItem("aniPos")->value->asString) . Equals("null")) ||
+            (!getColonStringValue($control->value->property->getItem("aniSize")->value->asString) . Equals("null"))) {
+            //eb.setAni(c, "whiteAlpha", "leftBonus", null, 1000, true, false);
+            $result->Append("eb.setAni2(c,0,\"" + getColonStringValue($control->value->property->getItem("aniAlpha")->value->asString) +
+                "\", \"" + getColonStringValue($control->value->property->getItem("aniPos")->value->asString) +
+                "\", \"" + getColonStringValue($control->value->property->getItem("aniSize")->value->asString) +
+                "\", " + $control->value->property->getItem("aniDelay")->value->asString +
+                ", " + $control->value->property->getItem("aniAutoHide")->value->asString +
+                ");\n"
+            );
+            if (($control->value->property->getItem("onAniStart")->value->asString . Length > 0) ||
+                ($control->value->property->getItem("onAniEnd")->value->asString . Length > 0)) {
+                $result->Append("eb.setAniEvent(c,0,\nfunction(sender) {\n" +
+                    scriptEngine . getInlineResult($control->value->property->getItem("onAniStart")->value->asString) + "\n},\n");
+                $result->Append("function(sender) {\n" +
+                    scriptEngine . getInlineResult($control->value->property->getItem("onAniEnd")->value->asString) + "\n}\n);\n");
+            }
+        }
+        //层级控制
+        if ($control->value->property->getItem("layerName")->value->asString . Length > 0) {
+            $result->Append("c.layerName=\"" + $control->value->property->getItem("layerName")->value->asString + "\";\n");
+            $result->Append("c.style.visibility=\"hidden\";\n");
+        }
+        //产生事件
+        if ($control->value->property->getItem("onClick")->value->asString . Length > 0) {
+            $result->Append("ee.setOnClick(c,function(sender,event) {\n" + scriptEngine . getInlineResult($control->value->property->getItem("onClick")->value->asString) + "\n});\n");
+        }
+        if ($control->value->property->getItem("onMouseEnter")->value->asString . Length > 0) {
+            $result->Append("c.onmouseenter=function() {\n" + scriptEngine . getInlineResult($control->value->property->getItem("onMouseEnter")->value->asString) + "\n}\n");
+        }
+        if ($control->value->property->getItem("onMouseLeave")->value->asString . Length > 0) {
+            $result->Append("c.onmouseleave=function() {\n" + scriptEngine . getInlineResult($control->value->property->getItem("onMouseLeave")->value->asString) + "\n}\n");
+        }
+        if ($control->value->property->getItem("onImageLoad")->value->asString . Length > 0) {
+            $result->Append("c.onImageLoad=function(sender) {\n" + scriptEngine . getInlineResult($control->value->property->getItem("onImageLoad")->value->asString) + "\n}\n");
+        }
+        bool needInitMouse = false;
+            if ($control->value->property->getItem("onMouseDown")->value->asString . Length > 0) {
+                $result->Append("c.eeMouseDown=function(sender,event,x,y) {\n" + scriptEngine . getInlineResult($control->value->property->getItem("onMouseDown")->value->asString) + "\n};\n");
+                needInitMouse = true;
+            }
+            if ($control->value->property->getItem("onMouseUp")->value->asString . Length > 0) {
+                $result->Append("c.eeMouseUp=function(sender,event,x,y) {\n" + scriptEngine . getInlineResult($control->value->property->getItem("onMouseUp")->value->asString) + "\n};\n");
+                needInitMouse = true;
+            }
+            if ($control->value->property->getItem("onMouseMove")->value->asString . Length > 0) {
+                $result->Append("c.eeMouseMove=function(sender,event,x,y) {\n" + scriptEngine . getInlineResult($control->value->property->getItem("onMouseMove")->value->asString) + "\n};\n");
+                needInitMouse = true;
+            }
+            if (needInitMouse) {
+                $result->Append("eb.initMouseEvent(c);\n");
+            }
+            //divRoot的特殊处理
+            if (control == divRoot) {
+                $result->Append("c.style.position=\"relative\";\n");
+                //解决自适应屏幕状态下载入瞬间大小闪烁的现象
+                $sTemp = $control->value->property->getItem("dockX")->value->asString;
+                if ($sTemp . Equals("fill") || $sTemp . Equals("ratio")) {
+                    $result->Append("ee.setRect(c,null,null,1,null);\n");
+                }
+                $sTemp = $control->value->property->getItem("dockY")->value->asString;
+                if ($sTemp . Equals("fill") || $sTemp . Equals("ratio")) {
+                    $result->Append("ee.setRect(c,null,null,null,1);\n");
+                }
+            }
+            return $result->ToString();
+        }
+}
+
+/**
+ * Class ScriptES 服务端功能包,es类
+ * @package Solution
+ */
+class ScriptES {
+    public $encoding = "utf-8";
+}
+
+
+/**
+ * Class ScriptDatabase 后台javascript的数据库接口
+ * @package Solution
+ */
+class ScriptDatabase {
+    /**
+     * @var null|\ScriptEngine\DBConnection
+     */
+    private $dbConnection = null;
+    /**
+     * @var \ScriptEngine\SqlResultSet
+     */
+    private $sqlResultSet;
+
+    public function __construct() {
+        $this->sqlResultSet = new \ScriptEngine\SqlResultSet();
+    }
 }

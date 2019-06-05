@@ -977,8 +977,22 @@ class TamLocker {
         $this->LockTimeout = $lockTimeout;
         $this->waitInterval = $waitInterval;
     }
-
 }
+
+/**
+ * Class StringBuilder 模拟C#的StringBuilder类
+ * @package TamPub1
+ */
+class StringBuilder {
+    public $buff = array();
+    public function Append(string $value): void {
+        array_push($buff, $value);
+    }
+    public function ToString(): string {
+        return implode("", $this->buff);
+    }
+}
+
 
 
 
