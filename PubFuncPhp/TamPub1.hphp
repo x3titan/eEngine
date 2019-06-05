@@ -226,6 +226,17 @@ class StringFunc {
     }
 
     /**
+     * 从0开始的搜索
+     * @param string $value 字串
+     * @param string $find 需要查找的片段
+     * @param int $startPos 起始搜索位置（从0开始）
+     * @return int 大于等于0标识搜索到了，否则返回-1
+     */
+    public static function indexOf(string $value, string $find, int $startPos = 0): int {
+        return self::pos($find, $value, $startPos);
+    }
+
+    /**
      * 逆向查找$find首次出现的位置
      * @param string $value 母字串
      * @param string $find 需要查找的内容
@@ -985,9 +996,11 @@ class TamLocker {
  */
 class StringBuilder {
     public $buff = array();
+
     public function Append(string $value): void {
         array_push($buff, $value);
     }
+
     public function ToString(): string {
         return implode("", $this->buff);
     }
