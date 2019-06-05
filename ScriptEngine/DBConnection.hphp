@@ -8,6 +8,7 @@
 
 namespace ScriptEngine;
 
+use ScriptEngine\DBConnection\Item;
 use TamPub1\StringFunc;
 
 require_once __DIR__ . '/../PubFuncPhp/TamPub1.hphp';
@@ -39,6 +40,10 @@ class DBConnection {
         return "";
     }
 
+    public function addItem(Item $item): void {
+        array_push($this->items, $item);
+    }
+
     public function modifyName(string $oldName, string $newName): string {
         $item = $this->getItemByName($oldName);
         if ($item == null) {
@@ -52,6 +57,10 @@ class DBConnection {
         }
         $item->name = $newName;
         return "";
+    }
+
+    public function clear(): void {
+        $this->items = array();
     }
 }
 
