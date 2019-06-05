@@ -122,7 +122,6 @@ class PageWeb extends Page {
         }
         //cursor
         if (!$control->value->property->getItem("cursor")->value->asString === "auto") {
-            .
             $result->Append("c.style.cursor=\"" . $control->value->property->getItem("cursor")->value->asString . "\";\n");
         }
         //alpha
@@ -315,63 +314,63 @@ class PageWeb extends Page {
                 ", " . $control->value->property->getItem("aniAutoHide")->value->asString .
                 ");\n"
             );
-            if (($control->value->property->getItem("onAniStart")->value->asString . Length > 0) ||
-                ($control->value->property->getItem("onAniEnd")->value->asString . Length > 0)) {
-                $result->Append("eb.setAniEvent(c,0,\nfunction(sender) {\n" +
-                    $this->scriptEngine->getInlineResult($control->value->property->getItem("onAniStart")->value->asString) + "\n},\n");
-                $result->Append("function(sender) {\n" +
-                    $this->scriptEngine->getInlineResult($control->value->property->getItem("onAniEnd")->value->asString) + "\n}\n);\n");
+            if ((StringFunc::length($control->value->property->getItem("onAniStart")->value->asString) > 0) ||
+                (StringFunc::length($control->value->property->getItem("onAniEnd")->value->asString) > 0)) {
+                $result->Append("eb.setAniEvent(c,0,\nfunction(sender) {\n" .
+                    $this->scriptEngine->getInlineResult($control->value->property->getItem("onAniStart")->value->asString) . "\n},\n");
+                $result->Append("function(sender) {\n" .
+                    $this->scriptEngine->getInlineResult($control->value->property->getItem("onAniEnd")->value->asString) . "\n}\n);\n");
             }
         }
         //层级控制
         if ($control->value->property->getItem("layerName")->value->asString . Length > 0) {
-            $result->Append("c.layerName=\"" + $control->value->property->getItem("layerName")->value->asString + "\";\n");
+            $result->Append("c.layerName=\"" . $control->value->property->getItem("layerName")->value->asString . "\";\n");
             $result->Append("c.style.visibility=\"hidden\";\n");
         }
         //产生事件
-        if ($control->value->property->getItem("onClick")->value->asString . Length > 0) {
-            $result->Append("ee.setOnClick(c,function(sender,event) {\n" + scriptEngine . getInlineResult($control->value->property->getItem("onClick")->value->asString) + "\n});\n");
+        if (StringFunc::length($control->value->property->getItem("onClick")->value->asString) > 0) {
+            $result->Append("ee.setOnClick(c,function(sender,event) {\n" . $this->scriptEngine->getInlineResult($control->value->property->getItem("onClick")->value->asString) . "\n});\n");
         }
-        if ($control->value->property->getItem("onMouseEnter")->value->asString . Length > 0) {
-            $result->Append("c.onmouseenter=function() {\n" + scriptEngine . getInlineResult($control->value->property->getItem("onMouseEnter")->value->asString) + "\n}\n");
+        if (StringFunc::length($control->value->property->getItem("onMouseEnter")->value->asString) > 0) {
+            $result->Append("c.onmouseenter=function() {\n" . $this->scriptEngine->getInlineResult($control->value->property->getItem("onMouseEnter")->value->asString) . "\n}\n");
         }
-        if ($control->value->property->getItem("onMouseLeave")->value->asString . Length > 0) {
-            $result->Append("c.onmouseleave=function() {\n" + scriptEngine . getInlineResult($control->value->property->getItem("onMouseLeave")->value->asString) + "\n}\n");
+        if (StringFunc::length($control->value->property->getItem("onMouseLeave")->value->asString) > 0) {
+            $result->Append("c.onmouseleave=function() {\n" . $this->scriptEngine->getInlineResult($control->value->property->getItem("onMouseLeave")->value->asString) . "\n}\n");
         }
-        if ($control->value->property->getItem("onImageLoad")->value->asString . Length > 0) {
-            $result->Append("c.onImageLoad=function(sender) {\n" + scriptEngine . getInlineResult($control->value->property->getItem("onImageLoad")->value->asString) + "\n}\n");
+        if (StringFunc::length($control->value->property->getItem("onImageLoad")->value->asString) > 0) {
+            $result->Append("c.onImageLoad=function(sender) {\n" . $this->scriptEngine->getInlineResult($control->value->property->getItem("onImageLoad")->value->asString) . "\n}\n");
         }
-        bool needInitMouse = false;
-            if ($control->value->property->getItem("onMouseDown")->value->asString . Length > 0) {
-                $result->Append("c.eeMouseDown=function(sender,event,x,y) {\n" + scriptEngine . getInlineResult($control->value->property->getItem("onMouseDown")->value->asString) + "\n};\n");
-                needInitMouse = true;
-            }
-            if ($control->value->property->getItem("onMouseUp")->value->asString . Length > 0) {
-                $result->Append("c.eeMouseUp=function(sender,event,x,y) {\n" + scriptEngine . getInlineResult($control->value->property->getItem("onMouseUp")->value->asString) + "\n};\n");
-                needInitMouse = true;
-            }
-            if ($control->value->property->getItem("onMouseMove")->value->asString . Length > 0) {
-                $result->Append("c.eeMouseMove=function(sender,event,x,y) {\n" + scriptEngine . getInlineResult($control->value->property->getItem("onMouseMove")->value->asString) + "\n};\n");
-                needInitMouse = true;
-            }
-            if (needInitMouse) {
-                $result->Append("eb.initMouseEvent(c);\n");
-            }
-            //divRoot的特殊处理
-            if (control == divRoot) {
-                $result->Append("c.style.position=\"relative\";\n");
-                //解决自适应屏幕状态下载入瞬间大小闪烁的现象
-                $sTemp = $control->value->property->getItem("dockX")->value->asString;
-                if ($sTemp . Equals("fill") || $sTemp . Equals("ratio")) {
-                    $result->Append("ee.setRect(c,null,null,1,null);\n");
-                }
-                $sTemp = $control->value->property->getItem("dockY")->value->asString;
-                if ($sTemp . Equals("fill") || $sTemp . Equals("ratio")) {
-                    $result->Append("ee.setRect(c,null,null,null,1);\n");
-                }
-            }
-            return $result->ToString();
+        $needInitMouse = false;
+        if ($control->value->property->getItem("onMouseDown")->value->asString . Length > 0) {
+            $result->Append("c.eeMouseDown=function(sender,event,x,y) {\n" . $this->scriptEngine->getInlineResult($control->value->property->getItem("onMouseDown")->value->asString) . "\n};\n");
+            $needInitMouse = true;
         }
+        if ($control->value->property->getItem("onMouseUp")->value->asString . Length > 0) {
+            $result->Append("c.eeMouseUp=function(sender,event,x,y) {\n" . $this->scriptEngine->getInlineResult($control->value->property->getItem("onMouseUp")->value->asString) . "\n};\n");
+            $needInitMouse = true;
+        }
+        if ($control->value->property->getItem("onMouseMove")->value->asString . Length > 0) {
+            $result->Append("c.eeMouseMove=function(sender,event,x,y) {\n" . $this->scriptEngine->getInlineResult($control->value->property->getItem("onMouseMove")->value->asString) . "\n};\n");
+            $needInitMouse = true;
+        }
+        if ($needInitMouse) {
+            $result->Append("eb.initMouseEvent(c);\n");
+        }
+        //divRoot的特殊处理
+        if ($control == $this->divRoot) {
+            $result->Append("c.style.position=\"relative\";\n");
+            //解决自适应屏幕状态下载入瞬间大小闪烁的现象
+            $sTemp = $control->value->property->getItem("dockX")->value->asString;
+            if ($sTemp === "fill" || $sTemp === "ratio") {
+                $result->Append("ee.setRect(c,null,null,1,null);\n");
+            }
+            $sTemp = $control->value->property->getItem("dockY")->value->asString;
+            if ($sTemp === "fill" || $sTemp === "ratio") {
+                $result->Append("ee.setRect(c,null,null,null,1);\n");
+            }
+        }
+        return $result->ToString();
+    }
 }
 
 /**
