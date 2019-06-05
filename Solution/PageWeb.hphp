@@ -1,0 +1,14 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Jesse Tam
+ * Date: 2019/6/5 0005
+ * Time: 下午 8:48
+ */
+
+namespace Solution;
+
+
+class PageWeb {
+
+}
