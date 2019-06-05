@@ -927,6 +927,58 @@ class FileOperation {
     }
 }
 
+/// <summary>2019-06-05 用于多线程访问某些公用数据的锁</summary>
+class TamLocker {
+    /**
+     * @var int
+     */
+    private $LockObj;
+    private $Busy = false;
+    /**
+     * @var int 毫秒单位的锁最大等待超时
+     */
+    public $LockTimeout = 10000;
+    public $waitInterval = 5;
+
+    /**
+     * 锁定
+     * @return bool 返回false表示出现了超时解锁的现象
+     */
+    public function Lock(): bool {
+        \Mutex::lock($this->LockObj);
+        $result = true;
+        $StartTick = time();
+        while ($this->Busy) {
+            if ($this->LockTimeout > 0) {
+                if (time() - $StartTick >= $this->LockTimeout) {
+                    Unlock();
+                    $result = false;
+                    break;
+                }
+            }
+            usleep($this->waitInterval * 1000);
+        };
+        $this->Busy = true;
+        \Mutex::unlock($this->LockObj);
+        return $result;
+    }
+
+    public function Unlock(): void {
+        $this->Busy = false;
+    }
+
+    /**
+     * TamLocker constructor.
+     * @param int $lockTimeout 毫秒单位的锁最大等待超时,0表示不需要超时
+     * @param int $waitInterval 等待时查询的时间间隔，单位毫秒，推荐使用5ms即1秒扫描200次
+     */
+    public function __construct(int $lockTimeout = 10000, int $waitInterval = 5) {
+        $this->LockObj = \Mutex::create();
+        $this->LockTimeout = $lockTimeout;
+        $this->waitInterval = $waitInterval;
+    }
+
+}
 
 
 
