@@ -69,6 +69,19 @@ class PageWeb extends Page {
         */
     }
 
+    /**
+     * 获得":"前的值
+     * @param string $value
+     * @return string
+     */
+    private function getColonStringValue(string $value): string {
+        $i = StringFunc::indexOf($value, ':');
+        if ($i < 0) {
+            return $value;
+        } else {
+            return StringFunc::copy($value, 0, $i);
+        }
+    }
 
     private function generateJsStringPanel(Tree $control): string {
         $result = new StringBuilder();
@@ -233,77 +246,81 @@ class PageWeb extends Page {
             }
         }
         //note
-        if ($control->value->property->getItem("note")->value->asString . Length > 0) {
-            $sTemp = scriptEngine . getInlineResult($control->value->property->getItem("note")->value->asString);
-            $result->Append("c.note=\"" + $sTemp . Replace("\"", "\\\"") . Replace("\r\n", "\n") . Replace("\n", "<br/>") + "\";\n");
+        if (StringFunc::length($control->value->property->getItem("note")->value->asString) > 0) {
+            $sTemp = $this->scriptEngine->getInlineResult($control->value->property->getItem("note")->value->asString);
+            $result->Append("c.note=\"" .
+                StringFunc::replace(StringFunc::replace(StringFunc::replace(
+                    $sTemp, "\"", "\\\""), "\r\n", "\n"), "\n", "<br/>") .
+                "\";\n"
+            );
         }
         //dock
-        if (!$control->value->property->getItem("dockX")->value->asString . Equals("disabled") ||
-            !$control->value->property->getItem("dockY")->value->asString . Equals("disabled")) {
+        if (!($control->value->property->getItem("dockX")->value->asString === "disabled") ||
+            !($control->value->property->getItem("dockY")->value->asString === "disabled")) {
             $result->Append(
-                "eb.setDock(c,\"" + $control->value->property->getItem("dockX")->value->asString + "\",\"" +
-                $control->value->property->getItem("dockY")->value->asString + "\");\n"
+                "eb.setDock(c,\"" . $control->value->property->getItem("dockX")->value->asString . "\",\"" .
+                $control->value->property->getItem("dockY")->value->asString . "\");\n"
             );
         }
         //bind
-        if ($control->value->property->getItem("bindControl")->value->asString . Length > 0) {
-            $result->Append("eb.setBind(c,\"" + $control->value->property->getItem("bindControl")->value->asString + "\",\"" +
-                $control->value->property->getItem("bindLeft")->value->asString + "\",\"" +
-                $control->value->property->getItem("bindTop")->value->asString + "\",\"" +
-                $control->value->property->getItem("bindRight")->value->asString + "\",\"" +
-                $control->value->property->getItem("bindBottom")->value->asString + "\");\n"
+        if (StringFunc::length($control->value->property->getItem("bindControl")->value->asString) > 0) {
+            $result->Append("eb.setBind(c,\"" . $control->value->property->getItem("bindControl")->value->asString . "\",\"" .
+                $control->value->property->getItem("bindLeft")->value->asString . "\",\"" .
+                $control->value->property->getItem("bindTop")->value->asString . "\",\"" .
+                $control->value->property->getItem("bindRight")->value->asString . "\",\"" .
+                $control->value->property->getItem("bindBottom")->value->asString . "\");\n"
             );
         }
         //ratio
-        if ($control->value->property->getItem("dockX")->value->asString . Equals("ratio")) {
-            $result->Append("c.leftRatio=" + $control->value->property->getItem("leftRatio")->value->asDouble + ";\n");
-            $result->Append("c.widthRatio=" + $control->value->property->getItem("widthRatio")->value->asDouble + ";\n");
+        if ($control->value->property->getItem("dockX")->value->asString === "ratio") {
+            $result->Append("c.leftRatio=" . $control->value->property->getItem("leftRatio")->value->asDouble . ";\n");
+            $result->Append("c.widthRatio=" . $control->value->property->getItem("widthRatio")->value->asDouble . ";\n");
         }
-        if ($control->value->property->getItem("dockY")->value->asString . Equals("ratio")) {
-            $result->Append("c.topRatio=" + $control->value->property->getItem("topRatio")->value->asDouble + ";\n");
-            $result->Append("c.heightRatio=" + $control->value->property->getItem("heightRatio")->value->asDouble + ";\n");
+        if ($control->value->property->getItem("dockY")->value->asString === "ratio") {
+            $result->Append("c.topRatio=" . $control->value->property->getItem("topRatio")->value->asDouble . ";\n");
+            $result->Append("c.heightRatio=" . $control->value->property->getItem("heightRatio")->value->asDouble . ";\n");
         }
-        if ($control->value->property->getItem("lockRatio")->value->asString . Equals("true")) {
-            $result->Append("c.sizeRatio=" + $control->value->property->getItem("sizeRatio")->value->asDouble + ";\n");
+        if ($control->value->property->getItem("lockRatio")->value->asString === "true") {
+            $result->Append("c.sizeRatio=" . $control->value->property->getItem("sizeRatio")->value->asDouble . ";\n");
             $result->Append("c.lockRatio=true;\n");
         }
         //生成动画
-        if ((!getColonStringValue($control->value->property->getItem("ani2Alpha")->value->asString) . Equals("null")) ||
-            (!getColonStringValue($control->value->property->getItem("ani2Pos")->value->asString) . Equals("null")) ||
-            (!getColonStringValue($control->value->property->getItem("ani2Size")->value->asString) . Equals("null"))) {
+        if ((!($this->getColonStringValue($control->value->property->getItem("ani2Alpha")->value->asString) === "null")) ||
+            (!($this->getColonStringValue($control->value->property->getItem("ani2Pos")->value->asString) === "null")) ||
+            (!($this->getColonStringValue($control->value->property->getItem("ani2Size")->value->asString) === "null"))) {
             //eb.setAni(c, "whiteAlpha", "leftBonus", null, 1000, true, false);
-            $result->Append("eb.setAni2(c,1,\"" + getColonStringValue($control->value->property->getItem("ani2Alpha")->value->asString) +
-                "\", \"" + getColonStringValue($control->value->property->getItem("ani2Pos")->value->asString) +
-                "\", \"" + getColonStringValue($control->value->property->getItem("ani2Size")->value->asString) +
-                "\", " + $control->value->property->getItem("ani2Delay")->value->asString +
-                ", " + $control->value->property->getItem("ani2AutoHide")->value->asString +
+            $result->Append("eb.setAni2(c,1,\"" . $this->getColonStringValue($control->value->property->getItem("ani2Alpha")->value->asString) .
+                "\", \"" . $this->getColonStringValue($control->value->property->getItem("ani2Pos")->value->asString) .
+                "\", \"" . $this->getColonStringValue($control->value->property->getItem("ani2Size")->value->asString) .
+                "\", " . $control->value->property->getItem("ani2Delay")->value->asString .
+                ", " . $control->value->property->getItem("ani2AutoHide")->value->asString .
                 ");\n"
             );
-            if (($control->value->property->getItem("onAni2Start")->value->asString . Length > 0) ||
-                ($control->value->property->getItem("onAni2End")->value->asString . Length > 0)) {
-                $result->Append("eb.setAniEvent(c,1,\nfunction(sender) {\n" +
-                    scriptEngine . getInlineResult($control->value->property->getItem("onAni2Start")->value->asString) + "\n},\n");
-                $result->Append("function(sender) {\n" +
-                    scriptEngine . getInlineResult($control->value->property->getItem("onAni2End")->value->asString) + "\n}\n);\n");
+            if ((StringFunc::length($control->value->property->getItem("onAni2Start")->value->asString) > 0) ||
+                (StringFunc::length($control->value->property->getItem("onAni2End")->value->asString) > 0)) {
+                $result->Append("eb.setAniEvent(c,1,\nfunction(sender) {\n" .
+                    $this->scriptEngine->getInlineResult($control->value->property->getItem("onAni2Start")->value->asString) . "\n},\n");
+                $result->Append("function(sender) {\n" .
+                    $this->scriptEngine->getInlineResult($control->value->property->getItem("onAni2End")->value->asString) . "\n}\n);\n");
             }
         }
-        if ((!getColonStringValue($control->value->property->getItem("aniAlpha")->value->asString) . Equals("null")) ||
-            (!getColonStringValue($control->value->property->getItem("aniPos")->value->asString) . Equals("null")) ||
-            (!getColonStringValue($control->value->property->getItem("aniSize")->value->asString) . Equals("null"))) {
+        if ((!($this->getColonStringValue($control->value->property->getItem("aniAlpha")->value->asString) === "null")) ||
+            (!($this->getColonStringValue($control->value->property->getItem("aniPos")->value->asString) === "null")) ||
+            (!($this->getColonStringValue($control->value->property->getItem("aniSize")->value->asString) === "null"))) {
             //eb.setAni(c, "whiteAlpha", "leftBonus", null, 1000, true, false);
-            $result->Append("eb.setAni2(c,0,\"" + getColonStringValue($control->value->property->getItem("aniAlpha")->value->asString) +
-                "\", \"" + getColonStringValue($control->value->property->getItem("aniPos")->value->asString) +
-                "\", \"" + getColonStringValue($control->value->property->getItem("aniSize")->value->asString) +
-                "\", " + $control->value->property->getItem("aniDelay")->value->asString +
-                ", " + $control->value->property->getItem("aniAutoHide")->value->asString +
+            $result->Append("eb.setAni2(c,0,\"" . $this->getColonStringValue($control->value->property->getItem("aniAlpha")->value->asString) .
+                "\", \"" . $this->getColonStringValue($control->value->property->getItem("aniPos")->value->asString) .
+                "\", \"" . $this->getColonStringValue($control->value->property->getItem("aniSize")->value->asString) .
+                "\", " . $control->value->property->getItem("aniDelay")->value->asString .
+                ", " . $control->value->property->getItem("aniAutoHide")->value->asString .
                 ");\n"
             );
             if (($control->value->property->getItem("onAniStart")->value->asString . Length > 0) ||
                 ($control->value->property->getItem("onAniEnd")->value->asString . Length > 0)) {
                 $result->Append("eb.setAniEvent(c,0,\nfunction(sender) {\n" +
-                    scriptEngine . getInlineResult($control->value->property->getItem("onAniStart")->value->asString) + "\n},\n");
+                    $this->scriptEngine->getInlineResult($control->value->property->getItem("onAniStart")->value->asString) + "\n},\n");
                 $result->Append("function(sender) {\n" +
-                    scriptEngine . getInlineResult($control->value->property->getItem("onAniEnd")->value->asString) + "\n}\n);\n");
+                    $this->scriptEngine->getInlineResult($control->value->property->getItem("onAniEnd")->value->asString) + "\n}\n);\n");
             }
         }
         //层级控制
