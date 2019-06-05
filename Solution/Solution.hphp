@@ -9,8 +9,11 @@
 namespace Solution;
 
 
+use const Grpc\STATUS_INTERNAL;
 use TamPub1\ConfigFileXml;
 use TamPub1\FileOperation;
+use TamPub1\StringFunc;
+use TamPub1\TamLocker;
 
 class Solution {
     /**
@@ -21,10 +24,15 @@ class Solution {
     public $filename = "";
     public $note = "";
     public $path = ""; //解决方案在本地磁盘的绝对路径
-    //public object lockSolution = new object();
+    /**
+     * @var TamLocker 线程锁
+     */
+    public $lockSolution;
+
     //private System.Windows.Forms.TreeView treeView = null; //显示目录结构的控件
     public function __construct() {
         $this->projects = new \TamPub1\Tree();
+        $this->lockSolution = new TamLocker();
     }
 
     public function newProject(): string {
@@ -95,9 +103,9 @@ class Solution {
             //创建页面目录
             $node = $parentNodes->children()[$i];
             if ($node->Name->Equals("page")) {
-                $nodeTemp = $node->Attributes->GetNamedItem("pathname");
-                if ($nodeTemp == null) continue;
-                $pathname = $nodeTemp->Value;
+                $nodeTemp = $node->attributes()->pathname;
+                if (!$nodeTemp) continue;
+                $pathname = $nodeTemp;
                 $item = $this->createPath($project, $pathname);
                 //创建页面信息文件
                 //\TamPub1\Tree frame;
@@ -105,8 +113,8 @@ class Solution {
                 $frame->value->type = Item::$ITEM_TYPE_PAGE;
                 $frame->value->filename = "page.xml";
                 $nodeTemp = $node->Attributes->GetNamedItem("alias");
-                if (nodeTemp != null) {
-                    item->value->folderAlias = nodeTemp->Value;
+                if ($nodeTemp != null) {
+                    item->value->folderAlias = $nodeTemp->Value;
                         }
             } else if ($node->Name->Equals("image")) {
                 $node = $node->Attributes->GetNamedItem("pathname");
@@ -145,304 +153,85 @@ class Solution {
                 return "";
         }
 
-    public function saveProject(\TamPub1\Tree $project): string {
-        if ($project->value->type != Item::$ITEM_TYPE_PROJECT) return "project元素无效";
-        $item = $project->getFirst();
-        $filename = $project->value->projectPath + "project.xml";
-        System->Xml->XmlDocument $doc = new System->Xml->XmlDocument();
-            System->Xml->XmlNode $root, xmlControls, xmlControl, xmlNode;
-            $root = $doc->AppendChild($doc->CreateElement("EBProj"));
-            $root->AppendChild($doc->CreateElement("projectName"))->InnerXml = item->value->projectName;
-            //写入页面信息V2
-            xmlControls = $root->AppendChild($doc->CreateElement("projectItems"));
-            $projectItemCount = 0;
-            $project->getFirst();
-            while ((item = $project->getNext()) != null) {
-                if (item->value->type == Item->ITEM_TYPE_PAGE) {
-                    xmlControl = xmlControls->AppendChild($doc->CreateElement("page"));
-                    TamPub1->ConfigFileXml->appendAttr($doc, xmlControl, "pathname", getPath(item));
-                    TamPub1->ConfigFileXml->appendAttr($doc, xmlControl, "alias", item->parent->value->folderAlias);
-                    projectItemCount++;
-                }
-
-else
-if (item->value->type == Item->ITEM_TYPE_IMAGE) {
-                    xmlControl = xmlControls->AppendChild($doc->CreateElement("image"));
-    TamPub1->ConfigFileXml->appendAttr($doc, xmlControl, "pathname", getPath(item) + '/' + item->value->filename);
-    projectItemCount++;
-}
-}
-TamPub1->ConfigFileXml->appendAttr($doc, xmlControls, "count", projectItemCount->ToString());
-//写入数据库连接
-xmlControls = $root->AppendChild($doc->CreateElement("dbConnections"));
-TamPub1->ConfigFileXml->appendAttr($doc, xmlControls, "count", $project->value->dbConnection->items->Count->ToString());
-for (int $i = 0; $i < $project->value->dbConnection->items->Count;
-$i++) {
-            xmlControl = xmlControls->AppendChild($doc->CreateElement("connection"));
-    TamPub1->ConfigFileXml->appendAttr($doc, xmlControl, "name", $project->value->dbConnection->items[$i]->name);
-    xmlNode = xmlControl->AppendChild($doc->CreateElement("connectionString"));
-    xmlNode->InnerXml = TamPub1->ConfigFileXml->getDDataTextAuto($project->value->dbConnection->items[$i]->connectionString);
-}
-            if (System->IO->File->Exists(filename)) {
-            System->IO->File->Delete(filename);
-            }
-            $doc->Save(filename);
-            FileInfo fi;
-            try {
-                fi = new FileInfo($project->value->projectFilePathName);
-            } catch {
-                return "无法获取项目文件信息";
-            }
-            $project->value->projectLastModifyTime = fi->LastWriteTime;
-            return "";
-        }
-
     /// <summary>判断硬盘的物理文件是否发生变化，如果变化则需要重新载入项目</summary>
     public function needReload(): bool {
-        FileInfo fi;
-            for (int $i = 0; $i < $this->projects->children->Count; $i++) {
-            try {
-                fi = new FileInfo($this->projects->children[$i]->value->projectFilePathName);
-            } catch {
-                return true;
-            }
-            if (fi->LastWriteTime != $this->projects->children[$i]->value->projectLastModifyTime) return true;
-    }
-            return false;
+        for ($i = 0; $i < $this->projects->children->Count; $i++) {
+            if (!FileOperation::exists($this->projects->children[$i]->value->projectFilePathName)) return true;
+            if (filemtime($this->projects->children[$i]->value->projectFilePathName) !=
+                $this->projects->children[$i]->value->projectLastModifyTime) return true;
         }
+        return false;
+    }
     /// <summary>
     /// 获取item所属的project元素
     /// </summary>
     public function getProject(\TamPub1\Tree $item): \TamPub1\Tree {
-        lock(lockSolution){
-                while (true) {
-                    if (item->value->type == Item->ITEM_TYPE_PROJECT) {
-                        return item;
-                    }
-                    item = item->parent;
-                    if (item == null) {
-                        return null;
-                    }
-                }
+        $this->lockSolution->Lock();
+        while (true) {
+            if ($item->value->type == Item::$ITEM_TYPE_PROJECT) {
+                $this->lockSolution->Unlock();
+                return $item;
             }
-        }
-    /// <summary>
-    /// 在item下面创建一个新的page.xml
-    /// </summary>
-    public function newPage(\TamPub1\Tree $item): \TamPub1\Tree {
-        if (item->value->type != Item->ITEM_TYPE_FOLDER) return null; //不是目录无法创建
-    for (int $i = 0; $i < item->children->Count;
-    $i++) {
-            if (item->children[$i]->value->type == Item->ITEM_TYPE_PAGE) {
-                return null; //页面文件已经存在
-            }
-    }
-            item = item->addFirst(new Item());
-            item->value->type = Item->ITEM_TYPE_PAGE;
-            item->value->filename = "page.xml";
-            string $this->path = getDiskPath(item);
-            //创建page.xml
-            string filename = $this->path + "page.xml";
-            if (System->IO->File->Exists(filename)) {
-            System->IO->File->Delete(filename);
-            }
-            System->Xml->XmlDocument $doc = new System->Xml->XmlDocument();
-            System->Xml->XmlNode $root, xmlControls;
-            $root = $doc->AppendChild($doc->CreateElement("page"));
-            xmlControls = $root->AppendChild($doc->CreateElement("controls"));
-            TamPub1->ConfigFileXml->appendAttr($doc, xmlControls, "count", "0");
-            xmlControls = $root->AppendChild($doc->CreateElement("sqlResultSet"));
-            TamPub1->ConfigFileXml->appendAttr($doc, xmlControls, "count", "0");
-            $doc->Save(filename);
-            //保存项目变化
-            saveProject(getProject(item));
-            return item;
-        }
-
-    public function scanFolder(\TamPub1\Tree $rootItem, \TamPub1\Tree $item): string {
-        StringBuilder $result = new StringBuilder();
-            if ((item->value->type != Item->ITEM_TYPE_FOLDER) && (item->value->type != Item->ITEM_TYPE_PROJECT)) return "不是目录无法扫描\n";
-            string $this->path = getDiskPath(item);
-            string rootPath = getDiskPath(rootItem);
-
-            DirectoryInfo dir = new DirectoryInfo($this->path);
-            //不是目录
-            if (dir == null) return "不是目录无法扫描\n";
-            FileSystemInfo[] files = dir->GetFileSystemInfos();
-            for (int $i = 0; $i < files->Length; $i++) {
-            FileInfo file = files[$i] as FileInfo;
-                if (file != null) { //是文件
-                    if (TamPub1->FileOperation->extractFileName(file->FullName)->ToLower()->Equals("thumbs.db")) continue;
-                    if (TamPub1->FileOperation->extractFileName(file->FullName)->ToLower()->Equals("page.xml")) continue;
-                    if (TamPub1->FileOperation->extractFileName(file->FullName)->ToLower()->Equals("project.xml")) continue;
-                    int $j;
-                    for ($j = 0; $j < item->children->Count; $j++) {
-                        if (item->children[$j]->value->type != Item->ITEM_TYPE_IMAGE) continue;
-                        if (item->children[$j]->value->filename->ToLower()->Equals(TamPub1->FileOperation->extractFileName(file->FullName)->ToLower())) break;
-                    }
-                    if ($j < item->children->Count) continue;
-                    \TamPub1\Tree newItem = item->add(new Item());
-                    newItem->value->type = Item->ITEM_TYPE_IMAGE;
-                    newItem->value->filename = TamPub1->FileOperation->extractFileName(TamPub1->FileOperation->extractFileName(file->FullName));
-                    $result->Append("增加资源文件：" + file->FullName->Substring(rootPath->Length, file->FullName->Length - rootPath->Length) +"\n");
-                } else {  //对于子目录
-                    dir = files[$i] as DirectoryInfo;
-                    if (!System->IO->File->Exists(dir->FullName + "\\page.xml")) continue;
-                    //已经存在的则不添加
-                    int $j;
-                    for ($j = 0; $j < item->children->Count; $j++) {
-                        if (item->children[$j]->value->type != Item->ITEM_TYPE_FOLDER) continue;
-                        if (item->children[$j]->value->folderName->ToLower()->Equals(TamPub1->FileOperation->extractFileName(dir->FullName)->ToLower())) break;
-                    }
-                    if ($j < item->children->Count) {
-                        $result->Append(scanFolder(rootItem, item->children[$j]));
-                        continue;
-                    }
-                    \TamPub1\Tree newItem = item->add(new Item());
-                    newItem->value->type = Item->ITEM_TYPE_FOLDER;
-                    newItem->value->folderName = TamPub1->FileOperation->extractFileName(dir->FullName);
-                    newItem = newItem->addFirst(new Item());
-                    newItem->value->type = Item->ITEM_TYPE_PAGE;
-                    newItem->value->filename = "page.xml";
-                    $result->Append("增加页面：" + dir->FullName->Substring(rootPath->Length, dir->FullName->Length - rootPath->Length) +"\n");
-                    $result->Append(scanFolder(rootItem, newItem->parent));
-                }
-            }
-            return $result->ToString();
-        }
-
-    private function generateProjectName(): string {
-        int index = 1;
-            String s;
-            while (true) {
-                s = "project" + index;
-                int $i;
-                for ($i = 0; $i < $this->projects->children->Count; $i++) {
-                    if ($this->projects->children[$i]->value->projectFolderName == s) {
-                        break;
-                    }
-                }
-                if ($i >= $this->projects->children->Count) {
-                    if (System->IO->Directory->Exists($this->path + s)) {
-                        index++;
-                        continue;
-                    }
-                    return s;
-                }
-                index++;
-            }
-        }
-    /// <summary>
-    /// 在item下面创建一个目录，如果item不是目录，则平级创建目录
-    /// </summary>
-    public function newFolder(\TamPub1\Tree $item, string $folderName = ""): \TamPub1\Tree {
-        string $this->path = getDiskPath(item);
-            //找到可以创建目录的位置
-            while (true) {
-                if (item->value->type == Item->ITEM_TYPE_FOLDER) break;
-                if (item->value->type == Item->ITEM_TYPE_PROJECT) break;
-                item = item->parent;
-                if (item == null) return item;
-            }
-            //产生目录名
-            if (folderName->Length <= 0) {
-            folderName = generateFolderName(item);
-        }
-            //磁盘中新建目录
-            if (System->IO->Directory->Exists($this->path + folderName)) return null;
-            try {
-                System->IO->Directory->CreateDirectory($this->path + folderName);
-            } catch {
+            $item = $item->parent;
+            if ($item == null) {
+                $this->lockSolution->Unlock();
                 return null;
             }
-            //solution结构中新建目录
-            item = item->add(new Item());
-            item->value->type = Item->ITEM_TYPE_FOLDER;
-            item->value->folderName = folderName;
-            return item;
         }
-
-    public function deleteFolder(\TamPub1\Tree $item): bool {
-        if (item->value->type != Item->ITEM_TYPE_FOLDER) {
-            return false;
-        }
-    string $this->path = getDiskPath(item);
-            item->parent->children->Remove(item);
-            //TamPub1.FileOperation.deleteFolder($this->path);
-            saveProject(getProject(item->parent));
-            return true;
-        }
-    /// <summary>
-    /// 在item下面产生一个新的目录名字，不能和同济目录名重复
-    /// </summary>
-    private function generateFolderName(\TamPub1\Tree $item): string {
-        int index = 1;
-            String s;
-            while (true) {
-                s = "新的页面" + index;
-                int $i;
-                for ($i = 0; $i < item->children->Count; $i++) {
-                    if (item->children[$i]->value->type != Item->ITEM_TYPE_FOLDER) continue;
-                    if (item->children[$i]->value->folderName->ToUpper() == s->ToUpper()) {
-                        break;
-                    }
-                }
-                if ($i >= item->children->Count) {
-                    return s;
-                }
-                index++;
-            }
-        }
+    }
 
     private function getFolder(\TamPub1\Tree $project, string $folderName): \TamPub1\Tree {
-        for (int $i = 0; $i < $project->children->Count;
-        $i++) {
-            if ($project->children[$i]->value->type != Item->ITEM_TYPE_FOLDER) continue;
-        if ($project->children[$i]->value->folderName->ToUpper() != folderName->ToUpper()) continue;
-        return $project->children[$i];
-    }
-            return null;
+        for ($i = 0; $i < count($project->children); $i++) {
+            if ($project->children[$i]->value->type != Item::$ITEM_TYPE_FOLDER) continue;
+            if (!(StringFunc::toUpper($project->children[$i]->value->folderName) === StringFunc::toUpper($folderName))) continue;
+            return $project->children[$i];
         }
-public \TamPub1\Tree createPath(\TamPub1\Tree project, string $this->path) {
-$this->path = TamPub1->StringFunc->deleteFrontChar($this->path, '/');
-$this->path = TamPub1->StringFunc->deleteRearChar($this->path, '/');
-\TamPub1\Tree $node = project;
-string[] s = $this->path->Split('/');
-for (int $i = 0;
-$i < s->Length;
-$i++) {
-if (getFolder(node, s[$i]) != null) {
-$node = getFolder(node, s[$i]);
-continue;
-}
+        return null;
+    }
 
-$node = $node->add(new Item());
-$node->value->type = Item->ITEM_TYPE_FOLDER;
-        $node->value->folderName = s[$i];
-    }
-            return node;
-        }
-        /// <summary>
-        /// 获取item在磁盘的绝对路径，如果item不是目录，则不计算在内
-        /// </summary>
-        public static function getDiskPath(\TamPub1\Tree $item): string {
-    string $result = "";
-            while (true) {
-                if (item->value->type == Item->ITEM_TYPE_PROJECT) {
-                    return item->value->projectPath + $result;
-                } else if (item->value->type == Item->ITEM_TYPE_FOLDER) {
-                    $result = item->value->folderName + "\\" + $result;
-                }
-                item = item->parent;
-                if (item == null) break;
+    public function createPath(\TamPub1\Tree $project, string $path): \TamPub1\Tree {
+        $this->path = StringFunc::deleteFrontChar($this->path, '/');
+        $this->path = StringFunc::deleteRearChar($this->path, '/');
+        $node = $project;
+        $s = mb_split('/', $this->path);
+        for ($i = 0; $i < count($s); $i++) {
+            if ($this->getFolder($node, $s[$i]) != null) {
+                $node = $this->getFolder($node, $s[$i]);
+                continue;
             }
-            return $result;
+            $node = $node->addValue(new Item());
+            $node->value->type = Item::$ITEM_TYPE_FOLDER;
+            $node->value->folderName = $s[$i];
         }
-        /// <summary>
-        /// 获取item的路径，如果item不是目录，则不计算在内
-        /// </summary>
-        public static function getPath(\TamPub1\Tree $item): string {
-    string $result = "";
+        return $node;
+    }
+
+    /**
+     * 获取item在磁盘的绝对路径，如果item不是目录，则不计算在内
+     * @param \TamPub1\Tree $item
+     * @return string
+     */
+    public static function getDiskPath(\TamPub1\Tree $item): string {
+        $result = "";
+        while (true) {
+            if ($item->value->type == Item::$ITEM_TYPE_PROJECT) {
+                return $item->value->projectPath . $result;
+                } else if ($item->value->type == Item::$ITEM_TYPE_FOLDER) {
+                $result = $item->value->folderName . "\\" . $result;
+                }
+                $item = $item->parent;
+                if ($item == null) break;
+            }
+        return $result;
+    }
+
+    /**
+     * 获取item的路径，如果item不是目录，则不计算在内
+     * @param \TamPub1\Tree $item
+     * @return string
+     */
+    public static function getPath(\TamPub1\Tree $item): string {
+        string $result = "";
             while (true) {
                 if (item->value->type == Item->ITEM_TYPE_PROJECT) {
                     return $result;
@@ -454,16 +243,20 @@ $node->value->type = Item->ITEM_TYPE_FOLDER;
             }
             return $result;
         }
-        public bool projectExists(string projectPath) {
-    lock(lockSolution){
-                for (int $i = 0; $i < $this->projects->children->Count; $i++) {
-        if ($this->projects->children[$i]->value->projectPath->ToUpper() == projectPath->ToUpper()) return true;
-    }
-                return false;
-            }
-        }
-        /// <summary>根据虚拟路径获取projectItem</summary>
-        public function getItem(string $path): \TamPub1\Tree {
+public bool projectExists(string projectPath) {
+lock(lockSolution) {
+for (int $i = 0;
+$i < $this->projects->children->Count;
+$i++) {
+if ($this->projects->children[$i]->value->projectPath->ToUpper() == projectPath->ToUpper()) return true;
+}
+
+return false;
+}
+}
+/// <summary>根据虚拟路径获取projectItem</summary>
+public
+function getItem(string $path): \TamPub1\Tree {
     //public static TamPub1.Tree<Item> getItem(TamPub1.Tree<Item> $this->projects, string $this->path) {
     lock(lockSolution){
     \TamPub1\Tree item = $this->projects;
