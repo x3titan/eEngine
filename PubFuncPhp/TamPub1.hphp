@@ -1353,7 +1353,7 @@ class StringBuilder {
 }
 
 /**
- * Class ConfigurationManager php configuration file access(php.ini)
+ * Class ConfigurationManager An easy way to access php configuration file(php.ini)
  * @package TamPub1
  */
 class ConfigurationManager {
