@@ -51,6 +51,8 @@ $a = "salj以中国的世界df;l世界sa";
 print(mb_ereg_replace("世界", "百度", $a));
 
 
+print("\r\n=a)=====================\r\n");
+
 class A {
     public function getField(): string {
         return "sjsjjssj";
@@ -63,6 +65,10 @@ class A {
 
 class Item {
     private $kkk = "我是kkk";
+
+    public static function __callStatic($name, $arguments) {
+        print("call:" . $name . "(" . count($arguments) . " parameters)");
+    }
 
     public function __get($name) {
         if (isset($this->$name)) {
@@ -80,15 +86,7 @@ class Item {
     }
 }
 
-print("\r\n=a)=====================\r\n");
-class X {
-    public static function get(): ?X {
-        return null;
-    }
-}
-X::get();
-
-
+//Item::$sljflsfj;
 
 print("\r\n=b)=====================\r\n");
 $d = time();
