@@ -864,6 +864,10 @@ class ConfigFileXml {
  * @package TamPub1
  */
 class FileOperation {
+    private $fs = null;
+    public $textCoding = "utf-8"; //System.Text.Encoding.Default.WebName; //2017-11新增默认编码形式，配合writeFixStringEx等
+    public $filename = "";
+
     public static function exists(string $filename): bool {
         return file_exists($filename);
     }
@@ -878,6 +882,48 @@ class FileOperation {
 
     public static function deleteFile(string $filename): bool {
         return unlink($filename);
+    }
+
+    /**
+     * 打开一个文件用来读取
+     * @param string|null $filename 如果为null, 则需要提前指定filename
+     * @return bool
+     */
+    public function openRead(string $filename = null): bool {
+        if ($filename == null) $filename = $this->filename;
+        $this->close();
+        $this->filename = $filename;
+        $fs = fopen($filename, "r");
+        if (!$fs) {
+            $this->fs = null;
+            return false;
+        }
+        $this->fs = $fs;
+        //reader = new System . IO . BinaryReader(fs, System . Text . Encoding . GetEncoding(textCoding));
+        return true;
+    }
+
+    /**
+     * 打开一个文件从末尾添加，如果文件不存在则新建
+     * @param string|null $filename 如果为空，需要提前指定filename
+     * @return bool
+     */
+    public function openAppend(string $filename = null): bool {
+        if ($filename == null) $filename = $this->filename;
+        $this->close();
+        $this->filename = $filename;
+        $fs = fopen($filename, "a");
+        if (!$fs) {
+            $this->fs = null;
+            return false;
+        }
+        $this->fs = $fs;
+        return true;
+    }
+
+    public function close(): void {
+        if ($this->fs != null) fclose($this->fs);
+        $this->fs = null;
     }
 
     /**
@@ -999,7 +1045,7 @@ class TamLocker {
         while ($this->Busy) {
             if ($this->LockTimeout > 0) {
                 if (time() - $StartTick >= $this->LockTimeout) {
-                    Unlock();
+                    $this->Unlock();
                     $result = false;
                     break;
                 }
