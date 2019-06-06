@@ -8,7 +8,69 @@
 
 namespace Etc;
 
+use Solution\PageWeb;
+use Solution\Solution;
+use TamPub1\Etc;
+use TamPub1\StringFunc;
+use TamPub1\Tree;
 
+/**
+ * Class EEngine This class follow the static way, that means every thread have only one instance.
+ * @package Etc
+ */
 class EEngine {
+    /**
+     * @var \Solution\Solution
+     */
+    public $solution;
 
+    public function __construct() {
+        $this->solution = new \Solution\Solution();
+    }
+
+    public function loadProject(string $projectPath): string {
+        if ($this->solution->projectExists($projectPath)) {
+            return "";
+        }
+        $result = $this->solution->loadProject($projectPath);
+        if (StringFunc::length($result) > 0) {
+            return "EEnging.loadProject error:" . $result;
+        }
+        Pub::$log->writeCommon("load project: " . $projectPath);
+        return "";
+    }
+
+    /**
+     * pagePath前面必须包含项目名（项目文件所在的目录名字），页面不存在返回空，页面没加载则自动加载
+     * @param string $pagePath
+     * @return Tree TamPub1.Tree<Solution.Solution.Item>
+     */
+    public function getPageBak(string $pagePath): Tree {
+        $pagePath = StringFunc::addRearChar($pagePath, '/') . "page.xml";
+        $item = $this->solution->getItem($pagePath);
+        if ($item == null) return null;
+        //自动加载
+        if ($item->value->page == null) {
+            $item->value->page = new PageWeb();
+            $item->value->page->projectItem = $item;
+        }
+        $item->value->page->loadFromFile(Solution::getDiskPath($item) . "page.xml");
+        return $item;
+    }
+
+    /**
+     * 产生一个新的页面，从而避免线程冲突，代价是需要重新从磁盘读取文件，这个有待后期优化
+     * @param string $pagePath
+     * @return \Solution\PageWeb
+     */
+    public function getPage(string $pagePath): \Solution\PageWeb {
+        $pagePath = StringFunc::addRearChar($pagePath, '/') . "page.xml";
+        $item = $this->solution->getItem($pagePath);
+        if ($item == null) return null;
+        $result = new PageWeb();
+        $result->projectItem = $item;
+        $result->loadFromFile(Solution::getDiskPath($item) . "page.xml");
+        $result->solution = $this->solution;
+        return $result;
+    }
 }
