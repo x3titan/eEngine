@@ -9,6 +9,8 @@
 namespace eEngine;
 
 
+use Etc\Pub;
+
 class PageLoad {
     /**
      * @var string 创建控件主体部分
@@ -34,8 +36,19 @@ class PageLoad {
     //private HttpPostedFile postFile = null;
 
     public function Page_Load(): void {
-        //Etc . Pub . init();
-
+        Pub::init();
+        if (Pub::loadProject() == 0) {
+            jsStringInitControl = "alert(\"无法载入项目\");";
+            Etc.Pub.log.writeWarning("无法载入项目Etc.Pub.loadProject()");
+        }
+        //init CacheGenerator
+        CacheGenerator.applicationPath = Request.ApplicationPath;
+        CacheGenerator.start();
+        //Request.ContentEncoding = System.Text.Encoding.GetEncoding("gb2312");
+        string url = Request["_L_"];
+            string taskSet = Request["_T_"];
+            string fileUpload = Request["_F_"];
+            if (url == null) url = "";
     }
 }
 
