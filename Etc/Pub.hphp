@@ -1,0 +1,64 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: admin
+ * Date: 2019/6/6 0006
+ * Time: 上午 11:18
+ */
+
+namespace Etc;
+
+
+class Pub {
+    public static $eEngine;
+    public static $log;
+
+    private static $initialized = false;
+
+    public static function init(): void {
+        if (self::$initialized) return;
+        self::$eEngine = new \EEngine\EEngine();
+        //$this::$log = new  TamClass1.TamDiskLog();
+        //log . filename = System . Configuration . ConfigurationManager . AppSettings["logFilename"] . ToString();
+        //log . addDatetime = true;
+        self::$initialized = true;
+    }
+    /*
+    public static object lockObject = new object();
+        /// <summary>返回实际载入项目的数量</summary>
+    public static int loadProject() {
+    lock (lockObject) {
+    int result = 0;
+    bool needReload = false;
+    int projectCount;
+    try {
+    projectCount = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["projectCount"].ToString());
+    }
+
+    catch {
+        projectCount = 0;
+    }
+    if (eEngine . solution . projects . children . Count != projectCount) {
+        needReload = true;
+    } else if (eEngine . solution . needReload()) {
+        needReload = true;
+    }
+    if (!needReload) return projectCount;
+    eEngine . solution . projects . clear(); //强制清缓存，实际应用中应去掉
+
+    string projectPath;
+                    for (int i = 0; i < projectCount; i++) {
+        projectPath = System . Configuration . ConfigurationManager . AppSettings["project" + i] . ToString();
+        if (projectPath == null) continue;
+        string rstring = eEngine . loadProject(projectPath);
+                        if (rstring . Length > 0) {
+                            log . writeWarning("无法载入项目文件，result=" + rstring + ";project=" + projectPath);
+                        } else {
+                            result++;
+                        }
+                    }
+                    return result;
+                }
+            }
+    */
+}
