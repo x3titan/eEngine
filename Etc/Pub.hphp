@@ -17,7 +17,7 @@ class Pub {
 
     public static function init(): void {
         if (self::$initialized) return;
-        self::$eEngine = new \EEngine\EEngine();
+        //self::$eEngine = new \EEngine\EEngine();
         //$this::$log = new  TamClass1.TamDiskLog();
         //log . filename = System . Configuration . ConfigurationManager . AppSettings["logFilename"] . ToString();
         //log . addDatetime = true;
