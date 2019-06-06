@@ -35,10 +35,10 @@ class Pub {
     public static function init(): void {
         if (self::$initialized) return;
         self::$lockObject = new TamLocker();
-        self::$eEngine = new EEngine();
         self::$log = new  \TamClass1\TamDiskLog();
         self::$log->filename = ConfigurationManager::readString("ePage", "logFilename");
         self::$log->addDatetime = true;
+        self::$eEngine = new EEngine();
         self::$initialized = true;
     }
 
