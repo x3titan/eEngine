@@ -1073,6 +1073,10 @@ class FileOperation {
         $this->fs = null;
     }
 
+    public static function renameFile(string $oldFilename, string $newFilename): bool {
+        return rename($oldFilename, $newFilename);
+    }
+
     /**
      * 强制开启一个新文件进行写操作, 如果原文件存在则删除
      * @param string $filename null则需要提前指定filename
