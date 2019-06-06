@@ -10,6 +10,8 @@ namespace Etc;
 
 
 use TamPub1\ConfigurationManager;
+use TamPub1\StringFunc;
+use TamPub1\TamLocker;
 
 class Pub {
     /**
@@ -20,53 +22,53 @@ class Pub {
      * @var \TamClass1\TamDiskLog
      */
     public static $log;
+    /**
+     * @var TamLocker
+     */
+    public static $lockObject;
 
     private static $initialized = false;
 
     public static function init(): void {
         if (self::$initialized) return;
+        self::$lockObject = new TamLocker();
         self::$eEngine = new EEngine();
         self::$log = new  \TamClass1\TamDiskLog();
         self::$log->filename = ConfigurationManager::readString("ePage", "logFilename");
-        self::$log -> addDatetime = true;
+        self::$log->addDatetime = true;
         self::$initialized = true;
     }
-    /*
-    public static object lockObject = new object();
-        /// <summary>返回实际载入项目的数量</summary>
-    public static int loadProject() {
-    lock (lockObject) {
-    int result = 0;
-    bool needReload = false;
-    int projectCount;
-    try {
-    projectCount = Convert.ToInt32(System.Configuration.ConfigurationManager.AppSettings["projectCount"].ToString());
-    }
 
-    catch {
-        projectCount = 0;
-    }
-    if (eEngine . solution . projects . children . Count != projectCount) {
-        needReload = true;
-    } else if (eEngine . solution . needReload()) {
-        needReload = true;
-    }
-    if (!needReload) return projectCount;
-    eEngine . solution . projects . clear(); //强制清缓存，实际应用中应去掉
+    /// <summary>返回实际载入项目的数量</summary>
+    public static function loadProject(): int {
+        self::$lockObject->Lock();
+        $result = 0;
+        $needReload = false;
+        //int projectCount;
 
-    string projectPath;
-                    for (int i = 0; i < projectCount; i++) {
-        projectPath = System . Configuration . ConfigurationManager . AppSettings["project" + i] . ToString();
-        if (projectPath == null) continue;
-        string rstring = eEngine . loadProject(projectPath);
-                        if (rstring . Length > 0) {
-                            log . writeWarning("无法载入项目文件，result=" + rstring + ";project=" + projectPath);
-                        } else {
-                            result++;
-                        }
-                    }
-                    return result;
-                }
+        $projectCount = ConfigurationManager::readInt("ePage", "projectCount");
+        if (count(self::$eEngine->solution->projects->children) != $projectCount) {
+            $needReload = true;
+        } else if (self::$eEngine->solution->needReload()) {
+            $needReload = true;
+        }
+        if (!$needReload) {
+            self::$lockObject->Unlock();
+            return $projectCount;
+        }
+        self::$eEngine->solution->projects->clear(); //强制清缓存，实际应用中应去掉
+
+        //string projectPath;
+        for ($i = 0; $i < $projectCount; $i++) {
+            $projectPath = ConfigurationManager::readString("ePage", "project" . $i);
+            if ($projectPath == null) continue;
+            $rstring = self::$eEngine->loadProject($projectPath);
+            if (StringFunc::length($rstring) > 0) {
+                self::$log->writeWarning("无法载入项目文件，result=" . $rstring . ";project=" . $projectPath);
+            } else {
+                $result++;
             }
-    */
+        }
+        return $result;
+    }
 }
