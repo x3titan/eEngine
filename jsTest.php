@@ -36,64 +36,14 @@ $a->testA = function ($p1, $p2) {
 $ret = $a->executeString("PHP.testA(12345,'bbb');");
 var_dump(__LINE__, $ret);
 
-require_once __DIR__ . '/PubFuncPhp/TamPub1.hphp';
-require_once __DIR__ . '/ScriptEngine/TaskSet.hphp';
-$sTemp = "      谭江天1234567谭江天     \r\n";
-print ($sTemp);
-print(trim($sTemp));
+//require_once __DIR__ . '/PubFuncPhp/TamPub1.hphp';
+//require_once __DIR__ . '/ScriptEngine/TaskSet.hphp';
+require_once __DIR__ . '/PageLoad.hphp';
 
-//print($a === null? "true" : "false");
-print ("======\r\n");
-//\TamPub1\ConfigFileXml::checkKey("/home/tam/epage/test.xml", "a/c/b/c/d");
-\TamPub1\ConfigFileXml::writeString("/home/tam/epage/test.xml", "f1/f2/f3", "sldjfslfsassadf加防腐剂");
-\TamPub1\ConfigFileXml::writeIntAttr("/home/tam/epage/test.xml", "f1/f2/f3", "subKey2", 1234);
-$a = "salj以中国的世界df;l世界sa";
-print(mb_ereg_replace("世界", "百度", $a));
-
-
-print("\r\n=a)=====================\r\n");
-
-class A {
-    public function getField(): string {
-        return "sjsjjssj";
-    }
-
-    public function setField(string $value): void {
-        print($value);
-    }
-}
-
-class Item {
-    private $kkk = "我是kkk";
-
-    public static function __callStatic($name, $arguments) {
-        print("call:" . $name . "(" . count($arguments) . " parameters)");
-    }
-
-    public function __get($name) {
-        if (isset($this->$name)) {
-            echo "pri_name:" . $this->$name . "\r\n";
-            return $this->$name;
-        } else {
-            echo "不存在" . $name;
-            return null;
-        }
-    }
-
-    public function __set($name, $value) {
-        // TODO: Implement __set() method.
-        print($name . "=" . $value . "\r\n");
-    }
-}
-
-//Item::$sljflsfj;
-
-print("\r\n=b)=====================\r\n");
-$d = time();
-print(Date("Y-m-d H:i:s", $d));
 
 print("\r\n=c)====let's the fun begin=================\r\n");
-
+$sim = new \eEngine\PageLoad();
+$sim->Page_Load();
 
 
 

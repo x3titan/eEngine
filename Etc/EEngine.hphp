@@ -8,6 +8,8 @@
 
 namespace Etc;
 
+require_once __DIR__ . "/../Solution/Solution.hphp";
+
 use Solution\PageWeb;
 use Solution\Solution;
 use TamPub1\Etc;

@@ -8,6 +8,9 @@
 
 namespace Etc;
 
+require_once __DIR__ . "/../PubFuncPhp/TamPub1.hphp";
+require_once __DIR__ . "/EEngine.hphp";
+require_once __DIR__ . "/../PubFuncPhp/TamClass1.hphp";
 
 use TamPub1\ConfigurationManager;
 use TamPub1\StringFunc;

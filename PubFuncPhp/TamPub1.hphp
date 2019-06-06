@@ -8,7 +8,6 @@
 
 namespace TamPub1;
 
-
 class DelphiString {
     public static $encoding = "utf-8";
 
@@ -1287,9 +1286,9 @@ class FileOperation {
 /// <summary>2019-06-05 用于多线程访问某些公用数据的锁</summary>
 class TamLocker {
     /**
-     * @var int
+     * @var \Threaded
      */
-    private $LockObj;
+    private $lockObj;
     private $Busy = false;
     /**
      * @var int 毫秒单位的锁最大等待超时
@@ -1302,7 +1301,7 @@ class TamLocker {
      * @return bool 返回false表示出现了超时解锁的现象
      */
     public function Lock(): bool {
-        \Mutex::lock($this->LockObj);
+        $this->lockObj->lock();
         $result = true;
         $StartTick = time();
         while ($this->Busy) {
@@ -1316,7 +1315,7 @@ class TamLocker {
             usleep($this->waitInterval * 1000);
         };
         $this->Busy = true;
-        \Mutex::unlock($this->LockObj);
+        $this->lockObj->unlock();
         return $result;
     }
 
@@ -1330,7 +1329,7 @@ class TamLocker {
      * @param int $waitInterval 等待时查询的时间间隔，单位毫秒，推荐使用5ms即1秒扫描200次
      */
     public function __construct(int $lockTimeout = 10000, int $waitInterval = 5) {
-        $this->LockObj = \Mutex::create();
+        $this->LockObj = new \Threaded() ;
         $this->LockTimeout = $lockTimeout;
         $this->waitInterval = $waitInterval;
     }
