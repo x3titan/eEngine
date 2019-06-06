@@ -265,6 +265,9 @@ class PropertyListItem {
 
 namespace TamClass1;
 
+use TamPub1\FileOperation;
+use TamPub1\TamLocker;
+
 /**
  * 为保证兼容性制作的方框数据类
  * Class Rectangle
@@ -299,5 +302,126 @@ class Rectangle {
         } else if ($name === "Top") {
             $this->Y = $value;
         }
+    }
+}
+
+/**
+ * Class TamLog 日志系统基础类2019/06/06
+ * @package TamClass1
+ */
+abstract class TamLog {
+    public $alias = "";
+    public $addDatetime = false;
+    public $addYear = false;
+    public static $TYPE_COMMON = 10;
+    public static $TYPE_WARNING = 20;
+    public static $TYPE_ERROR = 30;
+
+    public abstract function writeLog(int $logType, string $logString): bool;
+
+    public function writeCommon(string $logString): bool {
+        return $this->writeLog(self::$TYPE_COMMON, $this->prepareLogString($logString));
+    }
+
+    public function writeWarning(string $logString): bool {
+        return $this->writeLog(self::$TYPE_WARNING, $this->prepareLogString($logString));
+    }
+
+    public function writeError(string $logString): bool {
+        return $this->writeLog(self::$TYPE_ERROR, $this->prepareLogString($logString));
+    }
+
+    private function prepareLogString(string $logString): string {
+        $result = $this->alias . $logString;
+        if ($this->addDatetime) {
+            if ($this->addYear) {
+                $result = Date("Y-m-d H:i:s", time()) . " " . $result;
+            } else {
+                $result = Date("m-d H:i:s", time()) . " " . $result;
+            }
+        }
+        return $result;
+    }
+}
+
+/// <summary>磁盘文件日志，附带线程锁，可以多线程同时操作</summary>
+
+/**
+ * Class TamDiskLog 磁盘文件日志，附带线程锁，可以多线程同时操作
+ * @package TamClass1
+ * @property string filename 磁盘存储的文件名（带路径），不必要附带扩展名
+ */
+class TamDiskLog extends TamLog {
+    /// <summary>单个日志文件的最大大小(缺省20M)</summary>
+    public $maxFileSize = 20000000;
+    private $fileAll;
+    private $fileWarning;
+    private $fileError;
+    private $fFilename = "";
+    private $writeLogLock;
+
+    public function __construct() {
+        $this->filename = FileOperation::changeFileExt(FileOperation::currentFileName(), "");
+        $this->fileAll = new FileOperation();
+        $this->fileWarning = new FileOperation();
+        $this->fileError = new FileOperation();
+        $this->writeLogLock = new TamLocker();
+    }
+
+    public function __get($name) {
+        if ($name === "filename") {
+            return $this->fFilename;
+        } else return "";
+    }
+
+    public function __set($name, $value) {
+        if ($name === "filename") {
+            $this->fFilename = $value;
+            $this->fileAll->filename = $value . ".all.txt";
+            $this->fileWarning->filename = $value . ".wrn.txt";
+            $this->fileError->filename = $value . ".err.txt";
+        }
+    }
+
+    public function writeLog(int $logType, string $logString): bool {
+        $this->writeLogLock->Lock();
+        if ($logType == self::$TYPE_WARNING) {
+            if (!$this->fileWarning->openAppend()) return false;
+            if (!$this->fileWarning->writeWFixedString($logString . "\r\n")) return false;
+            if (!closeAndCheck($this->fileWarning)) return false;
+        } else if ($logType == self::$TYPE_ERROR) {
+            if (!$this->fileError . openAppend()) return false;
+            if (!$this->fileError . writeWFixedString($logString . "\r\n")) return false;
+            if (!closeAndCheck(fileError)) return false;
+        }
+        if ($logType == self::$TYPE_COMMON) {
+            $logString = "  " . $logString;
+        } else if ($logType == self::$TYPE_WARNING) {
+            $logString = "W " . $logString;
+        } else {
+            $logString = "E " . $logString;
+        }
+        if (!$this->fileAll . openAppend()) return false;
+        if (!$this->fileAll . writeWFixedString($logString . "\r\n")) return false;
+        if (!closeAndCheck($this->fileAll)) return false;
+        return true;
+    }
+
+    private function closeAndCheck(FileOperation $checkFile): bool {
+        if ($checkFile->pos < maxFileSize) {
+            checkFile . close();
+            return true;
+        }
+
+        $checkFile . close();
+        $newFilename = $checkFile . filename;
+        $newFilename = TamPub1 . FileOperation . changeFileExt($newFilename, ".bak.txt");
+        try {
+            TamPub1 . FileOperation . delete($newFilename);
+            TamPub1 . FileOperation . rename($checkFile . filename, $newFilename);
+        } catch {
+            return false;
+        }
+        return true;
     }
 }
