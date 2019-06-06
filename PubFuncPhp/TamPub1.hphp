@@ -1352,6 +1352,33 @@ class StringBuilder {
     }
 }
 
+/**
+ * Class ConfigurationManager php configuration file access(php.ini)
+ * @package TamPub1
+ */
+class ConfigurationManager {
+    /**
+     * @return string php config file(php.ini) path and name
+     */
+    public static function cfgFilename(): string {
+        return php_ini_loaded_file();
+    }
+
+    public static function readString(string $section, string $key): string {
+        $buff = parse_ini_file(self::cfgFilename(), true);
+        if (!$buff) return "";
+        $buff = $buff[$section];
+        if (!$buff) return "";
+        $buff = $buff[$key];
+        if (!$buff) return "";
+        return $buff;
+    }
+
+    public static function readInt(string $section, string $key): int {
+        return (int)self::readString($section, $key);
+    }
+}
+
 
 
 
