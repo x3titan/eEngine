@@ -108,6 +108,7 @@ class PageWeb extends Page {
             $control->value->property->getItem("height")->value->asInt32 . ");\n"
         );
         //outer: eb.setOuter(c,ol,ot,or,ob);
+        //$control->value = new \Solution\Page\Control();
         if (($control->value->property->getItem("outerLeft")->value->asInt32 != 0) ||
             ($control->value->property->getItem("outerTop")->value->asInt32 != 0) ||
             ($control->value->property->getItem("outerRight")->value->asInt32 != 0) ||
