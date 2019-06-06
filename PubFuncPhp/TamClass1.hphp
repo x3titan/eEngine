@@ -361,11 +361,11 @@ class TamDiskLog extends TamLog {
     private $writeLogLock;
 
     public function __construct() {
-        $this->filename = FileOperation::changeFileExt(FileOperation::currentFileName(), "");
         $this->fileAll = new FileOperation();
         $this->fileWarning = new FileOperation();
         $this->fileError = new FileOperation();
         $this->writeLogLock = new TamLocker();
+        $this->filename = FileOperation::changeFileExt(FileOperation::currentFileName(), "");
     }
 
     public function __get($name) {
