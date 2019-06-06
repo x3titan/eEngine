@@ -1235,6 +1235,29 @@ class FileOperation {
     }
 
     /**
+     * get file's ext, not include "."
+     * @param string $filename filename can include filepath
+     * @return string
+     */
+    public static function getFileExt(string $filename): string {
+        $pos = StringFunc::lastIndexOf($filename, '.');
+        if ($pos < 0) return "";
+        if ($pos == StringFunc::length($filename) - 1) return "";
+        return StringFunc::copy($filename, $pos + 1, 999999);
+    }
+
+    /**
+     * find which seperator the file sturcture use, '/' or '\'
+     * @param string $filePathName
+     * @return string '/' or '\'
+     */
+    public static function getPathSeperator(string $filePathName): string {
+        if (StringFunc::indexOf($filePathName, '/')>=0) return '/';
+        if (StringFunc::indexOf($filePathName, '\\')>=0) return '\\';
+        return '/';
+    }
+
+    /**
      * 在php中返回的是php文件的目录及文件名
      * @return string 当前运行文件的路径+文件名
      */
@@ -1329,7 +1352,7 @@ class TamLocker {
      * @param int $waitInterval 等待时查询的时间间隔，单位毫秒，推荐使用5ms即1秒扫描200次
      */
     public function __construct(int $lockTimeout = 10000, int $waitInterval = 5) {
-        $this->lockObj = new \Threaded() ;
+        $this->lockObj = new \Threaded();
         $this->LockTimeout = $lockTimeout;
         $this->waitInterval = $waitInterval;
     }
