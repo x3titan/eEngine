@@ -1,0 +1,44 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Jesse Tam
+ * Date: 2019/6/6 0006
+ * Time: 上午 12:19
+ */
+
+namespace eEngine;
+
+
+class PageLoad {
+    /**
+     * @var string 创建控件主体部分
+     */
+    public $jsStringInitControl = "";
+    /**
+     * @var string 声明部分
+     */
+    public $jsStringOnPageCreate = "";
+    /**
+     * @var string onLoad开始部分
+     */
+    public $jsStringOnPageLoad = "";
+    /**
+     * @var string onLoad完成部分
+     */
+    public $jsStringOnControlLoad = "";
+    public $jsStringInclude = "";
+    public $jsStringTitle = "";
+    public $jsStringHead = "";
+    public $jsStringSearchText = "";
+
+    //private HttpPostedFile postFile = null;
+
+    public function Page_Load(): void {
+        //Etc . Pub . init();
+
+    }
+}
+
+
+
+
