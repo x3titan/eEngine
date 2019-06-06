@@ -9,6 +9,8 @@
 namespace Etc;
 
 
+use TamPub1\ConfigurationManager;
+
 class Pub {
     public static $eEngine;
     public static $log;
@@ -18,9 +20,9 @@ class Pub {
     public static function init(): void {
         if (self::$initialized) return;
         //self::$eEngine = new \EEngine\EEngine();
-        //$this::$log = new  TamClass1.TamDiskLog();
-        //log . filename = System . Configuration . ConfigurationManager . AppSettings["logFilename"] . ToString();
-        //log . addDatetime = true;
+        self::$log = new  \TamClass1\TamDiskLog();
+        self::$log->filename = ConfigurationManager::readString("ePage", "logFilename");
+        self::$log -> addDatetime = true;
         self::$initialized = true;
     }
     /*
