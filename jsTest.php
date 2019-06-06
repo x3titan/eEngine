@@ -92,11 +92,10 @@ print("\r\n=b)=====================\r\n");
 $d = time();
 print(Date("Y-m-d H:i:s", $d));
 
-print("\r\n=c)=====================\r\n");
-$sTemp = \TamPub1\Converter::int32ToBin(-654321);
-print ($sTemp . "\r\n");
-$iTemp = \TamPub1\Converter::binToInt32($sTemp);
-print ($iTemp . "\r\n");
-print (0xffffffff /2);
+print("\r\n=c)====let's the fun begin=================\r\n");
+
+
+
+
 
 ?>
