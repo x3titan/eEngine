@@ -913,6 +913,17 @@ class FileOperation {
         return StringFunc::copy($filePathName, $index, StringFunc::length($filePathName));
     }
 
+    /// <summary>修改文件扩展名,包含"."</summary>
+    /// <param name="fileName">需要修改的文件名</param>
+    /// <param name="newExt">新的扩展名，同样包含"."</param>
+    /// <returns>修改好的东西</returns>
+    public static function changeFileExt(string $fileName, string $newExt): string {
+        $index = StringFunc::lastIndexOf($fileName, '.');
+        if ($index < 0) return $fileName . $newExt;
+        $index++;
+        return StringFunc::copy($fileName, 0, $index - 1) . $newExt;
+    }
+
     /**
      * 从全路径的文件名中提取不含扩展名和路径的文件名，兼容linux和windows文件系统
      * @param $filePathName
