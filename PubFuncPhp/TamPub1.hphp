@@ -251,7 +251,7 @@ class StringFunc {
             $value = self::toUpper($value);
         }
         for ($i = min($startPos, self::length($value) - $findLen); $i >= 0; $i--) {
-            if (copy($value, $i, $findLen) === $find) return $i;
+            if (self::copy($value, $i, $findLen) === $find) return $i;
         }
         return -1;
     }
@@ -1301,7 +1301,7 @@ class TamLocker {
      * @return bool 返回false表示出现了超时解锁的现象
      */
     public function Lock(): bool {
-        $this->lockObj->lock();
+        //$this->lockObj->lock();
         $result = true;
         $StartTick = time();
         while ($this->Busy) {
@@ -1315,7 +1315,7 @@ class TamLocker {
             usleep($this->waitInterval * 1000);
         };
         $this->Busy = true;
-        $this->lockObj->unlock();
+        //$this->lockObj->unlock();
         return $result;
     }
 
@@ -1329,7 +1329,7 @@ class TamLocker {
      * @param int $waitInterval 等待时查询的时间间隔，单位毫秒，推荐使用5ms即1秒扫描200次
      */
     public function __construct(int $lockTimeout = 10000, int $waitInterval = 5) {
-        $this->LockObj = new \Threaded() ;
+        $this->lockObj = new \Threaded() ;
         $this->LockTimeout = $lockTimeout;
         $this->waitInterval = $waitInterval;
     }
@@ -1366,10 +1366,10 @@ class ConfigurationManager {
     public static function readString(string $section, string $key): string {
         $buff = parse_ini_file(self::cfgFilename(), true);
         if (!$buff) return "";
+        if (!isset($buff[$section])) return "";
         $buff = $buff[$section];
-        if (!$buff) return "";
+        if (!isset($buff[$key])) return "";
         $buff = $buff[$key];
-        if (!$buff) return "";
         return $buff;
     }
 
