@@ -12,14 +12,20 @@ namespace Etc;
 use TamPub1\ConfigurationManager;
 
 class Pub {
+    /**
+     * @var EEngine
+     */
     public static $eEngine;
+    /**
+     * @var \TamClass1\TamDiskLog
+     */
     public static $log;
 
     private static $initialized = false;
 
     public static function init(): void {
         if (self::$initialized) return;
-        //self::$eEngine = new \EEngine\EEngine();
+        self::$eEngine = new EEngine();
         self::$log = new  \TamClass1\TamDiskLog();
         self::$log->filename = ConfigurationManager::readString("ePage", "logFilename");
         self::$log -> addDatetime = true;
