@@ -8,6 +8,7 @@
 
 namespace Solution;
 
+require_once __DIR__ . '/../Etc/Skin.hphp';
 
 use const Grpc\STATUS_INTERNAL;
 use ScriptEngine\ScriptEngine;
