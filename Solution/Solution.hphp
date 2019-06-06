@@ -9,6 +9,7 @@
 namespace Solution;
 
 require_once __DIR__ . '/../Etc/Skin.hphp';
+require_once __DIR__ . '/../ScriptEngine/DBConnection.hphp';
 
 use const Grpc\STATUS_INTERNAL;
 use ScriptEngine\ScriptEngine;
@@ -50,13 +51,14 @@ class Solution {
     }
 
     public function loadProject(string $projectPath): string {
-        $projectPath = StringFunc::addRearChar($projectPath, '\\');
+        \Etc\Pub::$pathSeperator = FileOperation::getPathSeperator($projectPath);
+        $projectPath = StringFunc::addRearChar($projectPath, \Etc\Pub::$pathSeperator);
         $project = $this->projects->addValue(new Item());
         $project->value->type = Item::$ITEM_TYPE_PROJECT;
         $project->value->projectFolderName = FileOperation::getFolderName($projectPath);
         $project->value->projectPath = $projectPath;
         $project->value->skin = new \Etc\Skin();
-        $project->value->skin->loadDir($project->value->projectPath . "skins\\");
+        $project->value->skin->loadDir($project->value->projectPath . "skins" . \Etc\Pub::$pathSeperator);
         $project->value->dbConnection = new \ScriptEngine\DBConnection();
         $dbConnection = $project->value->dbConnection;
         if (!FileOperation::exists($projectPath . "project.xml")) {
@@ -109,7 +111,7 @@ class Solution {
         $dbConnection->clear();
         //ScriptEngine->DBConnection->Item connectionItem;
         $nodes = $doc->xpath("/EBProj/dbConnections/connection");
-        for ($i = 0; $i < count(nodes); $i++) {
+        for ($i = 0; $i < count($nodes); $i++) {
             $node = $nodes[$i];
             $node = $node->attributes()->name;
             if (!$node) continue;
@@ -158,7 +160,7 @@ class Solution {
         }
     }
 
-    private function getFolder(\TamPub1\Tree $project, string $folderName): \TamPub1\Tree {
+    private function getFolder(\TamPub1\Tree $project, string $folderName): ? \TamPub1\Tree {
         for ($i = 0; $i < count($project->children); $i++) {
             if ($project->children[$i]->value->type != Item::$ITEM_TYPE_FOLDER) continue;
             if (!(StringFunc::toUpper($project->children[$i]->value->folderName) === StringFunc::toUpper($folderName))) continue;
@@ -168,10 +170,10 @@ class Solution {
     }
 
     public function createPath(\TamPub1\Tree $project, string $path): \TamPub1\Tree {
-        $this->path = StringFunc::deleteFrontChar($this->path, '/');
-        $this->path = StringFunc::deleteRearChar($this->path, '/');
+        $path = StringFunc::deleteFrontChar($path, '/');
+        $path = StringFunc::deleteRearChar($path, '/');
         $node = $project;
-        $s = mb_split('/', $this->path);
+        $s = mb_split('/', $path);
         for ($i = 0; $i < count($s); $i++) {
             if ($this->getFolder($node, $s[$i]) != null) {
                 $node = $this->getFolder($node, $s[$i]);

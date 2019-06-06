@@ -29,6 +29,7 @@ class Pub {
      * @var TamLocker
      */
     public static $lockObject;
+    public static $pathSeperator = '/';
 
     private static $initialized = false;
 

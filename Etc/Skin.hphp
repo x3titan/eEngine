@@ -22,7 +22,7 @@ class Skin {
      */
     public $dir = "";
 
-    public function getByName(string $skinName): \Etc\Skin\Item {
+    public function getByName(string $skinName): ? \Etc\Skin\Item {
         $skinName = StringFunc::toUpper($skinName);
         for ($i = 0; $i < count($this->items); $i++) {
             if (StringFunc::toUpper($this->items[$i]->name) === $skinName) {
@@ -53,7 +53,7 @@ class Skin {
         closedir($handler);
 
         foreach ($files as $file) {
-            $this->loadXml(StringFunc::addRearChar($dir, FileOperation::getPathSeperator($dir)) . $file);
+            $this->loadXml(StringFunc::addRearChar($dir, Pub::$pathSeperator) . $file);
         }
         return true;
     }

@@ -493,7 +493,7 @@ class Tree {
     }
 
     public function insertNode(int $index, Tree $node): Tree {
-        array_splice($this->children, $index, 0, $node);
+        array_splice($this->children, $index, 0, [$node]);
         $node->parent = $this;
         return $node;
     }
@@ -731,7 +731,7 @@ class ConfigFileXml {
         $node = null;
         $key = StringFunc::deleteFrontChar($key, '/');
         $key = StringFunc::deleteRearChar($key, '/');
-        $s = StringFunc::split('/', $key);
+        $s = StringFunc::split($key, '/');
         for ($i = 0; $i < count($s); $i++) {
             $path = "";
             for ($j = 0; $j <= $i; $j++) {
