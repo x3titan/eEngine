@@ -1,0 +1,14 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Jesse Tam
+ * Date: 2019/6/6 0006
+ * Time: 下午 5:53
+ */
+
+namespace Etc;
+
+
+class EEngine {
+
+}
