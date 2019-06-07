@@ -10,6 +10,7 @@ namespace Solution;
 
 require_once __DIR__ . "/Page.hphp";
 
+use ScriptEngine\ScriptEngine;
 use TamPub1\DelphiString;
 use TamPub1\StringBuilder;
 use TamPub1\StringFunc;
@@ -44,6 +45,25 @@ class PageWeb extends Page {
         $this->jsStringSearchText = new StringBuilder();
     }
 
+    public function initScriptEngine(
+        $session, //System.Web.SessionState.HttpSessionState session,
+        $request, //System.Web.HttpRequest request,
+        $response //System.Web.HttpResponse response
+    ): PageWeb\ScriptEngineInst {
+        $task = new PageWeb\ThreadInitScript();
+        $task->session = $session;
+        $task->request = $request;
+        $task->response = $response;
+        $task->handle = $this;
+
+        $task->start();
+        while (true) {
+            if ($task->complete) break;
+            usleep(5000);
+        }
+        return $task->result;
+    }
+
     public function disposeScriptEngine(): void {
         /*
         if (scriptDatabase != null) {
@@ -68,6 +88,322 @@ class PageWeb extends Page {
             scriptEngine = null;
         }
         */
+    }
+
+    public function fInitScriptEngine(
+        $session, //System.Web.SessionState.HttpSessionState session,
+        $request, //System.Web.HttpRequest request,
+        $response //System.Web.HttpResponse response
+    ): PageWeb\ScriptEngineInst {
+        $this->disposeScriptEngine();
+        $result = new PageWeb\ScriptEngineInst();
+        $scriptEngine = new ScriptEngine();
+        try {
+            $scriptEngine->engine->executeString(
+                "var g5 = { };\n" .
+                "var g6 = { };\n" .
+                "var g7 = { };\n"
+            );
+            //初始化session控件
+            $scriptEngine->engine->session = new ScriptSession($session);
+            //初始化request控件
+            $scriptEngine->engine->request = new ScriptRequest($session);
+            //初始化response控件
+            $result->scriptResponse = ScriptResponse($response);
+            $scriptEngine->engine->response = $result->scriptResponse;
+            //初始化es类
+            $scriptES = new ScriptES();
+            $scriptEngine->engine->es = $this->scriptES;
+            //初始化数据库控件:db
+            $project = $this->solution->getProject(projectItem);
+            $scriptDatabase = new ScriptDatabase($project->value->dbConnection);
+            $scriptEngine->engine->db = $scriptDatabase;
+            //准备eio接口
+            $scriptEngine->engine->executeString(
+                "function StringData2() {\n" .
+                "    this.buffi = \"\";\n" .
+                "    this.buffo = \"\";\n" .
+                "    this.sp = 0;\n" .
+                "    this.clear = function () {\n" .
+                "        this.buffi = \"\";\n" .
+                "        this.buffo = \"\";\n" .
+                "        this.sp = 0;\n" .
+                "    }\n" .
+                "    this.appendByte = function (value) {\n" .
+                "        if ((value < 0) || (value >= 0xff)) {\n" .
+                "            value = value & 0xff;\n" .
+                "        }\n" .
+                "        value = value.toString(16);\n" .
+                "        if (value.length == 1) {\n" .
+                "            value = \"0\" + value;\n" .
+                "        }\n" .
+                "        this.buffo = this.buffo + value;\n" .
+                "    }\n" .
+                "    this.appendWord = function (word) {\n" .
+                "        word = word & 0xffff;\n" .
+                "        this.appendByte(word & 0xff);\n" .
+                "        this.appendByte(word >> 8);\n" .
+                "    }\n" .
+                "    this.appendInt32 = function (int32) {\n" .
+                "        this.appendWord(int32 & 0xffff);\n" .
+                "        this.appendWord(int32 >>> 16);\n" .
+                "    }\n" .
+                "    this.appendString8 = function (str) {\n" .
+                "        if (str == null) {\n" .
+                "            str = \"\";\n" .
+                "        }\n" .
+                "        str = str.substring(0, Math.min(str.length, 0xff));\n" .
+                "        this.appendByte(str.length);\n" .
+                "        this.buffo = this.buffo + str;\n" .
+                "    }\n" .
+                "    this.appendString16 = function (str) {\n" .
+                "        if (str == null) {\n" .
+                "            str = \"\";\n" .
+                "        }\n" .
+                "        str = str.substring(0, Math.min(str.length, 0xffff));\n" .
+                "        this.appendWord(str.length);\n" .
+                "        this.buffo = this.buffo + str;\n" .
+                "    }\n" .
+                "    this.appendString32 = function (str) {\n" .
+                "        if (str == null) {\n" .
+                "            str = \"\";\n" .
+                "        }\n" .
+                "        this.appendInt32(str.length);\n" .
+                "        this.buffo = this.buffo + str;\n" .
+                "    }\n" .
+                "    this.readByte = function () {\n" .
+                "        if (this.sp + 1 >= this.buffi.length) {\n" .
+                "            this.sp = this.buffi.length;\n" .
+                "            return 0;\n" .
+                "        }\n" .
+                "        var s = this.buffi.substr(this.sp, 2);\n" .
+                "        this.sp += 2;\n" .
+                "        return parseInt(s, 16);\n" .
+                "    }\n" .
+                "    this.readWord = function () {\n" .
+                "        var result = this.readByte();\n" .
+                "        result += (this.readByte() << 8);\n" .
+                "        return result;\n" .
+                "    },\n" .
+                "    this.readInt32 = function () {\n" .
+                "        var result = this.readWord();\n" .
+                "        result = result | (this.readWord() << 16);\n" .
+                "        return result;\n" .
+                "    }\n" .
+                "    this.readString8 = function () {\n" .
+                "        var len = this.readByte();\n" .
+                "        len = Math.min(this.buffi.length - this.sp, len);\n" .
+                "        this.sp += len;\n" .
+                "        return this.buffi.substr(this.sp - len, len);\n" .
+                "    }\n" .
+                "    this.readString16 = function () {\n" .
+                "        var len = this.readWord();\n" .
+                "        len = Math.min(this.buffi.length - this.sp, len);\n" .
+                "        this.sp += len;\n" .
+                "        return this.buffi.substr(this.sp - len, len);\n" .
+                "    }\n" .
+                "    this.readString32 = function () {\n" .
+                "        var len = this.readInt32();\n" .
+                "        len = Math.min(this.buffi.length - this.sp, len);\n" .
+                "        this.sp += len;\n" .
+                "        return this.buffi.substr(this.sp - len, len);\n" .
+                "    },\n" .
+                "    this.appendDataSet = function (sqlResult, fields, rowStart, rowCount) {\n" .
+                "        var f = fields.split(\",\");\n" .
+                "        this.appendWord(f.length);\n" .
+                "        var sp = this.buffo.length;\n" .
+                "        var count = 0;\n" .
+                "        for (var i = 0; i < rowStart; i++) {\n" .
+                "            if (!db.read(sqlResult)) break;\n" .
+                "        }\n" .
+                "        for (var i = 0; i < rowCount; i++) {\n" .
+                "            if (!db.read(sqlResult)) break;\n" .
+                "            count++;\n" .
+                "            for (var j=0; j<f.length; j++) {\n" .
+                "                this.appendString16(db.getString(sqlResult, f[j]));\n" .
+                "            }\n" .
+                "        }\n" .
+                "        var data = this.buffo.substr(sp, this.buffo.length);\n" .
+                "        this.buffo = this.buffo.substr(0, sp);\n" .
+                "        this.appendWord(count);\n" .
+                "        this.buffo = this.buffo + data;\n" .
+                "        return count;\n" .
+                "    }\n" .
+                "    this.appendWsDataSet = function (wsDataSet, tableIndex, fields, rowStart, rowCount) {\n" .
+                "        var ws = new StringData2();\n" .
+                "        ws.buffi = wsDataSet;\n" .
+                "        var i, j, k, count;\n" .
+                "        var tableCount = ws.readWord();\n" .
+                "        for (i=0; i<tableIndex; i++) {\n" .
+                "            count = ws.readWord()*(ws.readWord()+1);\n" .
+                "            for (j = 0; j < count; j++) ws.readString16();\n" .
+                "        }\n" .
+                "        var f = fields.split(\",\");\n" .
+                "        this.appendWord(f.length);\n" .
+                "        var sp = this.buffo.length;\n" .
+                "        count = 0;\n" .
+                "        var x = ws.readWord();\n" .
+                "        var y = ws.readWord();\n" .
+                "        var cols = new Array();\n" .
+                "        for (i = 0; i < x; i++) {\n" .
+                "            cols.push(ws.readString16());\n" .
+                "        }\n" .
+                "        for (i = 0; i < rowStart; i++) {\n" .
+                "            for (j = 0; j < x; j++) {\n" .
+                "                ws.readString16();\n" .
+                "            }\n" .
+                "        }\n" .
+                "        for (i = 0; i < f.length; i++) {\n" .
+                "            f[i] = f[i].toLowerCase();\n" .
+                "        }\n" .
+                "        var col = new Array();\n" .
+                "        for (i = 0; i < rowCount; i++) {\n" .
+                "            if (i >= y) break;\n" .
+                "            count++;\n" .
+                "            col.length = 0;\n" .
+                "            for (j = 0; j < x; j++) {\n" .
+                "                col.push(ws.readString16());\n" .
+                "            }\n" .
+                "            for (j = 0; j < f.length; j++) {\n" .
+                "                for (k = 0; k < cols.length; k++) {\n" .
+                "                    if (cols[k].toLowerCase() == f[j]) {\n" .
+                "                        this.appendString16(col[k]);\n" .
+                "                        break;\n" .
+                "                    }\n" .
+                "                }\n" .
+                "                if (k >= cols.length) {\n" .
+                "                    this.appendString16(\"\");\n" .
+                "                }\n" .
+                "            }\n" .
+                "        }\n" .
+                "        var data = this.buffo.substr(sp, this.buffo.length);\n" .
+                "        this.buffo = this.buffo.substr(0, sp);\n" .
+                "        this.appendWord(count);\n" .
+                "        this.buffo = this.buffo + data;\n" .
+                "        return count;\n" .
+                "    }\n" .
+                "    this.appendFields = function (fields) {\n" .
+                "        var f = fields.split(\",\");\n" .
+                "        this.appendWord(f.length);\n" .
+                "        this.appendWord(1);\n" .
+                "        for (var i=0; i<f.length; i++) {\n" .
+                "            this.appendString16(f[i]);\n" .
+                "        }\n" .
+                "        return f.length;\n" .
+                "    }\n" .
+                "}\n" .
+                "var eio = new StringData2();\n" . "\x00\x00\x00\x00"
+            );
+        } catch (\Exception $ee) {
+            $this->disposeScriptEngine();
+            \Etc\Pub::$log->writeWarning("script init error, err=" . $ee->Message . ",stacktrace=" . $ee->StackTrace);
+            return null;
+        }
+        return $result;
+    }
+
+    /// <summary>由外部提供的ee.aspx(eEngine)所在的URL路径，如：/eengine</summary>
+    public $applicationPath = "";
+    /// <summary>由外部提供的ee的绝对路径，如：http://www.xxx.com/eengine </summary>
+    public $eePath = "";
+    private $offlineMode = false;
+    /// <summary>cache的相对目录，如：../../</summary>
+    private $relateCacheRoot = "";
+
+    public function generatePage(): string {
+        $r = new StringBuilder();
+        //Etc.Pub.log.writeCommon("start generate webpage, url=" + url);
+        $scriptEngineInst = $this->initScriptEngine(null, null, null);
+        if ($scriptEngineInst == null) {
+            return "";
+        }
+        $offlineModeBak = $this->offlineMode;
+        $this->offlineMode = true;
+        $path = Solution::getPath($this->projectItem);
+        $this->relateCacheRoot = "../";
+        for ($i = 0; $i < StringFunc::length($path); $i++) {
+            if ($path[$i] === '/') {
+                $this->relateCacheRoot .= "../";
+            }
+        }
+        $jsStringTitle = $this->generateJsStringTitle();
+        $jsStringHead = $this->generateJsStringHead();
+        $jsStringInclude = $this->generateJsStringInclude();
+        $jsStringOnPageCreate = $this->generateJsStringOnPageCreate();
+        $jsStringOnPageLoad = $this->generateJsStringOnPageLoad();
+        $jsStringInitControl = $this->generateJsStringInitControl();
+        $jsStringOnControlLoad = $this->generateJsStringOnControlLoad();
+        //string jsStringSearchTextLocal;
+        if ($this->jsStringSearchTextEnabled) {
+            $jsStringSearchTextLocal = $this->jsStringSearchText->ToString();
+        } else {
+            $jsStringSearchTextLocal = "";
+        }
+        $this->disposeScriptEngine();
+        $this->offlineMode = $offlineModeBak;
+
+        $r->Append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\r\n");
+        $r->Append("<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n");
+        $r->Append("<head runat=\"server\">\r\n");
+        $r->Append("    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=gb2312\" />\r\n");
+        $r->Append("    <title>\r\n");
+        $r->Append("        " . $jsStringTitle . "</title>\r\n");
+        $r->Append("    " . $jsStringHead . "\r\n");
+        $r->Append("    <style type=\"text/css\"></style>\r\n");
+        $r->Append("    <!-- <script src=\"" . $this->relateCacheRoot . "../Scripts/tampub3.js\" type=\"text/javascript\"></script> -->\r\n");
+        $r->Append("    <script src=\"" . $this->relateCacheRoot . "../Scripts/eengine.js?v=0.36\" type=\"text/javascript\"></script>\r\n");
+        $r->Append("    " . $jsStringInclude . "\r\n");
+        $r->Append("    <script type=\"text/javascript\" language=\"javascript\">\r\n");
+        $r->Append("        var layout;\r\n");
+        $r->Append("        " . $jsStringOnPageCreate . "\r\n");
+        $r->Append("        function onLoad() {\r\n");
+        $r->Append("            try { \r\n");
+        $r->Append("                eb.init();\r\n");
+        $r->Append("                \$g(\"divSearchText\").style.overflow = \"hidden\";\r\n");
+        $r->Append("                " . $jsStringOnPageLoad . "\r\n");
+        $r->Append("                " . $jsStringInitControl . "\r\n");
+        $r->Append("                " . $jsStringOnControlLoad . "\r\n");
+        $r->Append("                setTimeout(timeFragment, 100);\r\n");
+        $r->Append("            } catch (e) { \r\n");
+        $r->Append("                alert(e.message); \r\n");
+        $r->Append("                //alert(e.description) \r\n");
+        $r->Append("                //alert(e.number) \r\n");
+        $r->Append("                //alert(e.name) \r\n");
+        $r->Append("            } \r\n");
+        $r->Append("        }\r\n");
+        $r->Append("        var lastCW = 0, lastCH = 0;\r\n");
+        $r->Append("        ee.autoResize = true;\r\n");
+        $r->Append("        function timeFragment() {\r\n");
+        $r->Append("            if (!ee.autoResize) {\r\n");
+        $r->Append("                setTimeout(timeFragment, 100);\r\n");
+        $r->Append("                return;\r\n");
+        $r->Append("            }\r\n");
+        $r->Append("            var cw = \$g(\"divRoot\").offsetWidth;\r\n");
+        $r->Append("            var ch = \$g(\"divRoot\").offsetHeight;\r\n");
+        $r->Append("            if ((lastCW == cw) && (lastCH == ch)) {\r\n");
+        $r->Append("                setTimeout(timeFragment, 100);\r\n");
+        $r->Append("                return;\r\n");
+        $r->Append("            }\r\n");
+        $r->Append("            lastCW = cw;\r\n");
+        $r->Append("            lastCH = ch;\r\n");
+        $r->Append("\r\n");
+        $r->Append("            eb.processDock();\r\n");
+        $r->Append("\r\n");
+        $r->Append("            setTimeout(timeFragment, 100);\r\n");
+        $r->Append("        }\r\n");
+        $r->Append("    </script>\r\n");
+        $r->Append("</head>\r\n");
+        $r->Append("<body onload=\"onLoad()\" style=\"margin: 0px; padding: 0px; background-color: #a0a0a0;\r\n");
+        $r->Append("    width: 100%; height: 100%\">\r\n");
+        $r->Append("    <div id=\"divSearchText\" style=\"position: absolute; width: 1px; height: 1px; overflow: hidden\">\r\n");
+        $r->Append("        " . $this->jsStringSearchText->ToString() . "\r\n");
+        $r->Append("    </div>\r\n");
+        $r->Append("    <div id=\"divRoot\" style=\"position: absolute; width: 100%; height: 100%;\">\r\n");
+        $r->Append("    </div>\r\n");
+        $r->Append("</body>\r\n");
+        $r->Append("</html>\r\n");
+
+        return $r->ToString();
     }
 
     /**
@@ -402,3 +738,56 @@ class ScriptDatabase {
         $this->sqlResultSet = new \ScriptEngine\SqlResultSet();
     }
 }
+
+/**
+ * Class ScriptResponse 后台javascript的Response接口
+ * @package Solution
+ */
+class ScriptResponse {
+    //public System.Web.HttpResponse response = null;
+    public $redirectUrl = "";
+    //public ScriptResponse(System.Web.HttpResponse response) {
+    //this.response = response;
+    //}
+    public function redirect(string $url): void {
+        //response.Redirect(url);
+        $this->redirectUrl = $url;
+    }
+}
+
+
+namespace Solution\PageWeb;
+
+use Solution\Solution;
+
+class ScriptEngineInst {
+    /**
+     * @var ScriptResponse
+     */
+    public $scriptResponse = null;
+}
+
+class ThreadInitScript extends \Thread {
+    //public System.Web.SessionState.HttpSessionState session;
+    //public System.Web.HttpRequest request;
+    //public System.Web.HttpResponse response;
+    /**
+     * @var Solution\PageWeb
+     */
+    public $handle;
+    public $complete = false;
+    /**
+     * @var ScriptEngineInst
+     */
+    public $result = null;
+
+    public function run() {
+        try {
+            $result = $this->handle->fInitScriptEngine($this->session, $this->request, $this->response);
+        } catch (\Exception $e) {
+            \Etc\Pub::$log->writeWarning("script thread init error, errorString=" . $e->Message . ",st=" . $e->StackTrace . ToString());
+        }
+        $this->complete = true;
+    }
+}
+
