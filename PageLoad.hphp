@@ -11,6 +11,8 @@ namespace eEngine;
 require_once __DIR__ . '/Etc/Pub.hphp';
 
 use Etc\Pub;
+use TamPub1\ConfigurationManager;
+use TamPub1\StringFunc;
 
 class PageLoad {
     /**
@@ -46,7 +48,60 @@ class PageLoad {
         //!!! CacheGenerator.applicationPath = Request.ApplicationPath;
         //!!! CacheGenerator.start();
         //Request.ContentEncoding = System.Text.Encoding.GetEncoding("gb2312");
+        $url = isset($_GET["_L_"]) ? $_GET["_L_"] : null;
+        $taskSet = isset($_GET["_T_"]) ? $_GET["_T_"] : null;
+        $fileUpload = isset($_GET["_F_"]) ? $_GET["_F_"] : null;
+        if ($url == null) $url = "";
+        //url = String(url.getBytes("iso-8859-1"), "utf-8");
+        //Solution.PageWeb page;
+        \Etc\Pub::$lockObject->Lock();
+        $page = \Etc\Pub::$eEngine->getPage($url);
+        \Etc\Pub::$lockObject->Unlock();
+        if ($page == null) {
+            if (StringFunc::length($url) > 0) {
+                \Etc\Pub::$log->writeWarning("无法载入页面，尝试载入默认页面,url=" . $url);
+            }
+            //尝试载入默认页面
+            $url = ConfigurationManager::readString("ePage", "defaultPage");
+            \Etc\Pub::$lockObject->Lock();
+            $page = \Etc\Pub::$eEngine->getPage($url);
+            \Etc\Pub::$lockObject->Unlock();
+            if ($page == null) {
+                $jsStringInitControl = "alert(\"" .
+                    "can not load page，url=" . $url .
+                    "\");";
+                \Etc\Pub::$log->writeWarning("无法载入页面,url=" . $url);
+                return;
+            }
+        }
+        //TamPub1.Tree<Solution.Solution.Item> project;
+        \Etc\Pub::$lockObject->Lock();
+        $project = \Etc\Pub::$eEngine->solution->getProject($page->projectItem);
+        \Etc\Pub::$lockObject->Unlock();
+        if ($fileUpload != null) {
 
+
+        } else if ($taskSet == null) {
+            $startTime = time();
+            //Etc.Pub.log.writeCommon("start generate webpage, url=" + url);
+            $scriptEngineInst = $page->initScriptEngine(Session, Request, Response);
+            if ($scriptEngineInst == null) {
+                Response . Clear();
+                Response . Flush();
+                Response . End();
+                return;
+            }
+            $jsStringTitle = $page->generateJsStringTitle();
+            $jsStringHead = $page->generateJsStringHead();
+            $jsStringInclude = $page->generateJsStringInclude();
+            $jsStringOnPageCreate = $page->generateJsStringOnPageCreate();
+            $jsStringOnPageLoad = $page->generateJsStringOnPageLoad();
+            $jsStringInitControl = $page->generateJsStringInitControl();
+            $jsStringOnControlLoad = $page->generateJsStringOnControlLoad();
+        } else {
+            $a = 230902398;
+
+        }
     }
 }
 
