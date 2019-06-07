@@ -1458,22 +1458,22 @@ class StringData2 {
         }
     }
 
-    public function appendInt16(int $value): void {
-        $this->appendWord($value);
-    }
-
     public function appendWord(int $value): int {
         $this->appendByte($value & 0xFF);
         $this->appendByte(($value & 0xFF00) >> 8);
     }
 
-    public function appendInt32(int $value): void {
-        $this->appendDWord($value);
+    public function appendInt16(int $value): void {
+        $this->appendWord(Converter::int16ToUInt16($value));
     }
 
     public function appendDWord(int $value): void {
         $this->appendWord($value & 0xFFFF);
         $this->appendWord(($value & 0xFFFF0000) >> 16);
+    }
+
+    public function appendInt32(int $value): void {
+        $this->appendDWord(Converter::int32ToUInt32($value));
     }
 
     public function readByte(): int {
@@ -1487,62 +1487,62 @@ class StringData2 {
         return $result;
     }
 
-    public function readInt16(): int {
-        return Convert . ToInt16(readWord());
+    public function readWord(): int {
+        $result = $this->readByte();
+        $result = $result | ($this->readByte() << 8);
+        return $result;
     }
 
-    public function readWord(): int {
-        UInt16 $result = Convert . ToUInt16(readByte());
-            $result = Convert . ToUInt16($result | (Convert . ToUInt16(readByte()) << 8));
-            return $result;
-        }
-
-    public function readInt32(): int {
-        return Convert . ToInt32(readDWord());
+    public function readInt16(): int {
+        return Converter::uint16ToInt16($this->readWord());
     }
 
     public function readDWord(): int {
-        UInt32 $result = Convert . ToUInt32(readWord());
-            $result = $result | Convert . ToUInt32(readWord() << 16);
-            return $result;
-        }
+        $result = $this->readWord();
+        $result = $result | ($this->readWord() << 16);
+        return $result;
+    }
+
+    public function readInt32(): int {
+        return Converter::uint32ToInt32($this->readDWord());
+    }
 
     public function readString(): string {
-        int len = Math . Min(readInt32(), $this->buff . Length - $this->sp);
-            string $result = $this->buff . Substring($this->sp, len);
-            $this->sp += len;
-            return ($result);
-        }
+        $len = min($this->readInt32(), StringFunc::length($this->buff) - $this->sp);
+        $result = StringFunc::copy($this->buff, $this->sp, $len);
+        $this->sp += $len;
+        return ($result);
+    }
 
     public function readString8(): string {
-        int len = Math . Min(readByte(), $this->buff . Length - $this->sp);
-            string $result = $this->buff . Substring($this->sp, len);
-            $this->sp += len;
-            return ($result);
-        }
+        $len = min($this->readByte(), StringFunc::length($this->buff) - $this->sp);
+        $result = StringFunc::copy($this->buff, $this->sp, $len);
+        $this->sp += $len;
+        return ($result);
+    }
 
     public function readString16(): string {
-        int len = Math . Min(readWord(), $this->buff . Length - $this->sp);
-            string $result = $this->buff . Substring($this->sp, len);
-            $this->sp += len;
-            return ($result);
-        }
+        $len = min($this->readWord(), StringFunc::length($this->buff) - $this->sp);
+        $result = StringFunc::copy($this->buff, $this->sp, $len);
+        $this->sp += $len;
+        return ($result);
+    }
 
     public function appendString(string $value): void {
-        $this->appendInt32(value . Length);
-        $this->buff += value;
+        $this->appendInt32(StringFunc::length($value));
+        $this->buff .= $value;
     }
 
     public function appendString8(string $value): void {
-        value = value . Substring(0, Math . Min(0xff, value . Length));
-        $this->appendByte(Convert . ToByte(value . Length));
-        $this->buff += value;
+        $value = StringFunc::copy($value, 0, min(0xff, StringFunc::length($value)));
+        $this->appendByte(StringFunc::length($value));
+        $this->buff .= $value;
     }
 
     public function appendString16(string $value): void {
-        value = value . Substring(0, Math . Min(0xffff, value . Length));
-        $this->appendWord(Convert . ToUInt16(value . Length));
-        $this->buff += value;
+        $value = StringFunc::copy($value, 0, min(0xffff, StringFunc::length($value)));
+        $this->appendWord(StringFunc::length($value));
+        $this->buff .= $value;
     }
 }
 
