@@ -10,6 +10,7 @@ namespace Solution;
 
 require_once __DIR__ . "/Page.hphp";
 
+use Etc\Pub;
 use ScriptEngine\ScriptEngine;
 use TamPub1\DelphiString;
 use TamPub1\Etc;
@@ -709,7 +710,7 @@ class PageWeb extends Page {
             $url = "/" . $this->solution->getProject($this->projectItem)->value->projectFolderName . $url;
             $url = "ee.aspx?_L_=" . $url;
         } else {
-            $url = $this->control->value->property->getItem("linkExternal")->value->asString;
+            $url = $control->value->property->getItem("linkExternal")->value->asString;
         }
         //产生参数
         $urlParams = new \Etc\UrlParams();
@@ -719,6 +720,81 @@ class PageWeb extends Page {
         }
         //产生语句
         $result .= "addLink(c, \"" . $url . "\");\n";
+        return $result;
+    }
+
+    private function generateJsStringEdit(Tree $control): string {
+        $result = "";
+        $result .= $this->generateJsStringPanel($control);
+        //eb.addEdit(c, font, fontSize, fontColor, fontBold, password, multiLine, inputHint);
+        //缓存载入皮肤
+        $project = $this->solution->getProject($this->projectItem);
+        if ($project->value->skin == null) {
+            $project->value->skin = new \Etc\Skin();
+        }
+        $skinItem = $project->value->skin->loadXml($project->value->projectPath . "skins" . Pub::$pathSeperator .
+            $control->value->property->getItem("backgroundSkin")->value->asString . ".xml");
+        if ($skinItem == null) return $result;
+        $fontBold = "normal";
+        if ($control->value->property->getItem("inputFontBold")->value->asString ==="true") {
+            $fontBold = "bold";
+        }
+        $password = "false";
+        if ($control->value->property->getItem("inputPassword")->value->asString==="true") {
+            $password = "true";
+        }
+        $multiLine = "false";
+        if ($control->value->property->getItem("multiLine")->value->asString ==="true") {
+            $multiLine = "true";
+        }
+        $inputHint = "false";
+        if ($control->value->property->getItem("inputHint")->value->asString ==="true") {
+            $inputHint = "true";
+        }
+        $result .= "eb.addEdit(c," .
+            "\"" . $control->value->property->getItem("inputFont")->value->asString . "\"," .
+            "\"" . $control->value->property->getItem("inputFontSize")->value->asString . "pt\"," .
+            "\"#" . $control->value->property->getItem("inputFontColor")->value->asString . "\"," .
+            "\"" . fontBold . "\"," .
+            password . "," .
+            multiLine . "," .
+            inputHint .
+            ");\n";
+        //设置初始值
+        if ($control->value->property->getItem("inputText")->value->asString . Length > 0) {
+            $result .= "c._input.value=\"" . scriptEngine . getInlineResult($control->value->property->getItem("inputText")->value->asString) . Replace("\"", "\\\"") + "\";\n";
+        }
+        //文字自适应
+        //eb.setInputFontSizeAuto(c, xx);
+        if ($control->value->property->getItem("inputFontSizeAuto")->value->asInt32 > 0) {
+            $result += "eb.setInputFontSizeAuto(c, " + $control->value->property->getItem("inputFontSizeAuto")->value->asInt32 + ");\n";
+        }
+        //密码框
+        if ($control->value->property->getItem("inputPassword")->value->asString . Equals("true")) {
+            //$result += "c._input.type=\"password\";\n";
+        }
+        //事件
+        if ($control->value->property->getItem("onFocus")->value->asString . Length > 0) {
+            $result += "eb.addEvent(c._input,\"focus\", function (event) {\n" +
+                "var sender = event.target ? event.target : (event.srcElement ? event.srcElement : null);\n" +
+                "if (sender == null) return;\n" +
+                scriptEngine . getInlineResult($control->value->property->getItem("onFocus")->value->asString) +
+                "\n},false);\n";
+        }
+        if ($control->value->property->getItem("onFocusLost")->value->asString . Length > 0) {
+            $result += "eb.addEvent(c._input,\"blur\", function (event) {\n" +
+                "var sender = event.target ? event.target : (event.srcElement ? event.srcElement : null);\n" +
+                "if (sender == null) return;\n" +
+                scriptEngine . getInlineResult($control->value->property->getItem("onFocusLost")->value->asString) +
+                "\n},false);\n";
+        }
+        if ($control->value->property->getItem("onChange")->value->asString . Length > 0) {
+            $result += "eb.addEvent(c._input,\"input\", function (event) {\n" +
+                "var sender = event.target ? event.target : (event.srcElement ? event.srcElement : null);\n" +
+                "if (sender == null) return;\n" +
+                scriptEngine . getInlineResult($control->value->property->getItem("onChange")->value->asString) +
+                "\n},false);\n";
+        }
         return $result;
     }
 
