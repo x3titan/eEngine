@@ -12,6 +12,7 @@ require_once __DIR__ . "/Page.hphp";
 
 use ScriptEngine\ScriptEngine;
 use TamPub1\DelphiString;
+use TamPub1\Etc;
 use TamPub1\StringBuilder;
 use TamPub1\StringFunc;
 use TamPub1\Tree;
@@ -458,7 +459,268 @@ class PageWeb extends Page {
         return $result;
     }
 
+    public function generateJsStringOnPageCreate(): string {
+        $result = new StringBuilder();
+        //全局环境变量
+        $result->Append("ee.pageUrl=\"/" . $this->solution->getProject($this->$this->projectItem)->value->projectFolderName . Solution::getPath($this->$this->projectItem) . "\";\n");
+        if ($this->offlineMode) {
+            $result->Append("ee.pageRoot=\"" . $this->relateCacheRoot . $this->solution->getProject($this->$this->projectItem)->value->projectFolderName . "\";\n");
+            $result->Append("ee.relatedCache=\"" . $this->relateCacheRoot . "\";\n");
+            $result->Append("ee.eePath=\"" . $this->eePath . "\";\n");
+            $result->Append("ee.pageRootHtm=\"/index.htm\";\n");
+        } else {
+            $result->Append("ee.pageRoot=\"ee.aspx?_L_=/" . $this->solution->getProject($this->$this->projectItem)->value->projectFolderName . "\";\n");
+        }
+        //产生事务集
+        for ($i = 0; $i < count($this->taskSet->items); $i++) {
+            //ajax变量
+            $result->Append("var " . $this->taskSet->items[$i]->name . "_ajax = new TamAjax(\"" . $this->taskSet->items[$i]->name . "_ajax\");\n");
+            //post函数
+            $result->Append("function " . $this->taskSet->items[$i]->name . "() {\n");
+            $result->Append("\teio.clear();\n");
+            $scripts = StringFunc::split(StringFunc::replace($this->taskSet->items[$i]->script1, "\r\n", "\n"), '\n');
+            for ($j = 0; $j < count($scripts); $j++) {
+                $result->Append("\t" . $scripts[$j] . "\n");
+            }
+            $result->Append("\tee.post(\"" . $this->taskSet->items[$i]->name . "\");\n");
+            $result->Append("}\n");
+            //ack函数
+            $result->Append($this->taskSet->items[$i]->name . "_ajax.onReceive = function(sender) {\n");
+            //$result->Append( "alert(sender.responseText);\n"; //测试
+            $result->Append("\teio.clear();\n");
+            $result->Append("\teio.buffi=sender.responseText;\n");
+            $scripts = StringFunc::split(StringFunc::replace($this->taskSet->items[$i]->script3, "\r\n", "\n"), '\n');
+            for ($j = 0; $j < count($scripts); $j++) {
+                $result->Append("\t" . $scripts[$j] . "\n");
+            }
+            $result->Append("}\n");
+        }
+        //divRoot.onPageCreate
+        //TamPub1 . Tree < Control> $node;
+        $node = $this->controls->getFirst();
+        while (true) {
+            $node = $this->controls->getNext();
+            if ($node == null) break;
+            if ($node->value->type === "DivRoot") {
+                $s = $node->value->property->getItem("onPageCreate")->value->asString;
+                if (StringFunc::length($s) > 0) {
+                    $result->Append($this->scriptEngine->getInlineResult($s) . "\n");
+                }
+            } else if ($node->value->type === "FileUpload") {
+                $name = $node->value->name;
+                //upload file: get progress
+                $result->Append(
+                    "var " . $name . "_ajax = new TamAjax(\"" . $name . "_ajax\");\n" .
+                    "function " . $name . "_start() {\n" .
+                    "	ee.getControl(\"" . $name . "\").uploadStop = false;\n" .
+                    "	ee.post(\"" . $name . "\",\"_F_=P\");\n" .
+                    "}\n" .
+                    "" . $name . "_ajax.onReceive = function(sender) {\n" .
+                    "   var c = ee.getControl(\"" . $name . "\");\n" .
+                    "   if (c.uploadStop) return;\n" .
+                    "	eio.clear();\n" .
+                    "	eio.buffi=sender.responseText;\n" .
+                    "   var cmd = eio.readString8();\n" .
+                    "   if (cmd == \"pos\") {\n" .
+                    "       var uploadSizeCurrent = eio.readInt32();\n" .
+                    "       var uploadSizeTotal = eio.readInt32();\n" .
+                    "       c.onUploadProgress(c.uploadFilePath, c.uploadFilename, c.uploadFileExt, uploadSizeCurrent, uploadSizeTotal);\n" .
+                    "       setTimeout(" . $name . "_start, 300);\n" .
+                    "   } else if (cmd == \"kill\") {\n" .
+                    "       var errorString = eio.readString8();\n" .
+                    "       c.onUploadError(c.uploadFilePath, c.uploadFilename, c.uploadFileExt, -2, errorString);\n" .
+                    "   } else if (cmd == \"complete\") {\n" .
+                    "       var buff = eio.readString16();\n" .
+                    "       eio.clear();\n" .
+                    "       eio.buffi = buff;\n" .
+                    "       c.onUploadCompleteC(c.uploadFilePath, c.uploadFilename, c.uploadFileExt);\n" .
+                    "   }\n" .
+                    "}\n");
+                //upload file: user stop
+                $result->Append(
+                    "var " . $name . "Stop_ajax = new TamAjax(\"" . $name . "Stop_ajax\");\n" .
+                    "function " . $name . "_stop() {\n" .
+                    "	eio.clear();\n" .
+                    "	ee.post(\"" . $name . "\",\"_F_=S\");\n" .
+                    "   var c = ee.getControl(\"" . $name . "\");\n" .
+                    "   c.onUploadError(c.uploadFilePath, c.uploadFilename, c.uploadFileExt, -1, \"用户停止上传\");\n" .
+                    "   c.uploadStop = true;\n" .
+                    "}\n" .
+                    "" . $name . "Stop_ajax.onReceive = function(sender) {\n" .
+                    "}\n");
+            }
+        }
+        return $result->ToString();
+    }
 
+    public function generateJsStringOnPageLoad(): string {
+        $result = "";
+        //TamPub1 . Tree < Control> $node;
+        $node = $this->controls->getFirst();
+        while (true) {
+            $node = $this->controls->getNext();
+            if ($node == null) break;
+            if ($node->value->type === "DivRoot") {
+                //onPageLoad事件
+                $s = $node->value->property->getItem("onPageLoad")->value->asString;
+                if (StringFunc::length($s) > 0) {
+                    $result .= $this->scriptEngine->getInlineResult($s) . "\n";
+                }
+                break;
+            }
+        }
+        return $result;
+    }
+
+    public function generateJsStringOnControlLoad(): string {
+        $result = "";
+        //TamPub1 . Tree < Control> $node;
+
+        //初始化TableBody控件，eb.initTableBody(ee.getControl("tablebody1"));
+        $node = $this->controls->getFirst();
+        while (true) {
+            $node = $this->controls->getNext();
+            if ($node == null) break;
+            if ($node->value->type === "TableBody") {
+                if (StringFunc::length($node->value->property->getItem("tableTitle")->value->asString) > 0) {
+                    $result .= "ee.getControl(\"" . $node->value->name . "\").tableTitle=ee.getControl(\"" . $node->value->property->getItem("tableTitle")->value->asString . "\");\n";
+                }
+                $result .= "eb.initTableBody(ee.getControl(\"" . $node->value->name . "\"));\n";
+                if ($node->value->property->getItem("autoClear")->value->asString === "true") {
+                    $result .= "ee.clearTableData(ee.getControl(\"" . $node->value->name . "\"));\n";
+                }
+            } else if ($node->value->type === "TableTitle") {
+                if (StringFunc::length($node->value->property->getItem("tableBody")->value->asString) > 0) {
+                    $result .= "ee.getControl(\"" . $node->value->name . "\").tableBody=ee.getControl(\"" . $node->value->property->getItem("tableBody")->value->asString . "\");\n";
+                }
+            }
+        }
+        //用户定义的divRoot.onControlLoad
+        $node = $this->controls->getFirst();
+        while (true) {
+            $node = $this->controls->getNext();
+            if ($node == null) break;
+            if ($node->value->type === "DivRoot") {
+                //onControlLoad事件
+                $s = $node->value->property->getItem("onControlLoad")->value->asString;
+                if (StringFunc::length($s) > 0) {
+                    $result .= $this->scriptEngine->getInlineResult($s) . "\n";
+                }
+                //touch事件
+                $s = $node->value->property->getItem("onSlideUp")->value->asString;
+                if (StringFunc::length($s) > 0) {
+                    $result .= "\$g(\"divRoot\").onSlideUp = function () {\n" . $this->scriptEngine->getInlineResult($s) . "\n}\n";
+                }
+                $s = $node->value->property->getItem("onSlideDown")->value->asString;
+                if (StringFunc::length($s) > 0) {
+                    $result .= "\$g(\"divRoot\").onSlideDown = function () {\n" . $this->scriptEngine->getInlineResult($s) . "\n}\n";
+                }
+                $s = $node->value->property->getItem("onSlideLeft")->value->asString;
+                if (StringFunc::length($s) > 0) {
+                    $result .= "\$g(\"divRoot\").onSlideLeft = function () {\n" . $this->scriptEngine->getInlineResult($s) . "\n}\n";
+                }
+                $s = $node->value->property->getItem("onSlideRight")->value->asString;
+                if (StringFunc::length($s) > 0) {
+                    $result .= "\$g(\"divRoot\").onSlideRight = function () {\n" . $this->scriptEngine->getInlineResult($s) . "\n}\n";
+                }
+                break;
+            }
+        }
+        //启动动画
+        $node = $this->controls->getFirst();
+        while (true) {
+            $node = $this->controls->getNext();
+            if ($node == null) break;
+            if ($this->getColonStringValue($node->value->property->getItem("aniAlpha")->value->asString) === "null" &&
+                $this->getColonStringValue($node->value->property->getItem("aniPos")->value->asString) === "null" &&
+                $this->getColonStringValue($node->value->property->getItem("aniSize")->value->asString) === "null") {
+                continue;
+            }
+            if (!$node->value->property->getItem("aniAutoStart")->value->asString === "true") continue;
+            //ee.showAni(ee.getControl("panel1"));
+            $result .= "ee.showAni(ee.getControl(\"" . $node->value->name . "\"));\n";
+        }
+        return $result;
+    }
+
+    public function generateJsStringInitControl(): string {
+        $result = new StringBuilder();
+        $result->Append("var c;\n");
+        //TamPub1 . Tree < Control> $node;
+        $node = $this->controls->getFirst();
+        while (true) {
+            $node = $this->controls->getNext();
+            if ($node == null) break;
+            $result->Append($this->generateJsStringControl($node));
+        }
+        return $result->ToString();
+    }
+
+    private function generateJsStringControl(Tree $control): string {
+        $result = "";
+        if ($control->value->type === "Panel") {
+            $result .= $this->generateJsStringPanel($control);
+        } else if ($control->value->type === "Link") {
+            $result .= $this->generateJsStringLink($control);
+        } else if ($control->value->type === "Edit") {
+            $result .= $this->generateJsStringEdit($control);
+        } else if ($control->value->type === "TableTitle") {
+            $result .= $this->generateJsStringPanel($control);
+            $result .= "c.layout=\"LayoutX\";\n";
+        } else if ($control->value->type === "TableTitleItem") {
+            $result .= $this->generateJsStringPanel($control);
+            $result .= "c.heavyEnabled=" . $control->value->property->getItem("heavyEnabled")->value->asString . ";\n";
+            $result .= "c.heavy=" . $control->value->property->getItem("heavy")->value->asString . ";\n";
+        } else if ($control->value->type === "TableBody") {
+            $result .= $this->generateJsStringTableBody($control);
+        } else if ($control->value->type === "TableBodyItem") {
+            $result .= $this->generateJsStringTableBodyItem($control);
+        } else if ($control->value->type === "DivRoot") {
+            $result .= $this->generateJsStringPanel($control);
+        } else if ($control->value->type === "RichEdit") {
+            $result .= $this->generateJsStringRichEdit($control);
+        } else if ($control->value->type === "LayoutX" || $control->value->type === "LayoutY") {
+            $result .= $this->generateJsStringLayout($control);
+        } else if ($control->value->type === "LayoutXItem" || $control->value->type === "LayoutYItem") {
+            $result .= $this->generateJsStringLayoutItem($control);
+        } else if ($control->value->type === "FileUpload") {
+            $result .= $this->generateJsStringUploadFile($control);
+        } else if ($control->value->type === "CheckBox") {
+            $result .= $this->generateJsStringCheckBox($control);
+        } else if ($control->value->type === "Button") {
+            $result .= $this->generateJsStringButton($control);
+        }
+        //overflow(autoScroll)
+        if ($control->value->property->getItem("autoScroll")->value->asString === "true") {
+            $result .= "ee.setAutoScroll(c," . $control->value->property->getItem("autoScroll")->value->asString . ");\n";
+        }
+        return $result;
+    }
+
+    private function generateJsStringLink(Tree $control): string {
+        $result = "";
+        $result .= $this->generateJsStringPanel($control);
+        //addLink(c, "www.baidu.com");
+        //产生url
+        $url = $control->value->property->getItem("linkInternal")->value->asString;
+        if (StringFunc::length($url) > 0) {
+            $url = StringFunc:: addFrontChar($url, '/');
+            $url = StringFunc:: deleteRearChar($url, '/');
+            $url = "/" . $this->solution->getProject($this->projectItem)->value->projectFolderName . $url;
+            $url = "ee.aspx?_L_=" . $url;
+        } else {
+            $url = $this->control->value->property->getItem("linkExternal")->value->asString;
+        }
+        //产生参数
+        $urlParams = new \Etc\UrlParams();
+        $urlParams->decode($control->value->property->getItem("params")->value->asString);
+        for ($i = 0; $i < count($urlParams->items); $i++) {
+            $url .= "&" . $urlParams->items[$i]->name . "=" . $this->scriptEngine->getInlineResult($urlParams->items[$i]->value);
+        }
+        //产生语句
+        $result .= "addLink(c, \"" . $url . "\");\n";
+        return $result;
+    }
 
 
     /**
