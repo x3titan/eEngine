@@ -1369,6 +1369,10 @@ class StringBuilder {
         array_push($buff, $value);
     }
 
+    public function Clear(): void {
+        $this->buff = array();
+    }
+
     public function ToString(): string {
         return implode("", $this->buff);
     }
