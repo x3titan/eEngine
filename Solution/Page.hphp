@@ -8,6 +8,8 @@
 
 namespace Solution;
 
+require_once __DIR__ . "/../ScriptEngine/TaskSet.hphp";
+
 use MongoDB\BSON\ObjectId;
 use ScriptEngine\TaskSet;
 use Solution\Page\Control;
@@ -182,10 +184,6 @@ class Page {
 
     public static function initControlProperty(Control $control): void {
         $property = new  \TamClass1\PropertyList\PropertyListItem();
-        $doc = simplexml_load_file('');
-        $doc->attributes()->sss = 100;
-        /* @var $property ->defaultValue->asInt32 int */
-
         //通用参数--尺寸和位置
         $property->name = "left";
         $property->displayName = "横坐标";
