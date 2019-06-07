@@ -15,6 +15,7 @@ use ScriptEngine\ScriptEngine;
 use Solution\PageWeb\ExecuteScript2Thread;
 use TamPub1\DelphiString;
 use TamPub1\Etc;
+use TamPub1\FileOperation;
 use TamPub1\StringBuilder;
 use TamPub1\StringFunc;
 use TamPub1\Tree;
@@ -1465,90 +1466,91 @@ class PageWeb extends Page {
 
     /// <summary>执行FileUpload控件的onUploadStartS()事件</summary>
     public function executeOnUploadStartS(string $controlName, string $eio, string $filename, bool &$cancelUpload, string &$newFilename, string &$errorString): bool {
-        $control = getControlByName(controls, controlName);
-        if (control == null) return false;
+        $control = $this->getControlByName($this->controls, $controlName);
+        if ($control == null) return false;
         //接收的数据放入eio接口
         try {
-            scriptEngine . engine . Run(
-                "eio.buffi=\"" + eio . Replace("^^", "^") . Replace("^x", "<") . Replace("\"", "\\\"") . Replace("\r", "\\r") . Replace("\n", "\\n") + "\";\n" +
-                "var cancelUpload = false;\n" +
-                "var newFileName = \"\";\n" +
-                "var fileName = \"" + filename + "\";\n" +
-                "var fileExt =  \"" + Path . GetExtension(filename) + "\";\n" +
+            $this->scriptEngine->engine->executeString(
+                "eio.buffi=\"" .
+                StringFunc::replace(StringFunc::replace(StringFunc::replace(StringFunc::replace(StringFunc::replace(
+                    $eio, "^^", "^"), "^x", "<"), "\"", "\\\""), "\r", "\\r"), "\n", "\\n") . "\";\n" .
+                "var cancelUpload = false;\n" .
+                "var newFileName = \"\";\n" .
+                "var fileName = \"" . $filename . "\";\n" .
+                "var fileExt =  \"" . FileOperation::getFileExt($filename) . "\";\n" .
                 "var errorString = \"\";\n"
             );
-        } catch (Exception e) {
-            Etc . Pub . log . writeWarning("executeOnUploadStartS() prepare eio.buffi error, errorString=" + e . Message);
+        } catch (\Exception $e) {
+            \Etc\Pub::$log->writeWarning("executeOnUploadStartS() prepare eio.buffi error, errorString=" . $e->getMessage());
             return false;
         }
-            //执行用户代码
-            try {
-                ExecuteScript2Thread task = new ExecuteScript2Thread();
-                task . script = control . value . property . getItem("onUploadStartS") . value . asString;
-                task . engine = scriptEngine;
-                System . Threading . Thread thread = new System . Threading . Thread(task . run);
-                thread . Start();
-                while (true) {
-                    if (task . complete) break;
-                    System . Threading . Thread . Sleep(50);
-                }
-                if (task . error . Length > 0) {
-                    throw new Exception(task . error);
-                }
+        //执行用户代码
+        try {
+            $task = new ExecuteScript2Thread();
+            $task->script = $control->value->property->getItem("onUploadStartS")->value->asString;
+            $task->engine = $this->scriptEngine;
+            $task->start();
+            while (true) {
+                if ($task->complete) break;
+                usleep(50000);
+            }
+            if (StringFunc::length($task->error) > 0) {
+                throw new \Exception($task->error);
+            }
 
-                cancelUpload = scriptEngine . engine . Run("cancelUpload") . ToString() . ToUpper() . Equals("TRUE");
-                newFilename = scriptEngine . engine . Run("newFileName") . ToString();
-                errorString = scriptEngine . engine . Run("errorString") . ToString();
-            } catch (Exception e) {
-            if (e == null) {
+            $cancelUpload = $this->scriptEngine->engine->executeString("cancelUpload")->ToString()->ToUpper()->Equals("TRUE");
+            $newFilename = $this->scriptEngine->engine->executeString("newFileName")->ToString();
+            $errorString = $this->scriptEngine->engine->executeString("errorString")->ToString();
+        } catch (\Exception $e) {
+            if ($e == null) {
                 //仅用于监测script的执行错误情况
             }
-            Etc . Pub . log . writeWarning("executeOnUploadStartS() execute error, errorString=" + e . Message);
+            \Etc\Pub::$log->writeWarning("executeOnUploadStartS() execute error, errorString=" . $e->getMessage());
         }
-            return true;
-        }
+        return true;
+    }
 
     /// <summary>执行FileUpload控件的onUploadCompletedS()事件</summary>
     public function executeOnUploadCompleteS(string $controlName, string &$eio, string $filename, string $newFilename): bool {
-        $control = getControlByName(controls, controlName);
-        if (control == null) return false;
-        newFilename = newFilename . Replace("\\", "\\\\");
+        $control = $this->getControlByName($this->controls, $controlName);
+        if ($control == null) return false;
+        $newFilename = StringFunc::replace($newFilename, "\\", "\\\\");
         //接收的数据放入eio接口
         try {
-            scriptEngine . engine . Run(
-                "eio.clear();\n" +
-                "var newFileName = \"" + newFilename + "\";\n" +
-                "var fileName = \"" + filename + "\";\n" +
-                "var fileExt =  \"" + Path . GetExtension(filename) + "\";\n"
+            $this->scriptEngine->engine->executeString(
+                "eio.clear();\n" .
+                "var newFileName = \"" . $newFilename . "\";\n" .
+                "var fileName = \"" . $filename . "\";\n" .
+                "var fileExt =  \"" . FileOperation::getFileExt($filename) . "\";\n"
             );
-        } catch (Exception e) {
-            Etc . Pub . log . writeWarning("executeOnUploadCompleteS() prepare eio.buffi error, errorString=" + e . Message);
+        } catch (\Exception $e) {
+            \Etc\Pub::$log->writeWarning("executeOnUploadCompleteS() prepare eio.buffi error, errorString=" . $e->getMessage());
             return false;
         }
-            //执行用户代码
-            try {
-                ExecuteScript2Thread task = new ExecuteScript2Thread();
-                task . script = control . value . property . getItem("onUploadCompleteS") . value . asString;
-                task . engine = scriptEngine;
-                System . Threading . Thread thread = new System . Threading . Thread(task . run);
-                thread . Start();
-                while (true) {
-                    if (task . complete) break;
-                    System . Threading . Thread . Sleep(50);
-                }
-                if (task . error . Length > 0) {
-                    throw new Exception(task . error);
-                }
-                eio = scriptEngine . engine . Run("eio.buffo") . ToString();
-            } catch (Exception e) {
-            if (e == null) {
+        //执行用户代码
+        try {
+            $task = new ExecuteScript2Thread();
+            $task->script = $control->value->property->getItem("onUploadCompleteS")->value->asString;
+            $task->engine = $this->scriptEngine;
+            $task->start();
+            while (true) {
+                if ($task->complete) break;
+                usleep(50000);
+            }
+            if (StringFunc::length($task->error) > 0) {
+                throw new \Exception($task->error);
+            }
+            $eio = $this->scriptEngine->engine->executeString("eio.buffo")->ToString();
+        } catch (\Exception $e) {
+            if ($e == null) {
                 //仅用于监测script的执行错误情况
             }
-            Etc . Pub . log . writeWarning("executeOnUploadCompleteS() execute error, errorString=" + e . Message);
+            \Etc\Pub::$log->writeWarning("executeOnUploadCompleteS() execute error, errorString=" . $e->getMessage());
         }
-            return true;
-        }
-}
+        return true;
+    }
+
+
 
 }
 
