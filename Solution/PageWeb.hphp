@@ -406,6 +406,61 @@ class PageWeb extends Page {
         return $r->ToString();
     }
 
+    public function generateJsStringTitle(): string {
+        //初始化搜索字串
+        $this->jsStringSearchText->Clear();
+        $this->jsStringSearchTextEnabled = false;
+
+        $result = "";
+        //TamPub1 . Tree < Control> node;
+        $node = $this->controls->getFirst();
+        while (true) {
+            $node = $this->controls->getNext();
+            if ($node == null) break;
+            if ($node->value->type === "DivRoot") {
+                $result = $this->scriptEngine->getInlineResult($node->value->property->getItem("pageTitle")->value->asString);
+                if ($node->value->property->getItem("createSearchText")->value->asString === "true") {
+                    $this->jsStringSearchTextEnabled = true;
+                }
+                break;
+            }
+        }
+        return $result;
+    }
+
+    public function generateJsStringHead(): string {
+        $result = "";
+        //TamPub1 . Tree < Control> node;
+        $node = $this->controls->getFirst();
+        while (true) {
+            $node = $this->controls->getNext();
+            if ($node == null) break;
+            if ($node->value->type->Equals("DivRoot")) {
+                $result = $this->scriptEngine->getInlineResult($node->value->property->getItem("pageHead")->value->asString);
+                break;
+            }
+        }
+        return $result;
+    }
+
+    public function generateJsStringInclude(): string {
+        $result = "";
+        //TamPub1 . Tree < Control> $node;
+        $node = $this->controls->getFirst();
+        while (true) {
+            $node = $this->controls->getNext();
+            if ($node == null) break;
+            if ($node->value->type->Equals("RichEdit")) {
+                $result .= "\n    <script src=\"Scripts/richedit.js\" type=\"text/javascript\"></script>";
+                break;
+            }
+        }
+        return $result;
+    }
+
+
+
+
     /**
      * 获得":"前的值
      * @param string $value
