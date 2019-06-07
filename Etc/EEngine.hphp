@@ -9,6 +9,7 @@
 namespace Etc;
 
 require_once __DIR__ . "/../Solution/Solution.hphp";
+require_once __DIR__ . "/../Solution/PageWeb.hphp";
 
 use Solution\PageWeb;
 use Solution\Solution;
@@ -65,7 +66,7 @@ class EEngine {
      * @param string $pagePath
      * @return \Solution\PageWeb
      */
-    public function getPage(string $pagePath): \Solution\PageWeb {
+    public function getPage(string $pagePath): ? \Solution\PageWeb {
         $pagePath = StringFunc::addRearChar($pagePath, '/') . "page.xml";
         $item = $this->solution->getItem($pagePath);
         if ($item == null) return null;
