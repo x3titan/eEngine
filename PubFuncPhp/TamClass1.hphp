@@ -32,7 +32,7 @@ class PropertyList {
 
         $item = new PropertyList\PropertyListItem();
         $item->name = $name;
-        array_splice($this->items, $insertPos, 0, $item);
+        array_splice($this->items, $insertPos, 0, [$item]);
         return $item;
     }
 
