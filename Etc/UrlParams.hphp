@@ -10,6 +10,7 @@ namespace Etc;
 
 
 use Etc\UrlParams\Item;
+use TamPub1\StringData2;
 use TamPub1\StringFunc;
 
 class UrlParams {
@@ -20,18 +21,18 @@ class UrlParams {
 
     public function decode(string $buff): void {
         $this->items = array();
-        $decoder = new TamPub1 . StringData2();
+        $decoder = new StringData2();
         $decoder->buff = $buff;
-        while (!$decoder . eof()) {
+        while (!$decoder->eof()) {
             $item = new Item();
             array_push($this->items, $item);
-            $item->name = $decoder . readString();
-            $item->value = $decoder . readString();
+            $item->name = $decoder->readString();
+            $item->value = $decoder->readString();
         }
     }
 
     public function encode(): string {
-        $encoder = new TamPub1 . StringData2();
+        $encoder = new StringData2();
         for ($i = 0; $i < count($this->items); $i++) {
             $encoder->appendString($this->items[$i]->name);
             $encoder->appendString($this->items[$i]->value);
