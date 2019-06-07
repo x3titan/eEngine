@@ -73,6 +73,7 @@ class Pub {
                 $result++;
             }
         }
+        self::$lockObject->Unlock();
         return $result;
     }
 }
