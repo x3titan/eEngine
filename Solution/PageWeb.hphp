@@ -827,66 +827,63 @@ class PageWeb extends Page {
         return $result;
     }
 
-private string generateJsStringUploadFile(TamPub1.Tree<Control> control) {
-string result = "";
-result += generateJsStringPanel(control);
-result +=
-"c.innerHTML +=\n" +
-"    \"<form id='ee_" + control.value.name + "_form' method='post' action='ee.aspx?_L_=/" +
-solution.getProject(projectItem).value.projectFolderName + Solution.getPath(projectItem) + "&_F_=U' target='ee_" + control.value.name + "_frame' \" +\n" +
-"    \"enctype='multipart/form-data'>\" +\n" +
-"    \"<input type='file' id='ee_" + control.value.name + "_fileupload' name='fileUp' style='position: absolute; left:0px; top: 0px; width:100%; height:100%;'/>\" +\n" +
-"    \"<input type='hidden' id='ee_" + control.value.name + "_eio' name='eio'/>\" +\n" +
-"    \"<input type='hidden' name='controlName' value='" + control.value.name + "' />\" +\n" +
-"    \"</form> \" +\n" +
-"    \"<iframe id='ee_" + control.value.name + "_frame' name='ee_" + control.value.name + "_frame' style='display: none;'></iframe>\";\n" +
-"c.form = $g(\"ee_" + control.value.name + "_form\");\n" +
-"c.fileUpload = $g(\"ee_" + control.value.name + "_fileupload\");\n" +
-"c.frame = $g(\"ee_" + control.value.name + "_frame\");\n" +
-"c.autoUpload = " + control.value.property.getItem("autoUpload").value.asString + ";\n" +
-"c.uploadStop = false;\n" +
-"c.eio = $g(\"ee_" + control.value.name + "_eio\");\n" +
-"c.onUploadStartC = function (filePath, fileName, fileExt) {\n" +
-scriptEngine.getInlineResult(control.value.property.getItem("onUploadStartC").value.asString) + "\n" +
-"    this.eio.value = eio.buffo;\n" +
-"    this.form.submit(); \n" +
-"}\n" +
-"c.onUploadProgress = function (filePath, fileName, fileExt, sizeCurrent, sizeTotal) {\n" +
-scriptEngine.getInlineResult(control.value.property.getItem("onUploadProgress").value.asString) + "\n" +
-"}\n" +
-"c.onUploadError = function (filePath, fileName, fileExt, errorCode, errorString) {\n" +
-scriptEngine.getInlineResult(control.value.property.getItem("onUploadError").value.asString) + "\n" +
-"}\n" +
-"c.onUploadCompleteC = function (filePath, fileName, fileExt) {\n" +
-scriptEngine.getInlineResult(control.value.property.getItem("onUploadCompleteC").value.asString) + "\n" +
-"}\n" +
-"c.fileUpload.onchange = function () {\n" +
-"    if (this.parentNode.parentNode.autoUpload) {\n" +
-"        this.parentNode.parentNode.start();\n" +
-"    }\n" +
-"}\n" +
-"c.start = function () {\n" +
-"    var f = this.fileUpload.value;\n" +
-"    var pos=f.lastIndexOf(\"\\\\\");\n" +
-"    var fileName = f.substring(pos+1);\n" +
-"    pos = f.lastIndexOf(\".\");\n" +
-"    var fileExt = pos<0 ? \"\" : f.substring(pos);\n" +
-"    var filePath = f.substring(0, pos+1);  \n" +
-"    this.uploadFilePath = filePath;\n" +
-"    this.uploadFilename = fileName;\n" +
-"    this.uploadFileExt = fileExt;\n" +
-"    this.onUploadStartC(filePath, fileName, fileExt);\n" +
-"    " + control.value.name + "_start();\n" +
-"}\n" +
-"c.stop = function () {\n" +
-"    " + control.value.name + "_stop();\n" +
-"}\n";
+    private function generateJsStringUploadFile(Tree $control): string {
+        $result = $this->generateJsStringPanel(control);
+        .
+        $result .=
+            "c.innerHTML +=\n" .
+            "    \"<form id='ee_" + $control->value->name + "_form' method='post' action='ee.aspx?_L_=/" .
+            solution . getProject(projectItem) . value . projectFolderName + Solution . getPath(projectItem) + "&_F_=U' target='ee_" + $control->value->name + "_frame' \" +\n" .
+            "    \"enctype='multipart/form-data'>\" +\n" .
+            "    \"<input type='file' id='ee_" + $control->value->name + "_fileupload' name='fileUp' style='position: absolute; left:0px; top: 0px; width:100%; height:100%;'/>\" +\n" .
+            "    \"<input type='hidden' id='ee_" + $control->value->name + "_eio' name='eio'/>\" +\n" .
+            "    \"<input type='hidden' name='controlName' value='" + $control->value->name + "' />\" +\n" .
+            "    \"</form> \" +\n" .
+            "    \"<iframe id='ee_" + $control->value->name + "_frame' name='ee_" + $control->value->name + "_frame' style='display: none;'></iframe>\";\n" .
+            "c.form = $g(\"ee_" + $control->value->name + "_form\");\n" .
+            "c.fileUpload = $g(\"ee_" + $control->value->name + "_fileupload\");\n" .
+            "c.frame = $g(\"ee_" + $control->value->name + "_frame\");\n" .
+            "c.autoUpload = " + $control->value->property->getItem("autoUpload") . value . asString + ";\n" .
+            "c.uploadStop = false;\n" .
+            "c.eio = $g(\"ee_" + $control->value->name + "_eio\");\n" .
+            "c.onUploadStartC = function (filePath, fileName, fileExt) {\n" .
+            scriptEngine . getInlineResult($control->value->property->getItem("onUploadStartC") . value . asString) + "\n" .
+            "    this.eio.value = eio.buffo;\n" .
+            "    this.form.submit(); \n" .
+            "}\n" .
+            "c.onUploadProgress = function (filePath, fileName, fileExt, sizeCurrent, sizeTotal) {\n" .
+            scriptEngine . getInlineResult($control->value->property->getItem("onUploadProgress") . value . asString) + "\n" .
+            "}\n" .
+            "c.onUploadError = function (filePath, fileName, fileExt, errorCode, errorString) {\n" .
+            scriptEngine . getInlineResult($control->value->property->getItem("onUploadError") . value . asString) + "\n" .
+            "}\n" .
+            "c.onUploadCompleteC = function (filePath, fileName, fileExt) {\n" .
+            scriptEngine . getInlineResult($control->value->property->getItem("onUploadCompleteC") . value . asString) + "\n" .
+            "}\n" .
+            "c.fileUpload.onchange = function () {\n" .
+            "    if (this.parentNode.parentNode.autoUpload) {\n" .
+            "        this.parentNode.parentNode.start();\n" .
+            "    }\n" .
+            "}\n" .
+            "c.start = function () {\n" .
+            "    var f = this.fileUpload.value;\n" .
+            "    var pos=f.lastIndexOf(\"\\\\\");\n" .
+            "    var fileName = f.substring(pos+1);\n" .
+            "    pos = f.lastIndexOf(\".\");\n" .
+            "    var fileExt = pos<0 ? \"\" : f.substring(pos);\n" .
+            "    var filePath = f.substring(0, pos+1);  \n" .
+            "    this.uploadFilePath = filePath;\n" .
+            "    this.uploadFilename = fileName;\n" .
+            "    this.uploadFileExt = fileExt;\n" .
+            "    this.onUploadStartC(filePath, fileName, fileExt);\n" .
+            "    " + $control->value->name + "_start();\n" .
+            "}\n" .
+            "c.stop = function () {\n" .
+            "    " + $control->value->name + "_stop();\n" .
+            "}\n";
 
-return result;
-}
-
-
-
+        return $result;
+    }
 
 
     /**
