@@ -736,67 +736,157 @@ class PageWeb extends Page {
             $control->value->property->getItem("backgroundSkin")->value->asString . ".xml");
         if ($skinItem == null) return $result;
         $fontBold = "normal";
-        if ($control->value->property->getItem("inputFontBold")->value->asString ==="true") {
+        if ($control->value->property->getItem("inputFontBold")->value->asString === "true") {
             $fontBold = "bold";
         }
         $password = "false";
-        if ($control->value->property->getItem("inputPassword")->value->asString==="true") {
+        if ($control->value->property->getItem("inputPassword")->value->asString === "true") {
             $password = "true";
         }
         $multiLine = "false";
-        if ($control->value->property->getItem("multiLine")->value->asString ==="true") {
+        if ($control->value->property->getItem("multiLine")->value->asString === "true") {
             $multiLine = "true";
         }
         $inputHint = "false";
-        if ($control->value->property->getItem("inputHint")->value->asString ==="true") {
+        if ($control->value->property->getItem("inputHint")->value->asString === "true") {
             $inputHint = "true";
         }
         $result .= "eb.addEdit(c," .
             "\"" . $control->value->property->getItem("inputFont")->value->asString . "\"," .
             "\"" . $control->value->property->getItem("inputFontSize")->value->asString . "pt\"," .
             "\"#" . $control->value->property->getItem("inputFontColor")->value->asString . "\"," .
-            "\"" . fontBold . "\"," .
-            password . "," .
-            multiLine . "," .
-            inputHint .
+            "\"" . $fontBold . "\"," .
+            $password . "," .
+            $multiLine . "," .
+            $inputHint .
             ");\n";
         //设置初始值
-        if ($control->value->property->getItem("inputText")->value->asString . Length > 0) {
-            $result .= "c._input.value=\"" . scriptEngine . getInlineResult($control->value->property->getItem("inputText")->value->asString) . Replace("\"", "\\\"") + "\";\n";
+        if (StringFunc::length($control->value->property->getItem("inputText")->value->asString) > 0) {
+            $result .= "c._input.value=\"" . StringFunc::replace(
+                    $this->scriptEngine->getInlineResult($control->value->property->getItem("inputText")->value->asString),
+                    "\"", "\\\"") . "\";\n";
         }
         //文字自适应
         //eb.setInputFontSizeAuto(c, xx);
         if ($control->value->property->getItem("inputFontSizeAuto")->value->asInt32 > 0) {
-            $result += "eb.setInputFontSizeAuto(c, " + $control->value->property->getItem("inputFontSizeAuto")->value->asInt32 + ");\n";
+            $result .= "eb.setInputFontSizeAuto(c, " . $control->value->property->getItem("inputFontSizeAuto")->value->asInt32 . ");\n";
         }
         //密码框
-        if ($control->value->property->getItem("inputPassword")->value->asString . Equals("true")) {
+        if ($control->value->property->getItem("inputPassword")->value->asString === "true") {
             //$result += "c._input.type=\"password\";\n";
         }
         //事件
-        if ($control->value->property->getItem("onFocus")->value->asString . Length > 0) {
-            $result += "eb.addEvent(c._input,\"focus\", function (event) {\n" +
-                "var sender = event.target ? event.target : (event.srcElement ? event.srcElement : null);\n" +
-                "if (sender == null) return;\n" +
-                scriptEngine . getInlineResult($control->value->property->getItem("onFocus")->value->asString) +
+        if (StringFunc::length($control->value->property->getItem("onFocus")->value->asString) > 0) {
+            $result .= "eb.addEvent(c._input,\"focus\", function (event) {\n" .
+                "var sender = event.target ? event.target : (event.srcElement ? event.srcElement : null);\n" .
+                "if (sender == null) return;\n" .
+                $this->scriptEngine->getInlineResult($control->value->property->getItem("onFocus")->value->asString) .
                 "\n},false);\n";
         }
-        if ($control->value->property->getItem("onFocusLost")->value->asString . Length > 0) {
-            $result += "eb.addEvent(c._input,\"blur\", function (event) {\n" +
-                "var sender = event.target ? event.target : (event.srcElement ? event.srcElement : null);\n" +
-                "if (sender == null) return;\n" +
-                scriptEngine . getInlineResult($control->value->property->getItem("onFocusLost")->value->asString) +
+        if (StringFunc::length($control->value->property->getItem("onFocusLost")->value->asString) > 0) {
+            $result .= "eb.addEvent(c._input,\"blur\", function (event) {\n" .
+                "var sender = event.target ? event.target : (event.srcElement ? event.srcElement : null);\n" .
+                "if (sender == null) return;\n" .
+                $this->scriptEngine->getInlineResult($control->value->property->getItem("onFocusLost")->value->asString) .
                 "\n},false);\n";
         }
-        if ($control->value->property->getItem("onChange")->value->asString . Length > 0) {
-            $result += "eb.addEvent(c._input,\"input\", function (event) {\n" +
-                "var sender = event.target ? event.target : (event.srcElement ? event.srcElement : null);\n" +
-                "if (sender == null) return;\n" +
-                scriptEngine . getInlineResult($control->value->property->getItem("onChange")->value->asString) +
+        if (StringFunc::length($control->value->property->getItem("onChange")->value->asString) > 0) {
+            $result .= "eb.addEvent(c._input,\"input\", function (event) {\n" .
+                "var sender = event.target ? event.target : (event.srcElement ? event.srcElement : null);\n" .
+                "if (sender == null) return;\n" .
+                $this->scriptEngine->getInlineResult($control->value->property->getItem("onChange")->value->asString) .
                 "\n},false);\n";
         }
         return $result;
     }
+
+    private function generateJsStringRichEdit(Tree $control): string {
+        $result = "";
+        //string text;
+        $control->value->property->getItem("backgroundSkin"->value->asString = ""; //清空设计状态的皮肤
+        $text = $control->value->property->getItem("text")->value->asString;
+        $control->value->property->getItem("text")->value->asString = ""; //清空设计状态的文字
+        $result .= $this->generateJsStringPanel($control);
+        //createRichedit(c,text);
+        $result .= "createRichedit(c,\"" . StringFunc::replace($this->scriptEngine->getInlineResult($text), "\"", "\\\"") . "\");\n";
+        return $result;
+    }
+
+    private function generateJsStringLayout(Tree $control): string {
+        $result = "";
+        $result .= $this->generateJsStringPanel($control);
+        $result .= "c.layout=\"" . $control->value->type . "\";\n";
+        return $result;
+    }
+
+    private function generateJsStringLayoutItem(Tree $control): string {
+        $result = "";
+        $result .= $this->generateJsStringPanel($control);
+        $result .= "c.heavyEnabled=" . $control->value->property->getItem("heavyEnabled")->value->asString . ";\n";
+        $result .= "c.heavy=" . $control->value->property->getItem("heavy")->value->asString . ";\n";
+        return $result;
+    }
+
+private string generateJsStringUploadFile(TamPub1.Tree<Control> control) {
+string result = "";
+result += generateJsStringPanel(control);
+result +=
+"c.innerHTML +=\n" +
+"    \"<form id='ee_" + control.value.name + "_form' method='post' action='ee.aspx?_L_=/" +
+solution.getProject(projectItem).value.projectFolderName + Solution.getPath(projectItem) + "&_F_=U' target='ee_" + control.value.name + "_frame' \" +\n" +
+"    \"enctype='multipart/form-data'>\" +\n" +
+"    \"<input type='file' id='ee_" + control.value.name + "_fileupload' name='fileUp' style='position: absolute; left:0px; top: 0px; width:100%; height:100%;'/>\" +\n" +
+"    \"<input type='hidden' id='ee_" + control.value.name + "_eio' name='eio'/>\" +\n" +
+"    \"<input type='hidden' name='controlName' value='" + control.value.name + "' />\" +\n" +
+"    \"</form> \" +\n" +
+"    \"<iframe id='ee_" + control.value.name + "_frame' name='ee_" + control.value.name + "_frame' style='display: none;'></iframe>\";\n" +
+"c.form = $g(\"ee_" + control.value.name + "_form\");\n" +
+"c.fileUpload = $g(\"ee_" + control.value.name + "_fileupload\");\n" +
+"c.frame = $g(\"ee_" + control.value.name + "_frame\");\n" +
+"c.autoUpload = " + control.value.property.getItem("autoUpload").value.asString + ";\n" +
+"c.uploadStop = false;\n" +
+"c.eio = $g(\"ee_" + control.value.name + "_eio\");\n" +
+"c.onUploadStartC = function (filePath, fileName, fileExt) {\n" +
+scriptEngine.getInlineResult(control.value.property.getItem("onUploadStartC").value.asString) + "\n" +
+"    this.eio.value = eio.buffo;\n" +
+"    this.form.submit(); \n" +
+"}\n" +
+"c.onUploadProgress = function (filePath, fileName, fileExt, sizeCurrent, sizeTotal) {\n" +
+scriptEngine.getInlineResult(control.value.property.getItem("onUploadProgress").value.asString) + "\n" +
+"}\n" +
+"c.onUploadError = function (filePath, fileName, fileExt, errorCode, errorString) {\n" +
+scriptEngine.getInlineResult(control.value.property.getItem("onUploadError").value.asString) + "\n" +
+"}\n" +
+"c.onUploadCompleteC = function (filePath, fileName, fileExt) {\n" +
+scriptEngine.getInlineResult(control.value.property.getItem("onUploadCompleteC").value.asString) + "\n" +
+"}\n" +
+"c.fileUpload.onchange = function () {\n" +
+"    if (this.parentNode.parentNode.autoUpload) {\n" +
+"        this.parentNode.parentNode.start();\n" +
+"    }\n" +
+"}\n" +
+"c.start = function () {\n" +
+"    var f = this.fileUpload.value;\n" +
+"    var pos=f.lastIndexOf(\"\\\\\");\n" +
+"    var fileName = f.substring(pos+1);\n" +
+"    pos = f.lastIndexOf(\".\");\n" +
+"    var fileExt = pos<0 ? \"\" : f.substring(pos);\n" +
+"    var filePath = f.substring(0, pos+1);  \n" +
+"    this.uploadFilePath = filePath;\n" +
+"    this.uploadFilename = fileName;\n" +
+"    this.uploadFileExt = fileExt;\n" +
+"    this.onUploadStartC(filePath, fileName, fileExt);\n" +
+"    " + control.value.name + "_start();\n" +
+"}\n" +
+"c.stop = function () {\n" +
+"    " + control.value.name + "_stop();\n" +
+"}\n";
+
+return result;
+}
+
+
+
 
 
     /**
