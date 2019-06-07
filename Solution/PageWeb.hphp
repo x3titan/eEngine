@@ -12,6 +12,7 @@ require_once __DIR__ . "/Page.hphp";
 
 use Etc\Pub;
 use ScriptEngine\ScriptEngine;
+use Solution\PageWeb\ExecuteScript2Thread;
 use TamPub1\DelphiString;
 use TamPub1\Etc;
 use TamPub1\StringBuilder;
@@ -1415,38 +1416,38 @@ class PageWeb extends Page {
 
     /// <summary>执行2号脚本（后台脚本）</summary>
     public function executeScript2(string $taskSetName, string $data): string {
-        ScriptEngine . TaskSet . Item taskSetItem = taskSet . getByName(taskSetName);
-if (taskSetItem == null) return "";
-string result;
-    //执行用户代码
-try {
-    string s2 =
-        //接收的数据放入eio接口
-        "eio.buffi=\"" + data . Replace("^^", "^") . Replace("^x", "<") . Replace("\"", "\\\"") . Replace("\r", "\\r") . Replace("\n", "\\n") + "\";\n" +
-        //封装script2
-        "var __script2 = function() {\n" +
-        taskSetItem . script2 + "\n" +
-        "}\n" +
-        "__script2();\n";
+        $taskSetItem = $this->taskSet->getByName($taskSetName);
+        if ($taskSetItem == null) return "";
+        //string result;
+        //执行用户代码
+        try {
+            $s2 =
+                //接收的数据放入eio接口
+                "eio.buffi=\"" . StringFunc::replace(StringFunc::replace(StringFunc::replace(StringFunc::replace(StringFunc::replace($data,
+                    "^^", "^"), "^x", "<"), "\"", "\\\""), "\r", "\\r"), "\n", "\\n") . "\";\n" .
+                //封装script2
+                "var __script2 = function() {\n" .
+                $taskSetItem->script2 . "\n" .
+                "}\n" .
+                "__script2();\n";
 
-ExecuteScript2Thread task = new ExecuteScript2Thread();
-task . script = s2;
-task . engine = scriptEngine;
-task . taskSetName = taskSetName;
-System . Threading . Thread thread = new System . Threading . Thread(task . run);
-thread . Start();
-while (true) {
-    if (task . complete) break;
-    System . Threading . Thread . Sleep(5);
-}
-if (task . error . Length > 0) {
-    throw new Exception(task . error);
-}
-result = task . result;
-//scriptEngine.engine.Run(s2);
-//result = scriptEngine.engine.Run("eio.buffo;").ToString();
-} catch (Exception e) {
-            if (e == null) {
+            $task = new ExecuteScript2Thread();
+            $task->script = $s2;
+            $task->engine = $this->scriptEngine;
+            $task->taskSetName = $taskSetName;
+            $task->start();
+            while (true) {
+                if ($task->complete) break;
+                usleep(5000);
+            }
+            if (StringFunc::length($task->error) > 0) {
+                throw new Exception(task . error);
+            }
+            $result = task . result;
+            //scriptEngine.engine.Run(s2);
+            //result = scriptEngine.engine.Run("eio.buffo;").ToString();
+        } catch (\Exception $e) {
+            if ($e == null) {
                 //仅用于监测script的执行错误情况
             }
             Etc . Pub . log . writeWarning("script2(" + taskSetName + ") execute error, errorString=" + e . Message + ",st=" + e . StackTrace . ToString());
@@ -1458,8 +1459,8 @@ result = task . result;
                     "eio.buffo;"
                 ) . ToString();
         }
-            return result;
-        }
+        return result;
+    }
 
 
 }
@@ -1512,6 +1513,7 @@ class ScriptResponse {
 namespace Solution\PageWeb;
 
 use Solution\Solution;
+use TamPub1\StringFunc;
 
 class ScriptEngineInst {
     /**
@@ -1539,6 +1541,36 @@ class ThreadInitScript extends \Thread {
             $result = $this->handle->fInitScriptEngine($this->session, $this->request, $this->response);
         } catch (\Exception $e) {
             \Etc\Pub::$log->writeWarning("script thread init error, errorString=" . $e->Message . ",st=" . $e->StackTrace . ToString());
+        }
+        $this->complete = true;
+    }
+}
+
+
+class ExecuteScript2Thread extends \Thread {
+    public $script = "";
+    public $complete = false;
+    public $taskSetName = "";
+    /**
+     * @var \ScriptEngine\ScriptEngine
+     */
+    public $engine = null;
+    public $error = "";
+    public $result = "";
+
+    public function run() {
+        try {
+            $this->engine->engine->executeString($this->script);
+            $result = $this->engine->engine->executeString("eio.buffo;");
+        } catch (\Exception $e) {
+            \Etc\Pub::$log->writeWarning("script2(" . $this->taskSetName . ") execute error, errorString=" . $e->getMessage() . ",st=" . $e->getTraceAsString());
+            $result = $this->engine->engine->executeString(
+                "eio.buffo=\"\"; eio.appendString8(\"F\"); " .
+                "eio.appendString8(\"" .
+                StringFunc::replace(StringFunc::replace(StringFunc::replace($e->getMessage(), "\r\n", "\n"), "\n", "\\n"), "\"", "\\\"") .
+                "\");" .
+                "eio.buffo;"
+            );
         }
         $this->complete = true;
     }
