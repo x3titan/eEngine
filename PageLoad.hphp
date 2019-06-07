@@ -84,11 +84,11 @@ class PageLoad {
         } else if ($taskSet == null) {
             $startTime = time();
             //Etc.Pub.log.writeCommon("start generate webpage, url=" + url);
-            $scriptEngineInst = $page->initScriptEngine(Session, Request, Response);
+            $scriptEngineInst = $page->initScriptEngine("Session", "Request", "Response");
             if ($scriptEngineInst == null) {
-                Response . Clear();
-                Response . Flush();
-                Response . End();
+                //Response . Clear();
+                //Response . Flush();
+                //Response . End();
                 return;
             }
             $jsStringTitle = $page->generateJsStringTitle();
