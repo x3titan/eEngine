@@ -120,12 +120,12 @@ class Page {
             $node = $nodes[$i];
             $node = $node->attributes()->pathname;
             if (!$node) continue;
-            $pathname = $node;
+            $pathname = (string)$node;
             $item = $this->createPath($this->controls, $pathname);
             $node = $nodes[$i];
             $node = $node->attributes()->type;
             if (!$node) continue;
-            $item->value->type = $node;
+            $item->value->type = (string)$node;
             if ($item->value->name === "divRoot") {
                 //仅为兼容旧程序设计，脚本全部为新版本后可删除本语句
                 $item->value->type = "DivRoot";
@@ -148,7 +148,7 @@ class Page {
             $node = $node->attributes()->name;
             if (!$node) continue;
             $taskSetItem = new \ScriptEngine\TaskSet\Item();
-            $taskSetItem->name = $node;
+            $taskSetItem->name = (string)$node;
             array_push($this->taskSet->items, $taskSetItem);
             for ($j = 0; $j < count($nodes[$i]->children()); $j++) {
                 $node = $nodes[$i]->children()[$j];

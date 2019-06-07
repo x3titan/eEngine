@@ -40,12 +40,35 @@ var_dump(__LINE__, $ret);
 //require_once __DIR__ . '/ScriptEngine/TaskSet.hphp';
 require_once __DIR__ . '/PageLoad.hphp';
 
+print("\r\n=c)====let's the fun begin=================\r\n");
+
+class Err extends Thread {
+    public $handle = null;
+}
+
+class XML {
+    public $doc;
+    public $e;
+    public function test(): bool {
+        $this->doc = simplexml_load_file("/home/tam/epage/TCloud/project.xml");
+        $this->doc = null;
+        return true;
+    }
+
+    public function err() {
+        $this->e = new Err();
+        $this->e->handle = $this;
+    }
+}
+
+$a = new XML();
+$a->test();
+$a->err();
+
 
 print("\r\n=c)====let's the fun begin=================\r\n");
 $sim = new \eEngine\PageLoad();
 $sim->Page_Load();
-
-
 
 
 ?>

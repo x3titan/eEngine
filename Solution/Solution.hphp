@@ -87,7 +87,7 @@ class Solution {
             if ($node->getName() === "page") {
                 $nodeTemp = $node->attributes()->pathname;
                 if (!$nodeTemp) continue;
-                $pathname = $nodeTemp;
+                $pathname = (string)$nodeTemp;
                 $item = $this->createPath($project, $pathname);
                 //创建页面信息文件
                 //\TamPub1\Tree frame;
@@ -96,12 +96,12 @@ class Solution {
                 $frame->value->filename = "page.xml";
                 $nodeTemp = $node->attributes()->alias;
                 if ($nodeTemp) {
-                    $item->value->folderAlias = $nodeTemp;
+                    $item->value->folderAlias = (string)$nodeTemp;
                 }
             } else if ($node->getName() === "image") {
                 $node = $node->attributes()->pathname;
                 if (!$node) continue;
-                $pathname = $node;
+                $pathname = (string)$node;
                 $item = $this->createPath($project, $pathname);
                 $item->value->type = Item::$ITEM_TYPE_IMAGE;
                 $item->value->filename = FileOperation::extractFileName($pathname);
@@ -116,7 +116,7 @@ class Solution {
             $node = $node->attributes()->name;
             if (!$node) continue;
             $connectionItem = new \ScriptEngine\DBConnection\Item();
-            $connectionItem->name = $node;
+            $connectionItem->name = (string)$node;
             $dbConnection->addItem($connectionItem);
             //db connection string
             $node = $nodes[$i]->xpath("connectionString");

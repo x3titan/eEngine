@@ -9,6 +9,7 @@
 namespace Solution;
 
 require_once __DIR__ . "/Page.hphp";
+require_once __DIR__ . "/../ScriptEngine/ScriptEngine.hphp";
 
 use Etc\Pub;
 use ScriptEngine\ScriptEngine;
@@ -113,13 +114,13 @@ class PageWeb extends Page {
             //初始化request控件
             $scriptEngine->engine->request = new ScriptRequest($session);
             //初始化response控件
-            $result->scriptResponse = ScriptResponse($response);
+            $result->scriptResponse = new ScriptResponse($response);
             $scriptEngine->engine->response = $result->scriptResponse;
             //初始化es类
             $scriptES = new ScriptES();
             $scriptEngine->engine->es = $this->scriptES;
             //初始化数据库控件:db
-            $project = $this->solution->getProject(projectItem);
+            $project = $this->solution->getProject($this->projectItem);
             $scriptDatabase = new ScriptDatabase($project->value->dbConnection);
             $scriptEngine->engine->db = $scriptDatabase;
             //准备eio接口
@@ -1567,8 +1568,9 @@ class ScriptDatabase {
      */
     private $sqlResultSet;
 
-    public function __construct() {
+    public function __construct(\ScriptEngine\DBConnection $dbConnection) {
         $this->sqlResultSet = new \ScriptEngine\SqlResultSet();
+        $this->dbConnection = $dbConnection;
     }
 }
 
@@ -1630,7 +1632,7 @@ class ThreadInitScript extends \Thread {
     //public System.Web.HttpRequest request;
     //public System.Web.HttpResponse response;
     /**
-     * @var Solution\PageWeb
+     * @var \Solution\PageWeb
      */
     public $handle;
     public $complete = false;
