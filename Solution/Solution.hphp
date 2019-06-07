@@ -197,7 +197,7 @@ class Solution {
             if ($item->value->type == Item::$ITEM_TYPE_PROJECT) {
                 return $item->value->projectPath . $result;
             } else if ($item->value->type == Item::$ITEM_TYPE_FOLDER) {
-                $result = $item->value->folderName . "\\" . $result;
+                $result = $item->value->folderName . \Etc\Pub::$pathSeperator . $result;
             }
             $item = $item->parent;
             if ($item == null) break;
@@ -241,14 +241,14 @@ class Solution {
      * @param string $path
      * @return \TamPub1\Tree
      */
-    public function getItem(string $path): \TamPub1\Tree {
+    public function getItem(string $path): ? \TamPub1\Tree {
         //public static TamPub1.Tree<Item> getItem(TamPub1.Tree<Item> $this->projects, string $this->path) {
         $item = $this->projects;
-        $this->path = StringFunc::deleteFrontChar($this->path, '/');
-        $this->path = StringFunc::deleteRearChar($this->path, '/');
-        $s = mb_split('/', $this->path);
+        $path = StringFunc::deleteFrontChar($path, '/');
+        $path = StringFunc::deleteRearChar($path, '/');
+        $s = mb_split('/', $path);
         $i = 0;
-        for ($j = 0; $j < $s->Length; $j++) {
+        for ($j = 0; $j < count($s); $j++) {
             $s[$j] = StringFunc::toUpper($s[$j]);
             for ($i = 0; $i < count($item->children); $i++) {
                 //string folderName;
