@@ -30,7 +30,7 @@ class TaskSet {
         return $this->items[count($this->items) - 1];
     }
 
-    public function getByName(string $name): TaskSet\Item {
+    public function getByName(string $name): ? TaskSet\Item {
         for ($i = 0; $i < count($this->items); $i++) {
             if ($this->items[$i]->name === $name) return $this->items[$i];
         }
