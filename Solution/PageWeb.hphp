@@ -828,37 +828,36 @@ class PageWeb extends Page {
     }
 
     private function generateJsStringUploadFile(Tree $control): string {
-        $result = $this->generateJsStringPanel(control);
-        .
+        $result = $this->generateJsStringPanel($control);
         $result .=
             "c.innerHTML +=\n" .
-            "    \"<form id='ee_" + $control->value->name + "_form' method='post' action='ee.aspx?_L_=/" .
-            solution . getProject(projectItem) . value . projectFolderName + Solution . getPath(projectItem) + "&_F_=U' target='ee_" + $control->value->name + "_frame' \" +\n" .
+            "    \"<form id='ee_" . $control->value->name . "_form' method='post' action='ee.aspx?_L_=/" .
+            $this->solution->getProject($this->projectItem)->value->projectFolderName . Solution:: getPath($this->projectItem) . "&_F_=U' target='ee_" . $control->value->name . "_frame' \" +\n" .
             "    \"enctype='multipart/form-data'>\" +\n" .
-            "    \"<input type='file' id='ee_" + $control->value->name + "_fileupload' name='fileUp' style='position: absolute; left:0px; top: 0px; width:100%; height:100%;'/>\" +\n" .
-            "    \"<input type='hidden' id='ee_" + $control->value->name + "_eio' name='eio'/>\" +\n" .
-            "    \"<input type='hidden' name='controlName' value='" + $control->value->name + "' />\" +\n" .
+            "    \"<input type='file' id='ee_" . $control->value->name . "_fileupload' name='fileUp' style='position: absolute; left:0px; top: 0px; width:100%; height:100%;'/>\" +\n" .
+            "    \"<input type='hidden' id='ee_" . $control->value->name . "_eio' name='eio'/>\" +\n" .
+            "    \"<input type='hidden' name='controlName' value='" . $control->value->name . "' />\" +\n" .
             "    \"</form> \" +\n" .
-            "    \"<iframe id='ee_" + $control->value->name + "_frame' name='ee_" + $control->value->name + "_frame' style='display: none;'></iframe>\";\n" .
-            "c.form = $g(\"ee_" + $control->value->name + "_form\");\n" .
-            "c.fileUpload = $g(\"ee_" + $control->value->name + "_fileupload\");\n" .
-            "c.frame = $g(\"ee_" + $control->value->name + "_frame\");\n" .
-            "c.autoUpload = " + $control->value->property->getItem("autoUpload") . value . asString + ";\n" .
+            "    \"<iframe id='ee_" . $control->value->name . "_frame' name='ee_" . $control->value->name . "_frame' style='display: none;'></iframe>\";\n" .
+            "c.form = \$g(\"ee_" . $control->value->name . "_form\");\n" .
+            "c.fileUpload = \$g(\"ee_" . $control->value->name . "_fileupload\");\n" .
+            "c.frame = \$g(\"ee_" . $control->value->name . "_frame\");\n" .
+            "c.autoUpload = " . $control->value->property->getItem("autoUpload")->value->asString . ";\n" .
             "c.uploadStop = false;\n" .
-            "c.eio = $g(\"ee_" + $control->value->name + "_eio\");\n" .
+            "c.eio = \$g(\"ee_" . $control->value->name . "_eio\");\n" .
             "c.onUploadStartC = function (filePath, fileName, fileExt) {\n" .
-            scriptEngine . getInlineResult($control->value->property->getItem("onUploadStartC") . value . asString) + "\n" .
+            $this->scriptEngine->getInlineResult($control->value->property->getItem("onUploadStartC")->value->asString) . "\n" .
             "    this.eio.value = eio.buffo;\n" .
             "    this.form.submit(); \n" .
             "}\n" .
             "c.onUploadProgress = function (filePath, fileName, fileExt, sizeCurrent, sizeTotal) {\n" .
-            scriptEngine . getInlineResult($control->value->property->getItem("onUploadProgress") . value . asString) + "\n" .
+            $this->scriptEngine->getInlineResult($control->value->property->getItem("onUploadProgress")->value->asString) . "\n" .
             "}\n" .
             "c.onUploadError = function (filePath, fileName, fileExt, errorCode, errorString) {\n" .
-            scriptEngine . getInlineResult($control->value->property->getItem("onUploadError") . value . asString) + "\n" .
+            $this->scriptEngine->getInlineResult($control->value->property->getItem("onUploadError")->value->asString) . "\n" .
             "}\n" .
             "c.onUploadCompleteC = function (filePath, fileName, fileExt) {\n" .
-            scriptEngine . getInlineResult($control->value->property->getItem("onUploadCompleteC") . value . asString) + "\n" .
+            $this->scriptEngine->getInlineResult($control->value->property->getItem("onUploadCompleteC")->value->asString) . "\n" .
             "}\n" .
             "c.fileUpload.onchange = function () {\n" .
             "    if (this.parentNode.parentNode.autoUpload) {\n" .
@@ -876,15 +875,14 @@ class PageWeb extends Page {
             "    this.uploadFilename = fileName;\n" .
             "    this.uploadFileExt = fileExt;\n" .
             "    this.onUploadStartC(filePath, fileName, fileExt);\n" .
-            "    " + $control->value->name + "_start();\n" .
+            "    " . $control->value->name . "_start();\n" .
             "}\n" .
             "c.stop = function () {\n" .
-            "    " + $control->value->name + "_stop();\n" .
+            "    " . $control->value->name . "_stop();\n" .
             "}\n";
 
         return $result;
     }
-
 
     /**
      * 获得":"前的值
@@ -1189,6 +1187,281 @@ class PageWeb extends Page {
         }
         return $result->ToString();
     }
+
+    private function generateJsStringCheckBox(Tree $control): string {
+        $result = new StringBuilder();
+        $result->Append($this->generateJsStringPanel($control));
+        $checkBox = new Tree();
+        $checkBox->value = $control->value->clone();
+        $checkBox->value->name .= "status1"; //特殊名字如:ee_checkbox1status1
+        //转移属性
+        $checkBox->parent = $control->parent;
+        $checkBox->value->property->getItem("bindControl")->value->asString = $control->value->name;
+        $checkBox->value->property->getItem("bindLeft")->value->asString = "left";
+        $checkBox->value->property->getItem("bindRight")->value->asString = "right";
+        $checkBox->value->property->getItem("bindTop")->value->asString = "top";
+        $checkBox->value->property->getItem("bindBottom")->value->asString = "bottom";
+        $checkBox->value->property->getItem("backgroundColor")->value->asString = $checkBox->value->property->getItem("backgroundColor1")->value->asString;
+        $checkBox->value->property->getItem("bgColorEnabled")->value->asString = $checkBox->value->property->getItem("bgColorEnabled1")->value->asString;
+        $checkBox->value->property->getItem("backgroundImg")->value->asString = $checkBox->value->property->getItem("backgroundImg1")->value->asString;
+        $checkBox->value->property->getItem("backgroundImgMode")->value->asString = $checkBox->value->property->getItem("backgroundImgMode1")->value->asString;
+        $checkBox->value->property->getItem("backgroundSkin")->value->asString = $checkBox->value->property->getItem("backgroundSkin1")->value->asString;
+        $result->Append($this->generateJsStringPanel($checkBox));
+        $result->Append("c=\$g(\"ee_" . $control->value->name . "\");\n");
+        $result->Append("c.status1=\$g(\"ee_" . $checkBox->value->name . "\");\n");
+        $result->Append("c.status1.checkBox=c;\n");
+        $result->Append("ee.setCheckBoxValue(c," . $checkBox->value->property->getItem("checkValue")->value->asString . ");\n");
+        if (StringFunc::length($control->value->property->getItem("onValueChange")->value->asString) > 0) {
+            $result->Append("c.onValueChange = function (sender, value) {\n" . $this->scriptEngine->getInlineResult($control->value->property->getItem("onValueChange")->value->asString) . "\n}\n");
+        }
+
+        return $result->ToString();
+    }
+
+    private function generateJsStringButton(Tree $control): string {
+        $result = new StringBuilder();
+        //copy data
+        $s0 = new Tree(); //button
+        $s1 = new Tree(); //normal
+        $s2 = new Tree(); //hover
+        $s3 = new Tree(); //click down
+        $s4 = new Tree(); //click layer
+        $s0->parent = $control->parent;
+        $s1->parent = $s0;
+        $s2->parent = $s0;
+        $s3->parent = $s0;
+        $s4->parent = $s0;
+        $s0->value = $control->value->clone();
+        $s1->value = $control->value->clone();
+        $s2->value = $control->value->clone();
+        $s3->value = $control->value->clone();
+        $s4->value = $control->value->clone();
+        //event
+        $s0->value->property->getItem("onClick")->value->asString = "";
+        $s0->value->property->getItem("onMouseEnter")->value->asString = "";
+        $s0->value->property->getItem("onMouseLeave")->value->asString = "";
+        $s1->value->property->getItem("onClick")->value->asString = "";
+        $s1->value->property->getItem("onMouseEnter")->value->asString = "";
+        $s1->value->property->getItem("onMouseLeave")->value->asString = "";
+        $s1->value->property->getItem("onImageLoad")->value->asString = "";
+        $s2->value->property->getItem("onClick")->value->asString = "";
+        $s2->value->property->getItem("onMouseEnter")->value->asString = "";
+        $s2->value->property->getItem("onMouseLeave")->value->asString = "";
+        $s2->value->property->getItem("onImageLoad")->value->asString = "";
+        $s3->value->property->getItem("onClick")->value->asString = "";
+        $s3->value->property->getItem("onMouseEnter")->value->asString = "";
+        $s3->value->property->getItem("onMouseLeave")->value->asString = "";
+        $s3->value->property->getItem("onImageLoad")->value->asString = "";
+        $s4->value->property->getItem("onImageLoad")->value->asString = "";
+        //generate base($s0)
+        $s0->value->property->getItem("bgColorEnabled")->value->asString = "false";
+        $s0->value->property->getItem("backgroundImg")->value->asString = "url:res/empty.png";
+        $s0->value->property->getItem("backgroundImgMode")->value->asString = "stretch";
+        $s0->value->property->getItem("backgroundSkin")->value->asString = "";
+        $s0->value->property->getItem("text")->value->asString = "";
+        $result->Append($this->generateJsStringPanel($s0));
+        //generate $s1
+        $s1->value->name .= "status1"; //特殊名字如:ee_checkbox1status1
+        //$s1.value.property.getItem("bindControl").value.asString = $control.value.name;
+        //$s1.value.property.getItem("bindLeft").value.asString = "left";
+        //$s1.value.property.getItem("bindRight").value.asString = "right";
+        //$s1.value.property.getItem("bindTop").value.asString = "top";
+        //$s1.value.property.getItem("bindBottom").value.asString = "bottom";
+        $s1->value->property->getItem("dockX")->value->asString = "fill";
+        $s1->value->property->getItem("dockY")->value->asString = "fill";
+        $result->Append($this->generateJsStringPanel($s1));
+        $result->Append("c=\$g(\"ee_" . $control->value->name . "\");\n");
+        $result->Append("c.status1=\$g(\"ee_" . $s1->value->name . "\");\n");
+        $result->Append("c.status1.button=c;\n");
+        //generate $s2
+        $s2->value->name .= "status2"; //特殊名字如:ee_checkbox1status2
+        $s2->value->property->getItem("dockX")->value->asString = "fill";
+        $s2->value->property->getItem("dockY")->value->asString = "fill";
+        $s2->value->property->getItem("backgroundColor")->value->asString = $s2->value->property->getItem("backgroundColor1")->value->asString;
+        $s2->value->property->getItem("bgColorEnabled")->value->asString = $s2->value->property->getItem("bgColorEnabled1")->value->asString;
+        $s2->value->property->getItem("backgroundImg")->value->asString = $s2->value->property->getItem("backgroundImg1")->value->asString;
+        $s2->value->property->getItem("backgroundImgMode")->value->asString = $s2->value->property->getItem("backgroundImgMode1")->value->asString;
+        $s2->value->property->getItem("backgroundSkin")->value->asString = $s2->value->property->getItem("backgroundSkin1")->value->asString;
+        $s2->value->property->getItem("fontColor")->value->asString = $s2->value->property->getItem("fontColor1")->value->asString;
+        $result->Append($this->generateJsStringPanel($s2));
+        $result->Append("c=\$g(\"ee_" . $control->value->name . "\");\n");
+        $result->Append("c.status2=\$g(\"ee_" . $s2->value->name . "\");\n");
+        $result->Append("c.status2.button=c;\n");
+        //generate $s3
+        $s3->value->name .= "status3"; //特殊名字如:ee_checkbox1status3
+        $s3->value->property->getItem("dockX")->value->asString = "fill";
+        $s3->value->property->getItem("dockY")->value->asString = "fill";
+        $s3->value->property->getItem("backgroundColor")->value->asString = $s3->value->property->getItem("backgroundColor2")->value->asString;
+        $s3->value->property->getItem("bgColorEnabled")->value->asString = $s3->value->property->getItem("bgColorEnabled2")->value->asString;
+        $s3->value->property->getItem("backgroundImg")->value->asString = $s3->value->property->getItem("backgroundImg2")->value->asString;
+        $s3->value->property->getItem("backgroundImgMode")->value->asString = $s3->value->property->getItem("backgroundImgMode2")->value->asString;
+        $s3->value->property->getItem("backgroundSkin")->value->asString = $s3->value->property->getItem("backgroundSkin2")->value->asString;
+        $s3->value->property->getItem("fontColor")->value->asString = $s3->value->property->getItem("fontColor2")->value->asString;
+        $result->Append($this->generateJsStringPanel($s3));
+        $result->Append("c=\$g(\"ee_" . $control->value->name . "\");\n");
+        $result->Append("c.status3=\$g(\"ee_" . $s3->value->name . "\");\n");
+        $result->Append("c.status3.button=c;\n");
+        //generate clicklayer($s4)
+        $s4->value->name .= "clickLayer";
+        $s4->value->property->getItem("dockX")->value->asString = "fill";
+        $s4->value->property->getItem("dockY")->value->asString = "fill";
+        $s4->value->property->getItem("bgColorEnabled")->value->asString = "false";
+        $s4->value->property->getItem("backgroundImg")->value->asString = "url:res/empty.png";
+        $s4->value->property->getItem("backgroundImgMode")->value->asString = "stretch";
+        $s4->value->property->getItem("backgroundSkin")->value->asString = "";
+        $s4->value->property->getItem("text")->value->asString = "";
+        $result->Append($this->generateJsStringPanel($s4));
+        $result->Append("c=\$g(\"ee_" . $control->value->name . "\");\n");
+        $result->Append("c.clickLayer=\$g(\"ee_" . $s4->value->name . "\");\n");
+        $result->Append("c.clickLayer.button=c;\n");
+        //初始化按钮
+        $result->Append("eb.initButton(c);\n");
+        //downX,downY属性
+        $result->Append("c.downX=" . $control->value->property->getItem("downX")->value->asString . ";\n");
+        $result->Append("c.downY=" . $control->value->property->getItem("downY")->value->asString . ";\n");
+        return $result->ToString();
+    }
+
+    private function generateJsStringTableBody(Tree $control): string {
+        $result = new StringBuilder();
+        $result->Append($this->generateJsStringPanel($control));
+        //c.rowCount=xxx;
+        //int rowCount;
+        if (count($control->children) == 0) {
+            $rowCount = 0;
+        } else {
+            $rowCount = $control->value->property->getItem("rowCount")->value->asInt32;
+        }
+        $result->Append("c.visibleRowCount=" . $rowCount . ";\n");
+        //c.colCount=xxx;
+        //int colCount;
+        if (count($control->children) == 0) {
+            $colCount = 0;
+        } else {
+            $colCount = floor(count($control->children) / $control->value->property->getItem("rowCount")->value->asInt32);
+        }
+        $result->Append("c.colCount=" . colCount . ";\n");
+        //dynamic row mode
+        $result->Append("c.dynamicMode=" . $control->value->property->getItem("dynamicMode")->value->asString . ";\n");
+        if (count($control->children) <= 0) return $result->ToString();
+        //循环一行
+        //StringBuilder rowVar = null;
+        $rowVar = null;
+        $onUpdate = new StringBuilder();
+        $onUpdate->Append("c.cols=new Array();\n");
+        $onUpdate->Append("for(var i=0;i<" . $colCount . ";i++) c.cols.push(new Object());\n");
+        $result->Append("c.jsCreateRow=\"");
+        $control->getFirst();
+        $currentColCount = 0;
+        while (true) {
+            $control->getNext();
+            if ($control->current == null) break;
+            //是否是一列
+            for ($i = 0; $i < count($control->children); $i++) {
+                if ($control->children[$i] == $control->current) {
+                    $currentColCount++;
+                    if ($control->current->value->property->getItem("onUpdate")->value->asString->Length > 0) {
+                        $onUpdate->Append("c.cols[" . ($currentColCount - 1) . "].onUpdate=function(sender,text) {\n");
+                        $onUpdate->Append($this->scriptEngine->getInlineResult($control->current->value->property->getItem("onUpdate")->value->asString) . "\n");
+                        $onUpdate->Append("}\n");
+                    }
+                    break;
+                }
+            }
+            if ($currentColCount > $colCount) break;
+            //产生rowVar表
+            if ($rowVar == null) {
+                $rowVar = new StringBuilder();
+                $rowVar->Append("c.rowVar=[");
+            } else {
+                $rowVar->Append(",");
+            }
+            $rowVar->Append("\"ee_" . $control->current->value->name . "\"");
+            //产生语句
+            $result->Append(
+                StringFunc::replace(StringFunc::replace(StringFunc::replace(
+                    $this->generateJsStringControl($control->current),
+                    "\"", "\\\""), "\r\n", "\n"), "\n", "\\n\"+\n\"")
+            );
+        }
+        $rowVar->Append("];\n");
+        $result->Append("\";\n");
+        $result->Append($rowVar->ToString());
+        $result->Append($onUpdate->ToString());
+        //初始化dynamicMode状态
+        if ($control->value->property->getItem("dynamicMode")->value->asString->Equals("false")) {
+            $result->Append("eb.initTableBody(c);\n");
+            $result->Append("ee.tableSetRowCount(c," . $rowCount . ");\n");
+        }
+        //当前扫描指针定位到$control下最后一个控件
+        //TamPub1->Tree < Control> prevControl;
+        $control->getFirst();
+        while (true) {
+            $prevControl = $control->current;
+            $control->getNext();
+            if ($control->current == null) break;
+            $prevControl = $control->current;
+        }
+        $this->controls->current = $prevControl;
+        return $result->ToString();
+    }
+
+    private function generateJsStringTableBodyItem(Tree $control): string {
+        $result = "";
+        $result .= $this->generateJsStringPanel($control);
+        //onUpdate函数取消，在TableBody中一并产生 2016/06/03
+        return $result;
+    }
+
+    /// <summary>执行2号脚本（后台脚本）</summary>
+    public function executeScript2(string $taskSetName, string $data): string {
+        ScriptEngine . TaskSet . Item taskSetItem = taskSet . getByName(taskSetName);
+if (taskSetItem == null) return "";
+string result;
+    //执行用户代码
+try {
+    string s2 =
+        //接收的数据放入eio接口
+        "eio.buffi=\"" + data . Replace("^^", "^") . Replace("^x", "<") . Replace("\"", "\\\"") . Replace("\r", "\\r") . Replace("\n", "\\n") + "\";\n" +
+        //封装script2
+        "var __script2 = function() {\n" +
+        taskSetItem . script2 + "\n" +
+        "}\n" +
+        "__script2();\n";
+
+ExecuteScript2Thread task = new ExecuteScript2Thread();
+task . script = s2;
+task . engine = scriptEngine;
+task . taskSetName = taskSetName;
+System . Threading . Thread thread = new System . Threading . Thread(task . run);
+thread . Start();
+while (true) {
+    if (task . complete) break;
+    System . Threading . Thread . Sleep(5);
+}
+if (task . error . Length > 0) {
+    throw new Exception(task . error);
+}
+result = task . result;
+//scriptEngine.engine.Run(s2);
+//result = scriptEngine.engine.Run("eio.buffo;").ToString();
+} catch (Exception e) {
+            if (e == null) {
+                //仅用于监测script的执行错误情况
+            }
+            Etc . Pub . log . writeWarning("script2(" + taskSetName + ") execute error, errorString=" + e . Message + ",st=" + e . StackTrace . ToString());
+            result = scriptEngine . engine . Run(
+                    "eio.buffo=\"\"; eio.appendString8(\"F\"); " +
+                    "eio.appendString8(\"" +
+                    e . Message . Replace("\r\n", "\n") . Replace("\n", "\\n") . Replace("\"", "\\\"") +
+                    "\");" +
+                    "eio.buffo;"
+                ) . ToString();
+        }
+            return result;
+        }
+
+
 }
 
 /**
