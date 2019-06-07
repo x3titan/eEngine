@@ -986,6 +986,36 @@ class Converter {
         }
         return $result;
     }
+
+    public static function uint8ToInt8(int $value): int {
+        $value = $value & 0xFF;
+        if (($value & 0x80) == 0) return $value;
+        return $value | 0xFFFFFFFFFFFFFF00;
+    }
+
+    public static function uint16ToInt16(int $value): int {
+        $value = $value & 0xFFFF;
+        if (($value & 0x8000) == 0) return $value;
+        return $value | 0xFFFFFFFFFFFF0000;
+    }
+
+    public static function uint32ToInt32(int $value): int {
+        $value = $value & 0xFFFFFFFF;
+        if (($value & 0x8000) == 0) return $value;
+        return $value | 0xFFFFFFFF00000000;
+    }
+
+    public static function int8ToUInt8(int $value): int {
+        return $value & 0xFF;
+    }
+
+    public static function int16ToUInt16(int $value): int {
+        return $value & 0xFFFF;
+    }
+
+    public static function int32ToUInt32(int $value): int {
+        return $value & 0xFFFFFFFF;
+    }
 }
 
 
@@ -1252,8 +1282,8 @@ class FileOperation {
      * @return string '/' or '\'
      */
     public static function getPathSeperator(string $filePathName): string {
-        if (StringFunc::indexOf($filePathName, '/')>=0) return '/';
-        if (StringFunc::indexOf($filePathName, '\\')>=0) return '\\';
+        if (StringFunc::indexOf($filePathName, '/') >= 0) return '/';
+        if (StringFunc::indexOf($filePathName, '\\') >= 0) return '\\';
         return '/';
     }
 
@@ -1405,6 +1435,116 @@ class ConfigurationManager {
     }
 }
 
+
+/**
+ * 不同于StringData,本类将数据结构存储为可见的字符串
+ * 2015/01/19 做了改造：以前的模式不符合普遍的传输协议，一个16bit数据应该将低位放在最前面
+ * Class StringData2
+ * @package TamPub1
+ */
+class StringData2 {
+    public $buff = "";
+    public $sp = 0;
+
+    public function eof(): bool {
+        return $this->sp >= StringFunc::length($this->buff);
+    }
+
+    public function appendByte(int $value): void {
+        if ($value > 0x10) {
+            $this->buff .= dechex($value);
+        } else {
+            $this->buff .= '0' . dechex($value);
+        }
+    }
+
+    public function appendInt16(int $value): void {
+        $this->appendWord($value);
+    }
+
+    public function appendWord(int $value): int {
+        $this->appendByte($value & 0xFF);
+        $this->appendByte(($value & 0xFF00) >> 8);
+    }
+
+    public function appendInt32(int $value): void {
+        $this->appendDWord($value);
+    }
+
+    public function appendDWord(int $value): void {
+        $this->appendWord($value & 0xFFFF);
+        $this->appendWord(($value & 0xFFFF0000) >> 16);
+    }
+
+    public function readByte(): int {
+        if ($this->sp >= StringFunc::length($this->buff) - 1) {
+            $this->sp = StringFunc::length($this->buff);
+            return 0;
+        }
+        //byte $result;
+        $result = hexdec(StringFunc::copy($this->buff, $this->sp, 2));
+        $this->sp += 2;
+        return $result;
+    }
+
+    public function readInt16(): int {
+        return Convert . ToInt16(readWord());
+    }
+
+    public function readWord(): int {
+        UInt16 $result = Convert . ToUInt16(readByte());
+            $result = Convert . ToUInt16($result | (Convert . ToUInt16(readByte()) << 8));
+            return $result;
+        }
+
+    public function readInt32(): int {
+        return Convert . ToInt32(readDWord());
+    }
+
+    public function readDWord(): int {
+        UInt32 $result = Convert . ToUInt32(readWord());
+            $result = $result | Convert . ToUInt32(readWord() << 16);
+            return $result;
+        }
+
+    public function readString(): string {
+        int len = Math . Min(readInt32(), $this->buff . Length - $this->sp);
+            string $result = $this->buff . Substring($this->sp, len);
+            $this->sp += len;
+            return ($result);
+        }
+
+    public function readString8(): string {
+        int len = Math . Min(readByte(), $this->buff . Length - $this->sp);
+            string $result = $this->buff . Substring($this->sp, len);
+            $this->sp += len;
+            return ($result);
+        }
+
+    public function readString16(): string {
+        int len = Math . Min(readWord(), $this->buff . Length - $this->sp);
+            string $result = $this->buff . Substring($this->sp, len);
+            $this->sp += len;
+            return ($result);
+        }
+
+    public function appendString(string $value): void {
+        $this->appendInt32(value . Length);
+        $this->buff += value;
+    }
+
+    public function appendString8(string $value): void {
+        value = value . Substring(0, Math . Min(0xff, value . Length));
+        $this->appendByte(Convert . ToByte(value . Length));
+        $this->buff += value;
+    }
+
+    public function appendString16(string $value): void {
+        value = value . Substring(0, Math . Min(0xffff, value . Length));
+        $this->appendWord(Convert . ToUInt16(value . Length));
+        $this->buff += value;
+    }
+}
 
 
 
