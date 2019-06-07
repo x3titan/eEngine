@@ -8,6 +8,7 @@
 
 namespace Solution;
 
+require_once __DIR__ . "/Page.hphp";
 
 use TamPub1\DelphiString;
 use TamPub1\StringBuilder;
