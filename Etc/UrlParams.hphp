@@ -1,0 +1,85 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: Jesse Tam
+ * Date: 2019/6/7 0007
+ * Time: 下午 7:47
+ */
+
+namespace Etc;
+
+
+use Etc\UrlParams\Item;
+use TamPub1\StringFunc;
+
+class UrlParams {
+    /**
+     * @var array Item[]
+     */
+    public $items = array();
+
+    public function decode(string $buff): void {
+        $this->items = array();
+        $decoder = new TamPub1 . StringData2();
+        $decoder->buff = $buff;
+        while (!$decoder . eof()) {
+            $item = new Item();
+            array_push($this->items, $item);
+            $item->name = $decoder . readString();
+            $item->value = $decoder . readString();
+        }
+    }
+
+    public function encode(): string {
+        $encoder = new TamPub1 . StringData2();
+        for ($i = 0; $i < count($this->items); $i++) {
+            $encoder->appendString($this->items[$i]->name);
+            $encoder->appendString($this->items[$i]->value);
+        }
+
+        return $encoder->buff;
+    }
+
+    public function getByName(string $name): Item {
+        $name = StringFunc::toUpper($name);
+        for ($i = 0; $i < count($this->items); $i++) {
+            if (StringFunc::toUpper($this->items[$i]->name) === $name) {
+                return $this->items[$i];
+            }
+        }
+        return null;
+    }
+
+    public function append(string $name): string {
+        $item = $this->getByName($name);
+        if ($item != null) {
+            return "名称:" . $name . "已经存在，无法创建同名变量";
+        }
+        $item = new Item();
+        $item->name = $name;
+        $item->value = "";
+        array_push($this->items, $item);
+        return "";
+    }
+
+    public function modifyName(string $oldName, string $newName): string {
+        if ($this->getByName($newName) != null) {
+            return "新名字(" . $newName . ")已经存在，无法修改";
+        }
+
+        $item = $this->getByName($oldName);
+        if ($item == null) {
+            return "旧名字" . $oldName . ")不存在，无法修改";
+        }
+        $item->name = $newName;
+        return "";
+    }
+}
+
+
+namespace Etc\UrlParams;
+
+class Item {
+    public $name = "";
+    public $value = "";
+}
