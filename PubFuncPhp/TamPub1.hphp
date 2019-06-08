@@ -1383,7 +1383,7 @@ class TamLocker {
      * @param int $waitInterval 等待时查询的时间间隔，单位毫秒，推荐使用5ms即1秒扫描200次
      */
     public function __construct(int $lockTimeout = 10000, int $waitInterval = 5) {
-        $this->lockObj = new \Threaded();
+        //$this->lockObj = new \Threaded();
         $this->LockTimeout = $lockTimeout;
         $this->waitInterval = $waitInterval;
     }

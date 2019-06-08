@@ -1640,7 +1640,7 @@ class ScriptEngineInst {
     public $scriptResponse = null;
 }
 
-class ThreadInitScript extends \Thread {
+class ThreadInitScript { //extends \Thread {
     //public System.Web.SessionState.HttpSessionState session;
     //public System.Web.HttpRequest request;
     //public System.Web.HttpResponse response;
@@ -1666,7 +1666,7 @@ class ThreadInitScript extends \Thread {
 }
 
 
-class ExecuteScript2Thread extends \Thread {
+class ExecuteScript2Thread { //extends \Thread {
     public $script = "";
     public $complete = false;
     public $taskSetName = "";

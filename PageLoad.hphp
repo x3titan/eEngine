@@ -91,13 +91,13 @@ class PageLoad {
                 //Response . End();
                 return;
             }
-            $jsStringTitle = $page->generateJsStringTitle();
-            $jsStringHead = $page->generateJsStringHead();
-            $jsStringInclude = $page->generateJsStringInclude();
-            $jsStringOnPageCreate = $page->generateJsStringOnPageCreate();
-            $jsStringOnPageLoad = $page->generateJsStringOnPageLoad();
-            $jsStringInitControl = $page->generateJsStringInitControl();
-            $jsStringOnControlLoad = $page->generateJsStringOnControlLoad();
+            $this->jsStringTitle = $page->generateJsStringTitle();
+            $this->jsStringHead = $page->generateJsStringHead();
+            $this->jsStringInclude = $page->generateJsStringInclude();
+            $this->jsStringOnPageCreate = $page->generateJsStringOnPageCreate();
+            $this->jsStringOnPageLoad = $page->generateJsStringOnPageLoad();
+            $this->jsStringInitControl = $page->generateJsStringInitControl();
+            $this->jsStringOnControlLoad = $page->generateJsStringOnControlLoad();
         } else {
             $a = 230902398;
 
