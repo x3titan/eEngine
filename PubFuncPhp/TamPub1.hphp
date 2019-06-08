@@ -423,8 +423,8 @@ class Tree {
     }
 
     public function getFirst(): Tree {
-        $current = $this;
-        return $current;
+        $this->current = $this;
+        return $this->current;
     }
 
     /**

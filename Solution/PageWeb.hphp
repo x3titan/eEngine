@@ -111,31 +111,31 @@ class PageWeb extends Page {
         \Etc\Pub::$log->writeCommon("start to execute 0");
         $this->disposeScriptEngine();
         $result = new PageWeb\ScriptEngineInst();
-        $scriptEngine = new ScriptEngine();
+        $this->scriptEngine = new ScriptEngine();
         \Etc\Pub::$log->writeWarning("start to execute 1");
         try {
-            $scriptEngine->engine->executeString(
+            $this->scriptEngine->engine->executeString(
                 "var g5 = { };\n" .
                 "var g6 = { };\n" .
                 "var g7 = { };\n"
             );
             //初始化session控件
-            $scriptEngine->engine->session = new ScriptSession($session);
+            $this->scriptEngine->engine->session = new ScriptSession($session);
             //初始化request控件
-            $scriptEngine->engine->request = new ScriptRequest($session);
+            $this->scriptEngine->engine->request = new ScriptRequest($session);
             //初始化response控件
             $result->scriptResponse = new ScriptResponse($response);
-            $scriptEngine->engine->response = $result->scriptResponse;
+            $this->scriptEngine->engine->response = $result->scriptResponse;
             //初始化es类
             $scriptES = new ScriptES();
-            $scriptEngine->engine->es = $this->scriptES;
+            $this->scriptEngine->engine->es = $this->scriptES;
             //初始化数据库控件:db
             $project = $this->solution->getProject($this->projectItem);
             $scriptDatabase = new ScriptDatabase($project->value->dbConnection);
-            $scriptEngine->engine->db = $scriptDatabase;
+            $this->scriptEngine->engine->db = $scriptDatabase;
             \Etc\Pub::$log->writeWarning("start to execute");
             //准备eio接口
-            $scriptEngine->engine->executeString(
+            $this->scriptEngine->engine->executeString(
                 "function StringData2() {\n" .
                 "    this.buffi = \"\";\n" .
                 "    this.buffo = \"\";\n" .
@@ -453,7 +453,7 @@ class PageWeb extends Page {
         while (true) {
             $node = $this->controls->getNext();
             if ($node == null) break;
-            if ($node->value->type->Equals("DivRoot")) {
+            if ($node->value->type==="DivRoot") {
                 $result = $this->scriptEngine->getInlineResult($node->value->property->getItem("pageHead")->value->asString);
                 break;
             }

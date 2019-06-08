@@ -79,12 +79,12 @@ class InlineScript {
         }
         $item = new Item();
         $item->text = implode("", $temp);
-        $item->$type = $type;
+        $item->type = $type;
         array_push($result, $item);
         //删除空项目
         $sp = 0;
         while ($sp < count($result)) {
-            if ($result[$sp]->text->Length <= 0) {
+            if (StringFunc::length($result[$sp]->text) <= 0) {
                 array_splice($result, $sp, 1);
             } else {
                 $sp++;

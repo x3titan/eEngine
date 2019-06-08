@@ -8,6 +8,7 @@
 
 namespace ScriptEngine;
 
+require_once __DIR__ . "/InlineScript.hphp";
 
 class ScriptEngine {
     //public Noesis.Javascript.JavascriptContext engine = null;
