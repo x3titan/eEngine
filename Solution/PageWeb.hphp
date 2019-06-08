@@ -987,8 +987,8 @@ class PageWeb extends Page {
                     "addSkin(c, \"/" . $project->value->projectFolderName . "/skins/" .
                     $control->value->property->getItem("backgroundSkin")->value->asString . "." . $skinItem->imageType . "\"," .
                     "\"" . $skinItem->clipMode . "\"," .
-                    $skinItem->image->Width . "," .
-                    $skinItem->image->Height . "," .
+                    $skinItem->imageWidth . "," .
+                    $skinItem->imageHeight . "," .
                     $skinItem->resizableArea->X . "," .
                     $skinItem->resizableArea->Y . "," .
                     $skinItem->resizableArea->Width . "," .
@@ -1155,7 +1155,7 @@ class PageWeb extends Page {
             }
         }
         //层级控制
-        if ($control->value->property->getItem("layerName")->value->asString . Length > 0) {
+        if (StringFunc::length($control->value->property->getItem("layerName")->value->asString) > 0) {
             $result->Append("c.layerName=\"" . $control->value->property->getItem("layerName")->value->asString . "\";\n");
             $result->Append("c.style.visibility=\"hidden\";\n");
         }
@@ -1173,15 +1173,15 @@ class PageWeb extends Page {
             $result->Append("c.onImageLoad=function(sender) {\n" . $this->scriptEngine->getInlineResult($control->value->property->getItem("onImageLoad")->value->asString) . "\n}\n");
         }
         $needInitMouse = false;
-        if ($control->value->property->getItem("onMouseDown")->value->asString . Length > 0) {
+        if (StringFunc::length($control->value->property->getItem("onMouseDown")->value->asString) > 0) {
             $result->Append("c.eeMouseDown=function(sender,event,x,y) {\n" . $this->scriptEngine->getInlineResult($control->value->property->getItem("onMouseDown")->value->asString) . "\n};\n");
             $needInitMouse = true;
         }
-        if ($control->value->property->getItem("onMouseUp")->value->asString . Length > 0) {
+        if (StringFunc::length($control->value->property->getItem("onMouseUp")->value->asString) > 0) {
             $result->Append("c.eeMouseUp=function(sender,event,x,y) {\n" . $this->scriptEngine->getInlineResult($control->value->property->getItem("onMouseUp")->value->asString) . "\n};\n");
             $needInitMouse = true;
         }
-        if ($control->value->property->getItem("onMouseMove")->value->asString . Length > 0) {
+        if (StringFunc::length($control->value->property->getItem("onMouseMove")->value->asString) > 0) {
             $result->Append("c.eeMouseMove=function(sender,event,x,y) {\n" . $this->scriptEngine->getInlineResult($control->value->property->getItem("onMouseMove")->value->asString) . "\n};\n");
             $needInitMouse = true;
         }

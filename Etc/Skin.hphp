@@ -110,7 +110,8 @@ class Item {
      */
     public $clientArea;
     /// <summary>图片缓存</summary>
-    public $image = null; //Bitmap???
+    public $imageWidth = 0;
+    public $imageHeight = 0;
 
     public function __construct() {
         $this->creator = self::$CREATOR_SYSTEM;
@@ -127,8 +128,8 @@ class Item {
             return "ee.setSkin(ee.getControl(\"控件名字\"), " .
                 "\"/项目名字/skins/" . $this->name . "." . $this->imageType . "\"" .
                 ",\"" . $this->clipMode . "\"" .
-                "," . $this->image->Width .
-                "," . $this->image->Height .
+                "," . $this->imageWidth .
+                "," . $this->imageHeight .
                 "," . $this->resizableArea->Left .
                 "," . $this->resizableArea->Top .
                 "," . $this->resizableArea->Width .
@@ -152,9 +153,8 @@ class Item {
         $this->displayName = $value->displayName;
         $this->resizableArea = new Rectangle($value->resizableArea->X, $value->resizableArea->Y, $value->resizableArea->Width, $value->resizableArea->Height);
         $this->clientArea = new Rectangle($value->clientArea->X, $value->clientArea->Y, $value->clientArea->Width, $value->clientArea->Height);
-        if ($value->image == null) {
-            $this->image = null;
-        }
+        $this->imageWidth = $value->imageWidth;
+        $this->imageHeight = $value->imageHeight;
         // else { $this->image = $value->image->Clone() as Bitmap; } //no use and no operation
     }
 
@@ -210,6 +210,15 @@ class Item {
         $node = $doc->xpath("/skin/clientArea/height");
         if (!$node) return false;
         $this->clientArea->Height = ConfigFileXml::readIntFromNode($node[0], 0);
+        $imageInfo =  getimagesize($this->imgPathName);
+        if (!$imageInfo) {
+            $this->imageWidth = 0;
+            $this->imageHeight = 0;
+        } else {
+            $this->imageWidth = $imageInfo[0];
+            $this->imageHeight = $imageInfo[1];
+        }
+
         //    Image i = Image->FromFile(imgPathName);
         return true;
     }

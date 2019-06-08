@@ -172,6 +172,7 @@ class StringFunc {
      * @return string
      */
     public static function replace(string $value, string $find, string $newOne): string {
+        if ($value==="") return "";
         return mb_ereg_replace($find, $newOne, $value);
     }
 
