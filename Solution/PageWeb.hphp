@@ -68,7 +68,7 @@ class PageWeb extends Page {
         //\Etc\Pub::$log->writeCommon("task start " . ($task->start()? "succ": "fail"));
         $task->start();
         while (true) {
-            \Etc\Pub::$log->writeCommon("task while()" . ($task->isTerminated() ? "completed": "running"));
+            \Etc\Pub::$log->writeCommon("task while()" . ($task->isTerminated() ? "completed" : "running"));
             //if ($task->complete) break;
             if ($task->isTerminated()) break;
             usleep(50000);
@@ -453,7 +453,7 @@ class PageWeb extends Page {
         while (true) {
             $node = $this->controls->getNext();
             if ($node == null) break;
-            if ($node->value->type==="DivRoot") {
+            if ($node->value->type === "DivRoot") {
                 $result = $this->scriptEngine->getInlineResult($node->value->property->getItem("pageHead")->value->asString);
                 break;
             }
@@ -468,7 +468,7 @@ class PageWeb extends Page {
         while (true) {
             $node = $this->controls->getNext();
             if ($node == null) break;
-            if ($node->value->type->Equals("RichEdit")) {
+            if ($node->value->type === "RichEdit") {
                 $result .= "\n    <script src=\"Scripts/richedit.js\" type=\"text/javascript\"></script>";
                 break;
             }
@@ -1656,7 +1656,7 @@ class ThreadInitScript extends \Thread {
 
     public function run() {
         try {
-            $result = $this->handle->fInitScriptEngine("","","");
+            $result = $this->handle->fInitScriptEngine("", "", "");
             //$result = $this->handle->fInitScriptEngine($this->session, $this->request, $this->response);
         } catch (\Exception $e) {
             \Etc\Pub::$log->writeWarning("script thread init error, errorString=" . $e->Message . ",st=" . $e->StackTrace . ToString());
