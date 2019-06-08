@@ -479,14 +479,14 @@ class PageWeb extends Page {
     public function generateJsStringOnPageCreate(): string {
         $result = new StringBuilder();
         //全局环境变量
-        $result->Append("ee.pageUrl=\"/" . $this->solution->getProject($this->$this->projectItem)->value->projectFolderName . Solution::getPath($this->$this->projectItem) . "\";\n");
+        $result->Append("ee.pageUrl=\"/" . $this->solution->getProject($this->projectItem)->value->projectFolderName . Solution::getPath($this->projectItem) . "\";\n");
         if ($this->offlineMode) {
             $result->Append("ee.pageRoot=\"" . $this->relateCacheRoot . $this->solution->getProject($this->$this->projectItem)->value->projectFolderName . "\";\n");
             $result->Append("ee.relatedCache=\"" . $this->relateCacheRoot . "\";\n");
             $result->Append("ee.eePath=\"" . $this->eePath . "\";\n");
             $result->Append("ee.pageRootHtm=\"/index.htm\";\n");
         } else {
-            $result->Append("ee.pageRoot=\"ee.aspx?_L_=/" . $this->solution->getProject($this->$this->projectItem)->value->projectFolderName . "\";\n");
+            $result->Append("ee.pageRoot=\"ee.aspx?_L_=/" . $this->solution->getProject($this->projectItem)->value->projectFolderName . "\";\n");
         }
         //产生事务集
         for ($i = 0; $i < count($this->taskSet->items); $i++) {

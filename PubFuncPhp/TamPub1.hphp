@@ -1396,7 +1396,7 @@ class StringBuilder {
     public $buff = array();
 
     public function Append(string $value): void {
-        array_push($buff, $value);
+        array_push($this->buff, $value);
     }
 
     public function Clear(): void {
