@@ -10,6 +10,9 @@ namespace Solution;
 
 require_once __DIR__ . "/Page.hphp";
 require_once __DIR__ . "/../ScriptEngine/ScriptEngine.hphp";
+require_once __DIR__ . "/../ScriptEngine/SqlResultSet.hphp";
+require_once __DIR__ . "/../Etc/Pub.hphp";
+
 
 use Etc\Pub;
 use ScriptEngine\ScriptEngine;
@@ -54,18 +57,23 @@ class PageWeb extends Page {
         $session, //System.Web.SessionState.HttpSessionState session,
         $request, //System.Web.HttpRequest request,
         $response //System.Web.HttpResponse response
-    ): PageWeb\ScriptEngineInst {
+    ): ? PageWeb\ScriptEngineInst {
         $task = new PageWeb\ThreadInitScript();
         $task->session = $session;
         $task->request = $request;
         $task->response = $response;
         $task->handle = $this;
+        return $this->fInitScriptEngine($session, $request, $response);
 
+        //\Etc\Pub::$log->writeCommon("task start " . ($task->start()? "succ": "fail"));
         $task->start();
         while (true) {
-            if ($task->complete) break;
-            usleep(5000);
+            \Etc\Pub::$log->writeCommon("task while()" . ($task->isTerminated() ? "completed": "running"));
+            //if ($task->complete) break;
+            if ($task->isTerminated()) break;
+            usleep(50000);
         }
+        \Etc\Pub::$log->writeCommon("task complete ----");
         return $task->result;
     }
 
@@ -99,10 +107,12 @@ class PageWeb extends Page {
         $session, //System.Web.SessionState.HttpSessionState session,
         $request, //System.Web.HttpRequest request,
         $response //System.Web.HttpResponse response
-    ): PageWeb\ScriptEngineInst {
+    ): ? PageWeb\ScriptEngineInst {
+        \Etc\Pub::$log->writeCommon("start to execute 0");
         $this->disposeScriptEngine();
         $result = new PageWeb\ScriptEngineInst();
         $scriptEngine = new ScriptEngine();
+        \Etc\Pub::$log->writeWarning("start to execute 1");
         try {
             $scriptEngine->engine->executeString(
                 "var g5 = { };\n" .
@@ -123,6 +133,7 @@ class PageWeb extends Page {
             $project = $this->solution->getProject($this->projectItem);
             $scriptDatabase = new ScriptDatabase($project->value->dbConnection);
             $scriptEngine->engine->db = $scriptDatabase;
+            \Etc\Pub::$log->writeWarning("start to execute");
             //准备eio接口
             $scriptEngine->engine->executeString(
                 "function StringData2() {\n" .
@@ -297,11 +308,13 @@ class PageWeb extends Page {
                 "        return f.length;\n" .
                 "    }\n" .
                 "}\n" .
-                "var eio = new StringData2();\n" . "\x00\x00\x00\x00"
+                "var eio = new StringData2();\n"
             );
         } catch (\Exception $ee) {
+            \Etc\Pub::$log->writeWarning("script init error, err=" . $ee->getMessage());
+
             $this->disposeScriptEngine();
-            \Etc\Pub::$log->writeWarning("script init error, err=" . $ee->Message . ",stacktrace=" . $ee->StackTrace);
+            //\Etc\Pub::$log->writeWarning("script init error, err=" . $ee->getMessage() . ",stacktrace=" . $ee->getTraceAsString());
             return null;
         }
         return $result;
@@ -1643,7 +1656,8 @@ class ThreadInitScript extends \Thread {
 
     public function run() {
         try {
-            $result = $this->handle->fInitScriptEngine($this->session, $this->request, $this->response);
+            $result = $this->handle->fInitScriptEngine("","","");
+            //$result = $this->handle->fInitScriptEngine($this->session, $this->request, $this->response);
         } catch (\Exception $e) {
             \Etc\Pub::$log->writeWarning("script thread init error, errorString=" . $e->Message . ",st=" . $e->StackTrace . ToString());
         }

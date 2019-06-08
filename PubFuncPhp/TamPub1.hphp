@@ -431,7 +431,7 @@ class Tree {
      * 以非递归形式实现的找下一个，当前节点存放在current中，仅凭current即可定位下一个节点位置
      * @return Tree
      */
-    public function getNext(): Tree {
+    public function getNext(): ? Tree {
         if ($this->current == null) return null;
         //找最左边的子节点，找不到向下继续
 
@@ -470,7 +470,7 @@ class Tree {
      * @param $node Tree
      * @return null|string
      */
-    public function getNextBrother(Tree $node): Tree {
+    public function getNextBrother(Tree $node): ? Tree {
         if ($node->parent == null) return null;
         for ($i = 0; $i < count($node->parent->children); $i++) {
             if ($node->parent->children[$i] === $node) {
