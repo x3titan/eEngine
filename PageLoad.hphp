@@ -44,9 +44,7 @@ class PageLoad {
             $this->jsStringInitControl = "alert(\"无法载入项目\");";
             Pub::$log->writeWarning("无法载入项目Etc.Pub.loadProject()");
         }
-        print(Pub::$log->filename . "=====");
-        print("sTemp=" . Pub::$sTemp);
-        Pub::$log->writeCommon("sTemp=" . Pub::$sTemp);
+        Pub::$log->writeCommon("sTemp=(" . Pub::$sTemp . ")");
         Pub::$sTemp = "asldkjfl;askdjf";
         //init CacheGenerator //!!! code later
         //!!! CacheGenerator.applicationPath = Request.ApplicationPath;
@@ -102,6 +100,7 @@ class PageLoad {
             $this->jsStringOnPageLoad = $page->generateJsStringOnPageLoad();
             $this->jsStringInitControl = $page->generateJsStringInitControl();
             $this->jsStringOnControlLoad = $page->generateJsStringOnControlLoad();
+            Pub::$log->writeCommon(serialize(Pub::$eEngine));
         } else {
             $a = 230902398;
 
