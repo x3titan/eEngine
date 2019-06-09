@@ -108,11 +108,9 @@ class PageWeb extends Page {
         $request, //System.Web.HttpRequest request,
         $response //System.Web.HttpResponse response
     ): ? PageWeb\ScriptEngineInst {
-        \Etc\Pub::$log->writeCommon("start to execute 0");
         $this->disposeScriptEngine();
         $result = new PageWeb\ScriptEngineInst();
         $this->scriptEngine = new ScriptEngine();
-        \Etc\Pub::$log->writeWarning("start to execute 1");
         try {
             $this->scriptEngine->engine->executeString(
                 "var g5 = { };\n" .
@@ -133,7 +131,6 @@ class PageWeb extends Page {
             $project = $this->solution->getProject($this->projectItem);
             $scriptDatabase = new ScriptDatabase($project->value->dbConnection);
             $this->scriptEngine->engine->db = $scriptDatabase;
-            \Etc\Pub::$log->writeWarning("start to execute");
             //准备eio接口
             $this->scriptEngine->engine->executeString(
                 "function StringData2() {\n" .
