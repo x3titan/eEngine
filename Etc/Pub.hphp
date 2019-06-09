@@ -32,6 +32,7 @@ class Pub {
     public static $pathSeperator = '/';
 
     private static $initialized = false;
+    public static $sTemp;
 
     public static function init(): void {
         if (self::$initialized) return;
