@@ -43,6 +43,27 @@ class EEngine {
         return "";
     }
 
+    public function loadProjectByIndex(int $projectIndex, string $projectPath): void {
+        if ($projectIndex < 0) return;
+        if ($projectIndex >= count($this->solution->projects->children)) {
+            $this->solution->loadProject($projectPath);
+            Pub::$log->writeCommon("load project: " . $projectPath);
+            return;
+        }
+        if (!(StringFunc::toUpper($this->solution->projects->children[$projectIndex]->value->projectPath) ===
+            StringFunc::toUpper($projectPath))) {
+            $this->solution->loadProject($projectPath, $projectIndex);
+            Pub::$log->writeCommon("load project: " . $projectPath);
+            return;
+        }
+        if ($this->solution->projects->children[$projectIndex]->value->projectLastModifyTime !=
+            filemtime($projectPath . "project.xml")) {
+            $this->solution->loadProject($projectPath, $projectIndex);
+            Pub::$log->writeCommon("load project: " . $projectPath);
+            return;
+        }
+    }
+
     /**
      * pagePath前面必须包含项目名（项目文件所在的目录名字），页面不存在返回空，页面没加载则自动加载
      * @param string $pagePath
