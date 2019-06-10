@@ -13,6 +13,7 @@ require_once __DIR__ . "/EEngine.hphp";
 require_once __DIR__ . "/../PubFuncPhp/TamClass1.hphp";
 
 use TamPub1\ConfigurationManager;
+use TamPub1\FileOperation;
 use TamPub1\StringData2;
 use TamPub1\StringFunc;
 use TamPub1\TamLocker;
@@ -45,7 +46,9 @@ class Pub {
         self::$initialized = true;
     }
 
-    /// <summary>返回实际载入项目的数量</summary>
+    /**
+     * @return int 返回实际载入项目的数量
+     */
     public static function loadProject(): int {
         self::$lockObject->Lock();
         $result = 0;
@@ -78,6 +81,31 @@ class Pub {
         self::$lockObject->Unlock();
         return $result;
     }
+
+    /**
+     * 2019/06/10 php cache first loader
+     * @return int 返回实际载入项目的数量
+     */
+    public static function loadProjectCache(): void {
+        $loadCount = 0;
+        $projectCount = ConfigurationManager::readInt("ePage", "projectCount");
+        for ($i = 0; $i < $projectCount; $i++) {
+            $projectPath = ConfigurationManager::readString("ePage", "project" . $i);
+            if ($projectPath == null) {
+                self::$log->writeWarning("can not read configuration value, [ePage], project" . $i . ", load project canceled.");
+                break;
+            }
+            \Etc\Pub::$pathSeperator = FileOperation::getPathSeperator($projectPath);
+            $projectPath = StringFunc::addRearChar($projectPath, \Etc\Pub::$pathSeperator);
+            self::$eEngine->loadProjectByIndex($i, $projectPath);
+        }
+        while (count(self::$eEngine->solution->projects->children) > $projectCount) {
+            $node = self::$eEngine->solution->projects->children[count(self::$eEngine->solution->projects->children) - 1];
+            self::$log->writeCommon("remove project: " . $node->projectPath);
+            self::$eEngine->solution->projects->remove($node);
+        }
+    }
+
 
     public static function saveEEngine(): void {
         $buffBody = serialize(self::$eEngine);
