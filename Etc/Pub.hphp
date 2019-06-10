@@ -13,6 +13,7 @@ require_once __DIR__ . "/EEngine.hphp";
 require_once __DIR__ . "/../PubFuncPhp/TamClass1.hphp";
 
 use TamPub1\ConfigurationManager;
+use TamPub1\StringData2;
 use TamPub1\StringFunc;
 use TamPub1\TamLocker;
 
@@ -76,5 +77,35 @@ class Pub {
         }
         self::$lockObject->Unlock();
         return $result;
+    }
+
+    public static function saveEEngine(): void {
+        $buffBody = serialize(self::$eEngine);
+
+        $buffHead = new StringData2();
+        $buffHead->appendInt32(1974);
+        $buffHead->appendInt32(strlen($buffBody));
+        $mp = shmop_open(1989, 'c', 0755, strlen($buffHead->buff));
+        shmop_write($mp, $buffHead->buff, 0);
+        shmop_close($mp);
+
+        $mp = shmop_open(1979, 'c', 0755, strlen($buffBody));
+        shmop_write($mp, $buffBody, 0);
+        shmop_close($mp);
+    }
+
+    public static function loadEEngine(): bool {
+        $buffHead = new StringData2();
+        $mp = shmop_open(1989, 'c', 0755, 16);
+        $buffHead->buff = shmop_read($mp, 0, 16);
+        if (!($buffHead->buff)) $buffHead->buff = "";
+        shmop_close($mp);
+        if ($buffHead->readInt32() != 1974) return false;
+        $size = $buffHead->readInt32();
+        $mp = shmop_open(1979, 'c', 0755, $size);
+        $buffBody = shmop_read($mp, 0, $size);
+        shmop_close($mp);
+        self::$eEngine = unserialize($buffBody);
+        return true;
     }
 }
