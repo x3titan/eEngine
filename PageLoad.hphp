@@ -39,14 +39,15 @@ class PageLoad {
     //private HttpPostedFile postFile = null;
 
     public function Page_Load(): void {
+        $startTime = microtime(true);
+
         Pub::init();
-        Pub::$log->writeCommon("start loading eengine");
         Pub::loadEEngine();
-        if (Pub::loadProject() == 0) {
-            $this->jsStringInitControl = "alert(\"无法载入项目\");";
-            Pub::$log->writeWarning("无法载入项目Etc.Pub.loadProject()");
-        }
+        Pub::loadProjectCache();
         Pub::saveEEngine();
+
+        \Etc\Pub::$log->writeCommon("time:" . floor((microtime(true) - $startTime)*1000) . "ms");
+        $startTime = microtime(true);
 
         //init CacheGenerator //!!! code later
         //!!! CacheGenerator.applicationPath = Request.ApplicationPath;
@@ -86,7 +87,8 @@ class PageLoad {
 
 
         } else if ($taskSet == null) {
-            $startTime = time();
+            \Etc\Pub::$log->writeCommon("time2:" . floor((microtime(true) - $startTime)*1000) . "ms");
+            $startTime = microtime(true);
             //Etc.Pub.log.writeCommon("start generate webpage, url=" + url);
             $scriptEngineInst = $page->initScriptEngine("Session", "Request", "Response");
             if ($scriptEngineInst == null) {
@@ -102,6 +104,12 @@ class PageLoad {
             $this->jsStringOnPageLoad = $page->generateJsStringOnPageLoad();
             $this->jsStringInitControl = $page->generateJsStringInitControl();
             $this->jsStringOnControlLoad = $page->generateJsStringOnControlLoad();
+            \Etc\Pub::$log->writeCommon("generate page in " . floor((microtime(true) - $startTime)*1000) . "ms, url=" . $url .
+                ", size=" . (StringFunc::length($this->jsStringOnPageCreate) +
+                    StringFunc::length($this->jsStringOnPageLoad) +
+                    StringFunc::length($this->jsStringInitControl) +
+                    StringFunc::length($this->jsStringOnControlLoad)));
+
         } else {
             $a = 230902398;
 
