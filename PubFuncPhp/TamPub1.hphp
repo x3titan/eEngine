@@ -1452,14 +1452,14 @@ class StringData2 {
     }
 
     public function appendByte(int $value): void {
-        if ($value > 0x10) {
+        if ($value >= 0x10) {
             $this->buff .= dechex($value);
         } else {
             $this->buff .= '0' . dechex($value);
         }
     }
 
-    public function appendWord(int $value): int {
+    public function appendWord(int $value): void {
         $this->appendByte($value & 0xFF);
         $this->appendByte(($value & 0xFF00) >> 8);
     }
