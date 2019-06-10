@@ -172,7 +172,7 @@ class StringFunc {
      * @return string
      */
     public static function replace(string $value, string $find, string $newOne): string {
-        if ($value==="") return "";
+        if ($value === "") return "";
         return mb_ereg_replace($find, $newOne, $value);
     }
 
@@ -516,6 +516,12 @@ class Tree {
             return false;
         }
         return Etc::arrayDeleteObject($node->parent->children, $node);
+    }
+
+    public function removeByIndex(int $index): void {
+        if ($index < 0) return;
+        if ($index >= count($this->children)) return;
+        array_splice($this->children, $index, 1);
     }
 
     public function clear() {
