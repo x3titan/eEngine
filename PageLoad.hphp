@@ -40,12 +40,14 @@ class PageLoad {
 
     public function Page_Load(): void {
         Pub::init();
+        Pub::$log->writeCommon("start loading eengine");
+        Pub::loadEEngine();
         if (Pub::loadProject() == 0) {
             $this->jsStringInitControl = "alert(\"无法载入项目\");";
             Pub::$log->writeWarning("无法载入项目Etc.Pub.loadProject()");
         }
-        Pub::$log->writeCommon("sTemp=(" . Pub::$sTemp . ")");
-        Pub::$sTemp = "asldkjfl;askdjf";
+        Pub::saveEEngine();
+
         //init CacheGenerator //!!! code later
         //!!! CacheGenerator.applicationPath = Request.ApplicationPath;
         //!!! CacheGenerator.start();
@@ -100,7 +102,6 @@ class PageLoad {
             $this->jsStringOnPageLoad = $page->generateJsStringOnPageLoad();
             $this->jsStringInitControl = $page->generateJsStringInitControl();
             $this->jsStringOnControlLoad = $page->generateJsStringOnControlLoad();
-            Pub::$log->writeCommon(serialize(Pub::$eEngine));
         } else {
             $a = 230902398;
 
