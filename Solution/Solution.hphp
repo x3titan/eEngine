@@ -15,9 +15,11 @@ use const Grpc\STATUS_INTERNAL;
 use ScriptEngine\ScriptEngine;
 use Solution\Solution\Item;
 use TamPub1\ConfigFileXml;
+use TamPub1\Etc;
 use TamPub1\FileOperation;
 use TamPub1\StringFunc;
 use TamPub1\TamLocker;
+use TamPub1\Tree;
 
 class Solution {
     /**
@@ -50,10 +52,13 @@ class Solution {
         return $result;
     }
 
-    public function loadProject(string $projectPath): string {
-        \Etc\Pub::$pathSeperator = FileOperation::getPathSeperator($projectPath);
+    public function loadProject(string $projectPath, int $projectIndex = -1): string {
         $projectPath = StringFunc::addRearChar($projectPath, \Etc\Pub::$pathSeperator);
-        $project = $this->projects->addValue(new Item());
+        if ($projectIndex<0) {
+            $project = $this->projects->addValue(new Item());
+        } else {
+            $project = $this->projects->insertValue($projectIndex, new Item());
+        }
         $project->value->type = Item::$ITEM_TYPE_PROJECT;
         $project->value->projectFolderName = FileOperation::getFolderName($projectPath);
         $project->value->projectPath = $projectPath;
