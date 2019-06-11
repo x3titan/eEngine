@@ -12,6 +12,7 @@ require_once __DIR__ . '/Etc/Pub.hphp';
 
 use Etc\Pub;
 use TamPub1\ConfigurationManager;
+use TamPub1\ShareMemory;
 use TamPub1\StringFunc;
 
 class PageLoad {
@@ -46,7 +47,7 @@ class PageLoad {
         Pub::loadProjectCache();
         Pub::saveEEngine();
 
-        \Etc\Pub::$log->writeCommon("time:" . floor((microtime(true) - $startTime)*1000) . "ms");
+        \Etc\Pub::$log->writeCommon("time1:" . floor((microtime(true) - $startTime)*1000) . "ms");
         $startTime = microtime(true);
 
         //init CacheGenerator //!!! code later
@@ -98,13 +99,29 @@ class PageLoad {
                 //Response . End();
                 return;
             }
+            \Etc\Pub::$log->writeCommon("time3:" . floor((microtime(true) - $startTime)*1000) . "ms");
+            $startTime = microtime(true);
             $this->jsStringTitle = $page->generateJsStringTitle();
+            \Etc\Pub::$log->writeCommon("time4:" . floor((microtime(true) - $startTime)*1000) . "ms");
+            $startTime = microtime(true);
             $this->jsStringHead = $page->generateJsStringHead();
+            \Etc\Pub::$log->writeCommon("time5:" . floor((microtime(true) - $startTime)*1000) . "ms");
+            $startTime = microtime(true);
             $this->jsStringInclude = $page->generateJsStringInclude();
+            \Etc\Pub::$log->writeCommon("time6:" . floor((microtime(true) - $startTime)*1000) . "ms");
+            $startTime = microtime(true);
             $this->jsStringOnPageCreate = $page->generateJsStringOnPageCreate();
+            \Etc\Pub::$log->writeCommon("time7:" . floor((microtime(true) - $startTime)*1000) . "ms");
+            $startTime = microtime(true);
             $this->jsStringOnPageLoad = $page->generateJsStringOnPageLoad();
+            \Etc\Pub::$log->writeCommon("time8:" . floor((microtime(true) - $startTime)*1000) . "ms");
+            $startTime = microtime(true);
             $this->jsStringInitControl = $page->generateJsStringInitControl();
+            \Etc\Pub::$log->writeCommon("time9:" . floor((microtime(true) - $startTime)*1000) . "ms");
+            $startTime = microtime(true);
             $this->jsStringOnControlLoad = $page->generateJsStringOnControlLoad();
+            \Etc\Pub::$log->writeCommon("time10:" . floor((microtime(true) - $startTime)*1000) . "ms");
+            $startTime = microtime(true);
             \Etc\Pub::$log->writeCommon("generate page in " . floor((microtime(true) - $startTime)*1000) . "ms, url=" . $url .
                 ", size=" . (StringFunc::length($this->jsStringOnPageCreate) +
                     StringFunc::length($this->jsStringOnPageLoad) +
