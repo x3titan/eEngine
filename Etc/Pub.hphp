@@ -14,6 +14,7 @@ require_once __DIR__ . "/../PubFuncPhp/TamClass1.hphp";
 
 use TamPub1\ConfigurationManager;
 use TamPub1\FileOperation;
+use TamPub1\ShareMemory;
 use TamPub1\StringData2;
 use TamPub1\StringFunc;
 use TamPub1\TamLocker;
@@ -108,39 +109,13 @@ class Pub {
 
 
     public static function saveEEngine(): void {
-        $buffBody = serialize(self::$eEngine);
-
-        $buffHead = new StringData2();
-        $buffHead->appendInt32(1974);
-        $buffHead->appendInt32(strlen($buffBody));
-        \Etc\Pub::$log->writeCommon("store:" . strlen($buffBody));
-        $mp = shmop_open(1989, 'c', 0777, strlen($buffHead->buff));
-        if (!$mp) {
-            \Etc\Pub::$log->writeCommon("not enough memory:" . strlen($buffHead->buff) . "bytes");
-            return;
-        }
-        shmop_write($mp, $buffHead->buff, 0);
-        shmop_close($mp);
-
-        $mp = shmop_open(1979, 'c', 0777, strlen($buffBody));
-        shmop_write($mp, $buffBody, 0);
-        shmop_close($mp);
+        ShareMemory::write(0xAEE, serialize(self::$eEngine));
     }
 
     public static function loadEEngine(): bool {
-        $buffHead = new StringData2();
-        $mp = shmop_open(1989, 'c', 0755, 16);
-        $buffHead->buff = shmop_read($mp, 0, 16);
-        if (!($buffHead->buff)) $buffHead->buff = "";
-        shmop_close($mp);
-        if ($buffHead->readInt32() != 1974) return false;
-        $size = $buffHead->readInt32();
-        \Etc\Pub::$log->writeCommon("load:" . $size);
-        if ($size<=0) return false;
-        $mp = shmop_open(1979, 'c', 0777, $size);
-        $buffBody = shmop_read($mp, 0, $size);
-        shmop_close($mp);
-        self::$eEngine = unserialize($buffBody);
+        $buff = ShareMemory::read(0xAEE);
+        if ($buff === "") return false;
+        self::$eEngine = unserialize($buff);
         return true;
     }
 }
