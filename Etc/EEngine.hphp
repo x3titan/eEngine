@@ -91,9 +91,16 @@ class EEngine {
         $pagePath = StringFunc::addRearChar($pagePath, '/') . "page.xml";
         $item = $this->solution->getItem($pagePath);
         if ($item == null) return null;
+        if ($item->value->page != null) {
+            if (filemtime(Solution::getDiskPath($item) . "page.xml") == $item->value->page->fileLastWriteTime) {
+                return $item->value->page;
+            }
+        }
         $result = new PageWeb();
+        $item->value->page = $result;
         $result->projectItem = $item;
         $result->loadFromFile(Solution::getDiskPath($item) . "page.xml");
+        Pub::$log->writeCommon("load page: " . Solution::getDiskPath($item) . "page.xml");
         $result->solution = $this->solution;
         return $result;
     }
