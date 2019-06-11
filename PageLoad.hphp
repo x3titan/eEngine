@@ -79,6 +79,7 @@ class PageLoad {
                 return;
             }
         }
+        Pub::saveEEngine();
         //TamPub1.Tree<Solution.Solution.Item> project;
         \Etc\Pub::$lockObject->Lock();
         $project = \Etc\Pub::$eEngine->solution->getProject($page->projectItem);
