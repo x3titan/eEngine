@@ -1008,7 +1008,7 @@ class Converter {
 
     public static function uint32ToInt32(int $value): int {
         $value = $value & 0xFFFFFFFF;
-        if (($value & 0x8000) == 0) return $value;
+        if (($value & 0x80000000) == 0) return $value;
         return $value | 0xFFFFFFFF00000000;
     }
 
@@ -1506,7 +1506,7 @@ class StringData2 {
 
     public function readDWord(): int {
         $result = $this->readWord();
-        $result = $result | ($this->readWord() << 16);
+        $result = $result | (($this->readWord()) << 16);
         return $result;
     }
 
