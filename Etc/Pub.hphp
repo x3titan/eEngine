@@ -113,11 +113,16 @@ class Pub {
         $buffHead = new StringData2();
         $buffHead->appendInt32(1974);
         $buffHead->appendInt32(strlen($buffBody));
-        $mp = shmop_open(1989, 'c', 0755, strlen($buffHead->buff));
+        \Etc\Pub::$log->writeCommon("store:" . strlen($buffBody));
+        $mp = shmop_open(1989, 'c', 0777, strlen($buffHead->buff));
+        if (!$mp) {
+            \Etc\Pub::$log->writeCommon("not enough memory:" . strlen($buffHead->buff) . "bytes");
+            return;
+        }
         shmop_write($mp, $buffHead->buff, 0);
         shmop_close($mp);
 
-        $mp = shmop_open(1979, 'c', 0755, strlen($buffBody));
+        $mp = shmop_open(1979, 'c', 0777, strlen($buffBody));
         shmop_write($mp, $buffBody, 0);
         shmop_close($mp);
     }
@@ -130,7 +135,9 @@ class Pub {
         shmop_close($mp);
         if ($buffHead->readInt32() != 1974) return false;
         $size = $buffHead->readInt32();
-        $mp = shmop_open(1979, 'c', 0755, $size);
+        \Etc\Pub::$log->writeCommon("load:" . $size);
+        if ($size<=0) return false;
+        $mp = shmop_open(1979, 'c', 0777, $size);
         $buffBody = shmop_read($mp, 0, $size);
         shmop_close($mp);
         self::$eEngine = unserialize($buffBody);
