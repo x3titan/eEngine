@@ -1553,6 +1553,51 @@ class StringData2 {
     }
 }
 
+/**
+ * Class ShareMemory php use only
+ * @package TamPub1
+ */
+class ShareMemory {
+    public static function write(int $key, string $buff): void {
+        $size = strlen($buff);
+        if (self::getSize($key) != $size) self::delete($key);
+        $mp = shmop_open($key, 'c', 0777, $size);
+        shmop_write($mp, $buff, 0);
+        shmop_close($mp);
+    }
+
+    public static function read(int $key): string {
+        error_reporting(E_ALL ^ E_WARNING);
+        $mp = shmop_open($key, 'a', 0777, 0);
+        error_reporting(E_ALL);
+        if (!$mp) return "";
+        $size = shmop_size($mp);
+        $result = shmop_read($mp, 0, $size);
+        shmop_close($mp);
+        return $result;
+    }
+
+    public static function getSize(int $key): int {
+        error_reporting(E_ALL ^ E_WARNING);
+        $mp = shmop_open($key, 'a', 0777, 0);
+        error_reporting(E_ALL);
+        if (!$mp) return -1;
+        $result = shmop_size($mp);
+        shmop_close($mp);
+        return $result;
+    }
+
+    public static function delete(int $key): void {
+        error_reporting(E_ALL ^ E_WARNING);
+        $mp = shmop_open($key, 'a', 0777, 0);
+        error_reporting(E_ALL);
+        if (!$mp) return;
+        shmop_delete($mp);
+        shmop_close($mp);
+    }
+}
+
+
 
 
 
