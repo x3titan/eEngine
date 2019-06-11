@@ -665,50 +665,48 @@ class PageWeb extends Page {
         while (true) {
             $node = $this->controls->getNext();
             if ($node == null) break;
-            $result->Append($this->generateJsStringControl($node));
+            $this->generateJsStringControl($result, $node);
         }
         return $result->ToString();
     }
 
-    private function generateJsStringControl(Tree $control): string {
-        $result = "";
+    private function generateJsStringControl(StringBuilder $result, Tree $control): void {
         if ($control->value->type === "Panel") {
-            $result .= $this->generateJsStringPanel($control);
+            $this->generateJsStringPanel($result, $control);
         } else if ($control->value->type === "Link") {
-            $result .= $this->generateJsStringLink($control);
+            $result->Append($this->generateJsStringLink($control));
         } else if ($control->value->type === "Edit") {
-            $result .= $this->generateJsStringEdit($control);
+            $this->generateJsStringEdit($result, $control);
         } else if ($control->value->type === "TableTitle") {
-            $result .= $this->generateJsStringPanel($control);
-            $result .= "c.layout=\"LayoutX\";\n";
+            $this->generateJsStringPanel($result, $control);
+            $result->Append("c.layout=\"LayoutX\";\n");
         } else if ($control->value->type === "TableTitleItem") {
-            $result .= $this->generateJsStringPanel($control);
-            $result .= "c.heavyEnabled=" . $control->value->property->getItem("heavyEnabled")->value->asString . ";\n";
-            $result .= "c.heavy=" . $control->value->property->getItem("heavy")->value->asString . ";\n";
+            $this->generateJsStringPanel($result, $control);
+            $result->Append("c.heavyEnabled=" . $control->value->property->getItem("heavyEnabled")->value->asString . ";\n");
+            $result->Append("c.heavy=" . $control->value->property->getItem("heavy")->value->asString . ";\n");
         } else if ($control->value->type === "TableBody") {
-            $result .= $this->generateJsStringTableBody($control);
+            $result->Append($this->generateJsStringTableBody($control));
         } else if ($control->value->type === "TableBodyItem") {
-            $result .= $this->generateJsStringTableBodyItem($control);
+            $result->Append($this->generateJsStringTableBodyItem($control));
         } else if ($control->value->type === "DivRoot") {
-            $result .= $this->generateJsStringPanel($control);
+            $this->generateJsStringPanel($result, $control);
         } else if ($control->value->type === "RichEdit") {
-            $result .= $this->generateJsStringRichEdit($control);
+            $result->Append($this->generateJsStringRichEdit($control));
         } else if ($control->value->type === "LayoutX" || $control->value->type === "LayoutY") {
-            $result .= $this->generateJsStringLayout($control);
+            $result->Append($this->generateJsStringLayout($control));
         } else if ($control->value->type === "LayoutXItem" || $control->value->type === "LayoutYItem") {
-            $result .= $this->generateJsStringLayoutItem($control);
+            $result->Append($this->generateJsStringLayoutItem($control));
         } else if ($control->value->type === "FileUpload") {
-            $result .= $this->generateJsStringUploadFile($control);
+            $result->Append($this->generateJsStringUploadFile($control));
         } else if ($control->value->type === "CheckBox") {
-            $result .= $this->generateJsStringCheckBox($control);
+            $this->generateJsStringCheckBox($result, $control);
         } else if ($control->value->type === "Button") {
-            $result .= $this->generateJsStringButton($control);
+            $result->Append($this->generateJsStringButton($control));
         }
         //overflow(autoScroll)
         if ($control->value->property->getItem("autoScroll")->value->asString === "true") {
-            $result .= "ee.setAutoScroll(c," . $control->value->property->getItem("autoScroll")->value->asString . ");\n";
+            $result->Append("ee.setAutoScroll(c," . $control->value->property->getItem("autoScroll")->value->asString . ");\n");
         }
-        return $result;
     }
 
     private function generateJsStringLink(Tree $control): string {
@@ -736,9 +734,8 @@ class PageWeb extends Page {
         return $result;
     }
 
-    private function generateJsStringEdit(Tree $control): string {
-        $result = "";
-        $result .= $this->generateJsStringPanel($control);
+    private function generateJsStringEdit(StringBuilder $result, Tree $control): void {
+        $this->generateJsStringPanel($result, $control);
         //eb.addEdit(c, font, fontSize, fontColor, fontBold, password, multiLine, inputHint);
         //缓存载入皮肤
         $project = $this->solution->getProject($this->projectItem);
@@ -747,7 +744,7 @@ class PageWeb extends Page {
         }
         $skinItem = $project->value->skin->loadXml($project->value->projectPath . "skins" . Pub::$pathSeperator .
             $control->value->property->getItem("backgroundSkin")->value->asString . ".xml");
-        if ($skinItem == null) return $result;
+        if ($skinItem == null) return;
         $fontBold = "normal";
         if ($control->value->property->getItem("inputFontBold")->value->asString === "true") {
             $fontBold = "bold";
@@ -764,7 +761,7 @@ class PageWeb extends Page {
         if ($control->value->property->getItem("inputHint")->value->asString === "true") {
             $inputHint = "true";
         }
-        $result .= "eb.addEdit(c," .
+        $result->Append("eb.addEdit(c," .
             "\"" . $control->value->property->getItem("inputFont")->value->asString . "\"," .
             "\"" . $control->value->property->getItem("inputFontSize")->value->asString . "pt\"," .
             "\"#" . $control->value->property->getItem("inputFontColor")->value->asString . "\"," .
@@ -772,17 +769,17 @@ class PageWeb extends Page {
             $password . "," .
             $multiLine . "," .
             $inputHint .
-            ");\n";
+            ");\n");
         //设置初始值
         if (StringFunc::length($control->value->property->getItem("inputText")->value->asString) > 0) {
-            $result .= "c._input.value=\"" . StringFunc::replace(
+            $result->Append("c._input.value=\"" . StringFunc::replace(
                     $this->scriptEngine->getInlineResult($control->value->property->getItem("inputText")->value->asString),
-                    "\"", "\\\"") . "\";\n";
+                    "\"", "\\\"") . "\";\n");
         }
         //文字自适应
         //eb.setInputFontSizeAuto(c, xx);
         if ($control->value->property->getItem("inputFontSizeAuto")->value->asInt32 > 0) {
-            $result .= "eb.setInputFontSizeAuto(c, " . $control->value->property->getItem("inputFontSizeAuto")->value->asInt32 . ");\n";
+            $result->Append("eb.setInputFontSizeAuto(c, " . $control->value->property->getItem("inputFontSizeAuto")->value->asInt32 . ");\n");
         }
         //密码框
         if ($control->value->property->getItem("inputPassword")->value->asString === "true") {
@@ -790,27 +787,26 @@ class PageWeb extends Page {
         }
         //事件
         if (StringFunc::length($control->value->property->getItem("onFocus")->value->asString) > 0) {
-            $result .= "eb.addEvent(c._input,\"focus\", function (event) {\n" .
+            $result->Append("eb.addEvent(c._input,\"focus\", function (event) {\n" .
                 "var sender = event.target ? event.target : (event.srcElement ? event.srcElement : null);\n" .
                 "if (sender == null) return;\n" .
                 $this->scriptEngine->getInlineResult($control->value->property->getItem("onFocus")->value->asString) .
-                "\n},false);\n";
+                "\n},false);\n");
         }
         if (StringFunc::length($control->value->property->getItem("onFocusLost")->value->asString) > 0) {
-            $result .= "eb.addEvent(c._input,\"blur\", function (event) {\n" .
+            $result->Append("eb.addEvent(c._input,\"blur\", function (event) {\n" .
                 "var sender = event.target ? event.target : (event.srcElement ? event.srcElement : null);\n" .
                 "if (sender == null) return;\n" .
                 $this->scriptEngine->getInlineResult($control->value->property->getItem("onFocusLost")->value->asString) .
-                "\n},false);\n";
+                "\n},false);\n");
         }
         if (StringFunc::length($control->value->property->getItem("onChange")->value->asString) > 0) {
-            $result .= "eb.addEvent(c._input,\"input\", function (event) {\n" .
+            $result->Append("eb.addEvent(c._input,\"input\", function (event) {\n" .
                 "var sender = event.target ? event.target : (event.srcElement ? event.srcElement : null);\n" .
                 "if (sender == null) return;\n" .
                 $this->scriptEngine->getInlineResult($control->value->property->getItem("onChange")->value->asString) .
-                "\n},false);\n";
+                "\n},false);\n");
         }
-        return $result;
     }
 
     private function generateJsStringRichEdit(Tree $control): string {
@@ -911,8 +907,7 @@ class PageWeb extends Page {
         }
     }
 
-    private function generateJsStringPanel(Tree $control): string {
-        $result = new StringBuilder();
+    private function generateJsStringPanel(StringBuilder $result, Tree $control): void {
         //string parentName;
         //string sTemp, sTemp1, sTemp2;
         //生成div
@@ -1198,12 +1193,10 @@ class PageWeb extends Page {
                 $result->Append("ee.setRect(c,null,null,null,1);\n");
             }
         }
-        return $result->ToString();
     }
 
-    private function generateJsStringCheckBox(Tree $control): string {
-        $result = new StringBuilder();
-        $result->Append($this->generateJsStringPanel($control));
+    private function generateJsStringCheckBox(StringBuilder $result, Tree $control): void {
+        $this->generateJsStringPanel($result, $control);
         $checkBox = new Tree();
         $checkBox->value = $control->value->clone();
         $checkBox->value->name .= "status1"; //特殊名字如:ee_checkbox1status1
@@ -1219,7 +1212,7 @@ class PageWeb extends Page {
         $checkBox->value->property->getItem("backgroundImg")->value->asString = $checkBox->value->property->getItem("backgroundImg1")->value->asString;
         $checkBox->value->property->getItem("backgroundImgMode")->value->asString = $checkBox->value->property->getItem("backgroundImgMode1")->value->asString;
         $checkBox->value->property->getItem("backgroundSkin")->value->asString = $checkBox->value->property->getItem("backgroundSkin1")->value->asString;
-        $result->Append($this->generateJsStringPanel($checkBox));
+        $this->generateJsStringPanel($result, $checkBox);
         $result->Append("c=\$g(\"ee_" . $control->value->name . "\");\n");
         $result->Append("c.status1=\$g(\"ee_" . $checkBox->value->name . "\");\n");
         $result->Append("c.status1.checkBox=c;\n");
@@ -1227,8 +1220,6 @@ class PageWeb extends Page {
         if (StringFunc::length($control->value->property->getItem("onValueChange")->value->asString) > 0) {
             $result->Append("c.onValueChange = function (sender, value) {\n" . $this->scriptEngine->getInlineResult($control->value->property->getItem("onValueChange")->value->asString) . "\n}\n");
         }
-
-        return $result->ToString();
     }
 
     private function generateJsStringButton(Tree $control): string {
