@@ -68,7 +68,7 @@ class PropertyList {
         $p = 0; //disable warning
         $r = 0; //disable warning
         while ($fp > $rp) {
-            $p = ($fp + $rp) / 2;
+            $p = floor(($fp + $rp) / 2);
             $r = StringFunc::compare($name, $this->items[$p]->name);
             if ($r > 0) {
                 $rp = $p + 1;
