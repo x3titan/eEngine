@@ -87,7 +87,7 @@ class PageLoad {
 
 
         } else if ($taskSet == null) {
-            \Etc\Pub::$log->writeCommon("time2:" . floor((microtime(true) - $startTime)*1000) . "ms");
+            \Etc\Pub::$log->writeCommon("time2:" . floor((microtime(true) - $startTime) * 1000) . "ms");
             $startTime = microtime(true);
             //Etc.Pub.log.writeCommon("start generate webpage, url=" + url);
             $scriptEngineInst = $page->initScriptEngine("Session", "Request", "Response");
@@ -104,7 +104,7 @@ class PageLoad {
             $this->jsStringOnPageLoad = $page->generateJsStringOnPageLoad();
             $this->jsStringInitControl = $page->generateJsStringInitControl();
             $this->jsStringOnControlLoad = $page->generateJsStringOnControlLoad();
-            \Etc\Pub::$log->writeCommon("generate page in " . floor((microtime(true) - $startTime)*1000) . "ms, url=" . $url .
+            \Etc\Pub::$log->writeCommon("generate page in " . floor((microtime(true) - $startTime) * 1000) . "ms, url=" . $url .
                 ", size=" . (StringFunc::length($this->jsStringOnPageCreate) +
                     StringFunc::length($this->jsStringOnPageLoad) +
                     StringFunc::length($this->jsStringInitControl) +
@@ -117,6 +117,135 @@ class PageLoad {
     }
 }
 
+
+/**
+ * Class CacheGenerator cache同步生成器，包含资源和离线页面的生成
+ * @package eEngine
+ */
+class CacheGenerator {
+    //public static TamClass1.PropertyList pageList = new TamClass1.PropertyList();
+    public static $eeDiskPath = "";
+    public static $applicationPath = "";
+    public static $eePath = "";
+
+    public static function start(): void {
+        if (self::$applicationPath === "/") self::$applicationPath = "";
+        self::$eeDiskPath = FileOperation::extractFilePath(HttpContext . Current . Server . MapPath("ee.aspx"));
+        eePath = TamPub1 . StringFunc . deleteRearChar(System . Configuration . ConfigurationManager . AppSettings["eePath"] . ToString(), '/');
+        thread = new Thread(new ThreadStart(execute));
+        thread . Start();
+    }
+
+    private static function execute(): void {
+        //int i;
+        string dfolder;
+            TamPub1 . Tree < Solution . Solution . Item> projectItem;
+            FileInfo fi;
+            string fileBuff, destPath;
+            while (true) {
+                lock(Etc . Pub . lockObject){
+                Etc . Pub . loadProject();
+                //synchronize resource file
+                for (i = 0; i < Etc . Pub . eEngine . solution . projects . children . Count; i++) {
+                    //copy cache folder
+                    dfolder = eeDiskPath + "cache\\" +
+                        TamPub1 . FileOperation . extractFileName(TamPub1 . StringFunc . deleteRearChar(
+                                Etc . Pub . eEngine . solution . projects . children[i] . value . projectPath, '\\')) + "\\";
+                    copyCacheDir(Etc . Pub . eEngine . solution . projects . children[i] . value . projectPath, dfolder);
+                    //Etc.Pub.log.writeCommon("sync cache folder complete in " + (DateTime.Now - startTime).TotalMilliseconds + "ms, sfolder=" + project.value.projectPath +
+                    //    ", dfolder=" + dfolder);
+                }
+                //copy js header file
+                //copyCacheDir(eeDiskPath + "scripts", eeDiskPath + "cache");
+                //generate static page
+                projectItem = Etc . Pub . eEngine . solution . projects . getFirst();
+                while (true) {
+                    projectItem = Etc . Pub . eEngine . solution . projects . getNext();
+                    if (projectItem == null) break;
+                    if (projectItem . value . type != Solution . Solution . Item . ITEM_TYPE_PAGE) continue;
+                    destPath = eeDiskPath + "cache\\" + Etc . Pub . eEngine . solution . getProject(projectItem) . value . projectFolderName +
+                        Solution . Solution . getPath(projectItem) . Replace('/', '\\') + "\\";
+                    try {
+                        //compare last modify time
+                        fileBuff = TamPub1 . FileOperation . loadToStringGBK(destPath + "time.txt");
+                        fi = new System . IO . FileInfo(Solution . Solution . getDiskPath(projectItem) + "page.xml");
+                        if (System . IO . File . Exists(destPath + "index.htm")) {
+                            if (fileBuff . Length > 0) {
+                                if (fileBuff . Equals(fi . LastWriteTime . ToString("yyyy-MM-dd HH:mm:ss.fff"))) {
+                                    continue;
+                                }
+                            }
+                        }
+                        fileBuff = fi . LastWriteTime . ToString("yyyy-MM-dd HH:mm:ss.fff");
+                        System . IO . File . Delete(destPath + "time.txt");
+                        TamPub1 . FileOperation . saveString(destPath + "time.txt", fileBuff, "GB2312");
+                        //generate page
+                        Solution . PageWeb page = new Solution . PageWeb();
+                            page . projectItem = projectItem;
+                            if (page . loadFromFile(Solution . Solution . getDiskPath(projectItem) + "page.xml") . Length > 0) continue;
+                            page . applicationPath = applicationPath;
+                            page . eePath = eePath;
+                            page . solution = Etc . Pub . eEngine . solution;
+                            fileBuff = page . generatePage();
+                            //sPage = eeDiskPath + "cache\\" + Solution.Solution.getProject(projectItem).value.projectFolderName +
+                            //    Solution.Solution.getPath(projectItem).Replace('/', '\\') + "\\page.htm";
+                            System . IO . File . Delete(destPath + "index.htm");
+                            TamPub1 . FileOperation . saveString(destPath + "index.htm", fileBuff, "GB2312");
+                            Etc . Pub . log . writeWarning("generate offline page: " + destPath + "index.htm");
+                        } catch (Exception e) {
+                        Etc . Pub . log . writeWarning("generate offline page error: " + destPath + "index.htm, error=" + e . Message + ",trace=" + e . StackTrace . ToString());
+                    }
+                    }
+            }
+                Thread . Sleep(1000);
+                if ((thread . ThreadState == ThreadState . Aborted) || (thread . ThreadState == ThreadState . Stopped)) break;
+                Thread . Sleep(1000);
+                if ((thread . ThreadState == ThreadState . Aborted) || (thread . ThreadState == ThreadState . Stopped)) break;
+                Thread . Sleep(1000);
+                if ((thread . ThreadState == ThreadState . Aborted) || (thread . ThreadState == ThreadState . Stopped)) break;
+                Thread . Sleep(1000);
+                if ((thread . ThreadState == ThreadState . Aborted) || (thread . ThreadState == ThreadState . Stopped)) break;
+                Thread . Sleep(1000);
+                if ((thread . ThreadState == ThreadState . Aborted) || (thread . ThreadState == ThreadState . Stopped)) break;
+            }
+        }
+
+    private static function copyCacheDir(string $sdir, string $ddir): bool {
+        $sdir = StringFunc::addRearChar(sdir, '\\');
+        $ddir = StringFunc::addRearChar($ddir, '\\');
+        if (!System . IO . Directory . Exists(ddir)) {
+            try {
+                System . IO . Directory . CreateDirectory(ddir);
+                Etc . Pub . log . writeCommon("create cache dir: " + ddir);
+            } catch {
+                Etc . Pub . log . writeWarning("can not create cache dir: " + ddir);
+            }
+        }
+
+        // 子文件夹
+        foreach (string sub in System . IO . Directory . GetDirectories(sdir))
+                copyCacheDir(sub + "\\", ddir + System . IO . Path . GetFileName(sub) + "\\");
+
+            // 文件
+            foreach (string file in System . IO . Directory . GetFiles(sdir)) {
+            try {
+                if (!TamPub1 . FileOperation . isSame(file, ddir + System . IO . Path . GetFileName(file))) {
+                    if (System . IO . Path . GetExtension(file) . ToLower() . Equals(".xml")) {
+                        //不拷贝页面源文件
+                        continue;
+                    }
+                    if (System . IO . Path . GetFileName(file) . ToLower() . Equals("thumbs.db")) continue; //不拷贝输入法文件
+                    System . IO . File . Copy(file, ddir + System . IO . Path . GetFileName(file), true);
+                    Etc . Pub . log . writeCommon("copy cache file: " + ddir + System . IO . Path . GetFileName(file));
+                }
+            } catch (Exception e) {
+                Etc . Pub . log . writeWarning("can not copy cache file: " + ddir + System . IO . Path . GetFileName(file) + ",error=" + e . Message);
+            }
+            }
+
+            return true;
+        }
+}
 
 
 
