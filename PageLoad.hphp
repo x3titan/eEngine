@@ -49,6 +49,8 @@ class PageLoad {
         Pub::loadProjectCache();
         Pub::saveEEngine();
 
+        CacheGenerator::start();
+
         //init CacheGenerator //!!! code later
         //!!! CacheGenerator.applicationPath = Request.ApplicationPath;
         //!!! CacheGenerator.start();
@@ -143,94 +145,89 @@ class CacheGenerator {
         //TamPub1 . Tree < Solution . Solution . Item> projectItem;
         //FileInfo fi;
         //    string fileBuff, destPath;
+        //Etc . Pub . loadProject();
+        //synchronize resource file
+        for ($i = 0; $i < count(\Etc\Pub::$eEngine->solution->projects->children); $i++) {
+            //copy cache folder
+            $dfolder = self::$eeDiskPath . "cache" . \Etc\Pub::$pathSeperator .
+                FileOperation::extractFileName(StringFunc::deleteRearChar(
+                    \Etc\Pub::$eEngine->solution->projects->children[$i]->value->projectPath,
+                    \Etc\Pub::$pathSeperator)) . \Etc\Pub::$pathSeperator;
+            self::copyCacheDir(\Etc\Pub::$eEngine->solution->projects->children[$i]->value->projectPath, $dfolder);
+            //Etc.Pub.log.writeCommon("sync cache folder complete in " + (DateTime.Now - startTime).TotalMilliseconds + "ms, sfolder=" + project.value.projectPath +
+            //    ", dfolder=" + dfolder);
+        }
+        return;
+        //copy js header file
+        //copyCacheDir(eeDiskPath + "scripts", eeDiskPath + "cache");
+        //generate static page
+        $projectItem = \Etc\Pub::$eEngine->solution->projects->getFirst();
         while (true) {
-            //Etc . Pub . loadProject();
-            //synchronize resource file
-            for ($i = 0; $i < count(\Etc\Pub::$eEngine->solution->projects->children); $i++) {
-                //copy cache folder
-                $dfolder = self::$eeDiskPath . "cache" . \Etc\Pub::$pathSeperator .
-                    FileOperation::extractFileName(StringFunc::deleteRearChar(
-                        \Etc\Pub::$eEngine->solution->projects->children[$i]->value->projectPath,
-                        \Etc\Pub::$pathSeperator)) . \Etc\Pub::$pathSeperator;
-                self::copyCacheDir(\Etc\Pub::$eEngine->solution->projects->children[$i]->value->projectPath, $dfolder);
-                //Etc.Pub.log.writeCommon("sync cache folder complete in " + (DateTime.Now - startTime).TotalMilliseconds + "ms, sfolder=" + project.value.projectPath +
-                //    ", dfolder=" + dfolder);
-            }
-            //copy js header file
-            //copyCacheDir(eeDiskPath + "scripts", eeDiskPath + "cache");
-            //generate static page
-            $projectItem = \Etc\Pub::$eEngine->solution->projects->getFirst();
-            while (true) {
-                $projectItem = \Etc\Pub::$eEngine->solution->projects->getNext();
-                if ($projectItem == null) break;
-                if ($projectItem->value->type != \Solution\Solution\Item::$ITEM_TYPE_PAGE) continue;
-                $destPath = self::$eeDiskPath . "cache" . \Etc\Pub::$pathSeperator .
-                    \Etc\Pub::$eEngine->solution->getProject($projectItem)->value->projectFolderName .
-                    \Solution\Solution::getPath($projectItem) . Replace('/', '\\') . "\\";
-                //compare last modify time
+            $projectItem = \Etc\Pub::$eEngine->solution->projects->getNext();
+            if ($projectItem == null) break;
+            if ($projectItem->value->type != \Solution\Solution\Item::$ITEM_TYPE_PAGE) continue;
+            $destPath = self::$eeDiskPath . "cache" . \Etc\Pub::$pathSeperator .
+                \Etc\Pub::$eEngine->solution->getProject($projectItem)->value->projectFolderName .
+                \Solution\Solution::getPath($projectItem) . Replace('/', '\\') . "\\";
+            //compare last modify time
 
-                $fileBuff = FileOperation::loadToStringGBK($destPath . "time.txt");
-                if (FileOperation::exists($destPath . "index.htm")) {
-                    if (strlen($fileBuff) > 0) {
-                        if (Date("Y-m-d H:i:s", filemtime(\Solution\Solution::getDiskPath($projectItem) . "page.xml")) === $fileBuff) {
-                            continue;
-                        }
+            $fileBuff = FileOperation::loadToStringGBK($destPath . "time.txt");
+            if (FileOperation::exists($destPath . "index.htm")) {
+                if (strlen($fileBuff) > 0) {
+                    if (Date("Y-m-d H:i:s", filemtime(\Solution\Solution::getDiskPath($projectItem) . "page.xml")) === $fileBuff) {
+                        continue;
                     }
                 }
-                $fileBuff = Date("Y-m-d H:i:s", filemtime(\Solution\Solution::getDiskPath($projectItem) . "page.xml"));
-                FileOperation::deleteFile($destPath . "time.txt");
-                FileOperation::saveString($destPath . "time.txt", $fileBuff, "GB2312");
-                //generate page
-
-                $page = \Etc\Pub::$eEngine->getPage(\Solution\Solution::getPath($projectItem));
-                if ($page == null) continue;
-                $page->applicationPath = self::$applicationPath;
-                $page->eePath = self::$eePath;
-                $fileBuff = $page->generatePage();
-                //sPage = eeDiskPath + "cache\\" + Solution.Solution.getProject(projectItem).value.projectFolderName +
-                //    Solution.Solution.getPath(projectItem).Replace('/', '\\') + "\\page.htm";
-                FileOperation::deleteFile($destPath . "index.htm");
-                FileOperation::saveString($destPath . "index.htm", $fileBuff, "GB2312");
-                \Etc\Pub::$log->writeWarning("generate offline page: " . $destPath . "index.htm");
             }
+            $fileBuff = Date("Y-m-d H:i:s", filemtime(\Solution\Solution::getDiskPath($projectItem) . "page.xml"));
+            FileOperation::deleteFile($destPath . "time.txt");
+            FileOperation::saveString($destPath . "time.txt", $fileBuff, "GB2312");
+            //generate page
+
+            $page = \Etc\Pub::$eEngine->getPage(\Solution\Solution::getPath($projectItem));
+            if ($page == null) continue;
+            $page->applicationPath = self::$applicationPath;
+            $page->eePath = self::$eePath;
+            $fileBuff = $page->generatePage();
+            //sPage = eeDiskPath + "cache\\" + Solution.Solution.getProject(projectItem).value.projectFolderName +
+            //    Solution.Solution.getPath(projectItem).Replace('/', '\\') + "\\page.htm";
+            FileOperation::deleteFile($destPath . "index.htm");
+            FileOperation::saveString($destPath . "index.htm", $fileBuff, "GB2312");
+            \Etc\Pub::$log->writeWarning("generate offline page: " . $destPath . "index.htm");
         }
     }
 
     private static function copyCacheDir(string $sdir, string $ddir): bool {
-        $sdir = StringFunc::addRearChar($sdir, '\\');
-        $ddir = StringFunc::addRearChar($ddir, '\\');
-        if (! FileOperation::pathExists($ddir)) {
-            try {
-                System . IO . Directory . CreateDirectory(ddir);
-                Etc . Pub . log . writeCommon("create cache dir: " + ddir);
-            } catch {
-                Etc . Pub . log . writeWarning("can not create cache dir: " + ddir);
+        $sdir = StringFunc::addRearChar($sdir, \Etc\Pub::$pathSeperator);
+        $ddir = StringFunc::addRearChar($ddir, \Etc\Pub::$pathSeperator);
+        if (!FileOperation::pathExists($ddir)) {
+            if (FileOperation::createDir($ddir)) {
+                \Etc\Pub::$log->writeCommon("create cache dir: " . $ddir);
+            } else {
+                \Etc\Pub::$log->writeWarning("can not create cache dir: " . $ddir);
             }
         }
 
-        // 子文件夹
-        foreach (string sub in System . IO . Directory . GetDirectories(sdir))
-                copyCacheDir(sub + "\\", ddir + System . IO . Path . GetFileName(sub) + "\\");
-
-            // 文件
-            foreach (string file in System . IO . Directory . GetFiles(sdir)) {
-            try {
-                if (!TamPub1 . FileOperation . isSame(file, ddir + System . IO . Path . GetFileName(file))) {
-                    if (System . IO . Path . GetExtension(file) . ToLower() . Equals(".xml")) {
+        $files = scandir($sdir);
+        foreach ($files as $file) {
+            if ($file === ".") continue;
+            if ($file === "..") continue;
+            if (is_dir($sdir . $file)) {
+                self::copyCacheDir($sdir . $file . \Etc\Pub::$pathSeperator, $ddir . $file . \Etc\Pub::$pathSeperator);
+            } else {
+                if (!FileOperation::isSame($sdir . $file, $ddir . $file)) {
+                    if (StringFunc::toLower(FileOperation::getFileExt($file)) === "xml") {
                         //不拷贝页面源文件
                         continue;
                     }
-                    if (System . IO . Path . GetFileName(file) . ToLower() . Equals("thumbs.db")) continue; //不拷贝输入法文件
-                    System . IO . File . Copy(file, ddir + System . IO . Path . GetFileName(file), true);
-                    Etc . Pub . log . writeCommon("copy cache file: " + ddir + System . IO . Path . GetFileName(file));
+                    if (StringFunc::toLower($file) === "thumbs.db") continue; //不拷贝输入法文件
+                    FileOperation::copy($sdir . $file, $ddir . $file);
+                    \Etc\Pub::$log->writeCommon("copy cache file: " . $ddir . $file);
                 }
-            } catch (Exception e) {
-                Etc . Pub . log . writeWarning("can not copy cache file: " + ddir + System . IO . Path . GetFileName(file) + ",error=" + e . Message);
             }
-            }
-
-            return true;
         }
+        return true;
+    }
 }
 
 
