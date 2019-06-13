@@ -1114,6 +1114,27 @@ class FileOperation {
     }
 
     /**
+     * 2019-06-03 把整个文件载入到字符串，GBK功能目前没有做
+     * @param string $filename
+     * @return string
+     */
+    public static function loadToStringGBK(string $filename): string {
+        $fp = fopen($filename, "rb");
+        if ($fp) return "";
+        $result = fread($fp, filesize($filename));
+        fclose($fp);
+        return $result;
+    }
+
+    public static function saveString(string $filename, string $data, string $coding = ""): bool {
+        $fp = fopen($filename, "wb");
+        if (!$fp) return false;
+        fwrite($fp, $data);
+        fclose($fp);
+        return true;
+    }
+
+    /**
      * 强制开启一个新文件进行写操作, 如果原文件存在则删除
      * @param string $filename null则需要提前指定filename
      * @return bool
