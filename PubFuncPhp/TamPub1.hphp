@@ -1068,6 +1068,27 @@ class FileOperation {
     }
 
     /**
+     * 判断两个文件是否相同，判断依据是文件大小后最后修改时间
+     * @param string $file1
+     * @param string $file2
+     * @return bool
+     */
+    public static function isSame(string $file1, string $file2): bool {
+        $m1 = filemtime($file1);
+        if (!$m1) return false;
+        $m2 = filemtime($file2);
+        if (!$m2) return false;
+        return $m1 == $m2;
+    }
+
+    public static function copy(string $srcFile, string $destFile): bool {
+        if (!copy($srcFile, $destFile)) return false;
+        $time = filemtime($srcFile);
+        if (!$time) return false;
+        return touch($destFile, $time);
+    }
+
+    /**
      * 打开一个文件用来读取
      * @param string|null $filename 如果为null, 则需要提前指定filename
      * @return bool
