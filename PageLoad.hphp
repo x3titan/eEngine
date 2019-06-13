@@ -13,6 +13,7 @@ require_once __DIR__ . '/PubFuncPhp/TamPub1.hphp';
 
 use Etc\Pub;
 use TamPub1\ConfigurationManager;
+use TamPub1\FileOperation;
 use TamPub1\ShareMemory;
 use TamPub1\StringBuilder;
 use TamPub1\StringFunc;
@@ -130,90 +131,75 @@ class CacheGenerator {
 
     public static function start(): void {
         if (self::$applicationPath === "/") self::$applicationPath = "";
-        self::$eeDiskPath = FileOperation::extractFilePath(HttpContext . Current . Server . MapPath("ee.aspx"));
-        eePath = TamPub1 . StringFunc . deleteRearChar(System . Configuration . ConfigurationManager . AppSettings["eePath"] . ToString(), '/');
-        thread = new Thread(new ThreadStart(execute));
-        thread . Start();
+        self::$eeDiskPath = FileOperation::extractFilePath(FileOperation::currentFilePathName());
+        //<add key="eePath" value="http://m.1peijia.com:88/eengine" />
+        self::$eePath = StringFunc::deleteRearChar(ConfigurationManager::readString("ePage", "eePath"), '/');
+        self::execute();
     }
 
     private static function execute(): void {
         //int i;
-        string dfolder;
-            TamPub1 . Tree < Solution . Solution . Item> projectItem;
-            FileInfo fi;
-            string fileBuff, destPath;
-            while (true) {
-                lock(Etc . Pub . lockObject){
-                Etc . Pub . loadProject();
-                //synchronize resource file
-                for (i = 0; i < Etc . Pub . eEngine . solution . projects . children . Count; i++) {
-                    //copy cache folder
-                    dfolder = eeDiskPath + "cache\\" +
-                        TamPub1 . FileOperation . extractFileName(TamPub1 . StringFunc . deleteRearChar(
-                                Etc . Pub . eEngine . solution . projects . children[i] . value . projectPath, '\\')) + "\\";
-                    copyCacheDir(Etc . Pub . eEngine . solution . projects . children[i] . value . projectPath, dfolder);
-                    //Etc.Pub.log.writeCommon("sync cache folder complete in " + (DateTime.Now - startTime).TotalMilliseconds + "ms, sfolder=" + project.value.projectPath +
-                    //    ", dfolder=" + dfolder);
-                }
-                //copy js header file
-                //copyCacheDir(eeDiskPath + "scripts", eeDiskPath + "cache");
-                //generate static page
-                projectItem = Etc . Pub . eEngine . solution . projects . getFirst();
-                while (true) {
-                    projectItem = Etc . Pub . eEngine . solution . projects . getNext();
-                    if (projectItem == null) break;
-                    if (projectItem . value . type != Solution . Solution . Item . ITEM_TYPE_PAGE) continue;
-                    destPath = eeDiskPath + "cache\\" + Etc . Pub . eEngine . solution . getProject(projectItem) . value . projectFolderName +
-                        Solution . Solution . getPath(projectItem) . Replace('/', '\\') + "\\";
-                    try {
-                        //compare last modify time
-                        fileBuff = TamPub1 . FileOperation . loadToStringGBK(destPath + "time.txt");
-                        fi = new System . IO . FileInfo(Solution . Solution . getDiskPath(projectItem) + "page.xml");
-                        if (System . IO . File . Exists(destPath + "index.htm")) {
-                            if (fileBuff . Length > 0) {
-                                if (fileBuff . Equals(fi . LastWriteTime . ToString("yyyy-MM-dd HH:mm:ss.fff"))) {
-                                    continue;
-                                }
-                            }
-                        }
-                        fileBuff = fi . LastWriteTime . ToString("yyyy-MM-dd HH:mm:ss.fff");
-                        System . IO . File . Delete(destPath + "time.txt");
-                        TamPub1 . FileOperation . saveString(destPath + "time.txt", fileBuff, "GB2312");
-                        //generate page
-                        Solution . PageWeb page = new Solution . PageWeb();
-                            page . projectItem = projectItem;
-                            if (page . loadFromFile(Solution . Solution . getDiskPath(projectItem) + "page.xml") . Length > 0) continue;
-                            page . applicationPath = applicationPath;
-                            page . eePath = eePath;
-                            page . solution = Etc . Pub . eEngine . solution;
-                            fileBuff = page . generatePage();
-                            //sPage = eeDiskPath + "cache\\" + Solution.Solution.getProject(projectItem).value.projectFolderName +
-                            //    Solution.Solution.getPath(projectItem).Replace('/', '\\') + "\\page.htm";
-                            System . IO . File . Delete(destPath + "index.htm");
-                            TamPub1 . FileOperation . saveString(destPath + "index.htm", fileBuff, "GB2312");
-                            Etc . Pub . log . writeWarning("generate offline page: " + destPath + "index.htm");
-                        } catch (Exception e) {
-                        Etc . Pub . log . writeWarning("generate offline page error: " + destPath + "index.htm, error=" + e . Message + ",trace=" + e . StackTrace . ToString());
-                    }
-                    }
+        //$dfolder;
+        //TamPub1 . Tree < Solution . Solution . Item> projectItem;
+        //FileInfo fi;
+        //    string fileBuff, destPath;
+        while (true) {
+            //Etc . Pub . loadProject();
+            //synchronize resource file
+            for ($i = 0; $i < count(\Etc\Pub::$eEngine->solution->projects->children); $i++) {
+                //copy cache folder
+                $dfolder = self::$eeDiskPath . "cache" . \Etc\Pub::$pathSeperator .
+                    FileOperation::extractFileName(StringFunc::deleteRearChar(
+                        \Etc\Pub::$eEngine->solution->projects->children[$i]->value->projectPath,
+                        \Etc\Pub::$pathSeperator)) . \Etc\Pub::$pathSeperator;
+                self::copyCacheDir(\Etc\Pub::$eEngine->solution->projects->children[$i]->value->projectPath, $dfolder);
+                //Etc.Pub.log.writeCommon("sync cache folder complete in " + (DateTime.Now - startTime).TotalMilliseconds + "ms, sfolder=" + project.value.projectPath +
+                //    ", dfolder=" + dfolder);
             }
-                Thread . Sleep(1000);
-                if ((thread . ThreadState == ThreadState . Aborted) || (thread . ThreadState == ThreadState . Stopped)) break;
-                Thread . Sleep(1000);
-                if ((thread . ThreadState == ThreadState . Aborted) || (thread . ThreadState == ThreadState . Stopped)) break;
-                Thread . Sleep(1000);
-                if ((thread . ThreadState == ThreadState . Aborted) || (thread . ThreadState == ThreadState . Stopped)) break;
-                Thread . Sleep(1000);
-                if ((thread . ThreadState == ThreadState . Aborted) || (thread . ThreadState == ThreadState . Stopped)) break;
-                Thread . Sleep(1000);
-                if ((thread . ThreadState == ThreadState . Aborted) || (thread . ThreadState == ThreadState . Stopped)) break;
+            //copy js header file
+            //copyCacheDir(eeDiskPath + "scripts", eeDiskPath + "cache");
+            //generate static page
+            $projectItem = \Etc\Pub::$eEngine->solution->projects->getFirst();
+            while (true) {
+                $projectItem = \Etc\Pub::$eEngine->solution->projects->getNext();
+                if ($projectItem == null) break;
+                if ($projectItem->value->type != \Solution\Solution\Item::$ITEM_TYPE_PAGE) continue;
+                $destPath = self::$eeDiskPath . "cache" . \Etc\Pub::$pathSeperator .
+                    \Etc\Pub::$eEngine->solution->getProject($projectItem)->value->projectFolderName .
+                    \Solution\Solution::getPath($projectItem) . Replace('/', '\\') . "\\";
+                //compare last modify time
+
+                $fileBuff = FileOperation::loadToStringGBK($destPath . "time.txt");
+                if (FileOperation::exists($destPath . "index.htm")) {
+                    if (strlen($fileBuff) > 0) {
+                        if (Date("Y-m-d H:i:s", filemtime(\Solution\Solution::getDiskPath($projectItem) . "page.xml")) === $fileBuff) {
+                            continue;
+                        }
+                    }
+                }
+                $fileBuff = Date("Y-m-d H:i:s", filemtime(\Solution\Solution::getDiskPath($projectItem) . "page.xml"));
+                FileOperation::deleteFile($destPath . "time.txt");
+                FileOperation::saveString($destPath . "time.txt", $fileBuff, "GB2312");
+                //generate page
+
+                $page = \Etc\Pub::$eEngine->getPage(\Solution\Solution::getPath($projectItem));
+                if ($page == null) continue;
+                $page->applicationPath = self::$applicationPath;
+                $page->eePath = self::$eePath;
+                $fileBuff = $page->generatePage();
+                //sPage = eeDiskPath + "cache\\" + Solution.Solution.getProject(projectItem).value.projectFolderName +
+                //    Solution.Solution.getPath(projectItem).Replace('/', '\\') + "\\page.htm";
+                FileOperation::deleteFile($destPath . "index.htm");
+                FileOperation::saveString($destPath . "index.htm", $fileBuff, "GB2312");
+                \Etc\Pub::$log->writeWarning("generate offline page: " . $destPath . "index.htm");
             }
         }
+    }
 
     private static function copyCacheDir(string $sdir, string $ddir): bool {
-        $sdir = StringFunc::addRearChar(sdir, '\\');
+        $sdir = StringFunc::addRearChar($sdir, '\\');
         $ddir = StringFunc::addRearChar($ddir, '\\');
-        if (!System . IO . Directory . Exists(ddir)) {
+        if (! FileOperation::pathExists($ddir)) {
             try {
                 System . IO . Directory . CreateDirectory(ddir);
                 Etc . Pub . log . writeCommon("create cache dir: " + ddir);
