@@ -43,11 +43,6 @@ class PageLoad {
     //private HttpPostedFile postFile = null;
 
     public function Page_Load(): void {
-        ob_clean();
-        print ("s;ldkfjas;dlfkj");
-        return;
-
-
         $startTime = microtime(true);
         Pub::init();
         Pub::loadEEngine();
@@ -119,7 +114,38 @@ class PageLoad {
                     StringFunc::length($this->jsStringOnControlLoad)));
 
         } else {
-            $a = 230902398;
+            //test();
+            //return;
+            //获取post字串
+            $startTime = microtime(true);
+            //Etc.Pub.log.writeCommon("taskset proc. start, url=" + url);
+            $sm = Request . InputStream;
+            $len = (int)sm . Length;
+            $inputByts = new byte[len];
+            sm . Read(inputByts, 0, len);
+            sm . Close();
+            $data = System . Text . Encoding . GetEncoding("utf-8") . GetString(inputByts);
+            //data = Server.UrlDecode(data);
+            if (page . initScriptEngine(Session, Request, Response) == null) {
+                Etc . Pub . log . writeWarning("taskset(" + taskSet + ") execute with error, url=" + url);
+                Response . Clear();
+                Response . Flush();
+                Response . End();
+                return;
+            }
+            Response . Clear();
+            Response . ClearHeaders();
+            //以下部分必须在web.config文件中加才有效，如果在这里加会冲突
+            //Response.AppendHeader("Access-Control-Allow-Origin", "*");
+            //Response.AppendHeader("Access-Control-Allow-Methods", "POST");
+            //Response.AppendHeader("Access-Control-Allow-Headers", "content-type");
+            Response . Write(page . executeScript2(taskSet, data));
+
+            page . disposeScriptEngine();
+
+            Etc . Pub . log . writeCommon("taskset(" + taskSet + ") complete in " + Convert . ToInt32((DateTime . Now - startTime) . TotalMilliseconds) + "ms, url=" + url);
+            Response . Flush();
+            Response . End();
 
         }
     }
