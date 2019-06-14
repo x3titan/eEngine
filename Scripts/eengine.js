@@ -932,9 +932,9 @@ var ee = {
         if (eb.isEmpty(param)) param = "";
         if (param != "") param = "&" + param;
         if (ee.eePath.length > 0) {
-            eval(taskSetName + "_ajax.post(\"" + ee.eePath + "/ee.aspx?_L_=\"+ee.pageUrl+\"&_T_=" + encodeURIComponent(taskSetName) + param + "\",s);");
+            eval(taskSetName + "_ajax.post(\"" + ee.eePath + "/ee.php?_L_=\"+ee.pageUrl+\"&_T_=" + encodeURIComponent(taskSetName) + param + "\",s);");
         } else {
-            eval(taskSetName + "_ajax.post(\"ee.aspx?_L_=\"+ee.pageUrl+\"&_T_=" + encodeURIComponent(taskSetName) + param + "\",s);");
+            eval(taskSetName + "_ajax.post(\"ee.php?_L_=\"+ee.pageUrl+\"&_T_=" + encodeURIComponent(taskSetName) + param + "\",s);");
         }
         //encodeURIComponent while using utf-8
     },

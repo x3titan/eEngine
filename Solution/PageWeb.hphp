@@ -1419,10 +1419,13 @@ class PageWeb extends Page {
 
     /// <summary>执行2号脚本（后台脚本）</summary>
     public function executeScript2(string $taskSetName, string $data): string {
+        \Etc\Pub::$log->writeCommon("execute sc2");
+
         $taskSetItem = $this->taskSet->getByName($taskSetName);
         if ($taskSetItem == null) return "";
         //string result;
         //执行用户代码
+        \Etc\Pub::$log->writeCommon("execute sc2");
         try {
             $s2 =
                 //接收的数据放入eio接口
@@ -1438,11 +1441,8 @@ class PageWeb extends Page {
             $task->script = $s2;
             $task->engine = $this->scriptEngine;
             $task->taskSetName = $taskSetName;
-            $task->start();
-            while (true) {
-                if ($task->complete) break;
-                usleep(5000);
-            }
+            $task->run();
+
             if (StringFunc::length($task->error) > 0) {
                 throw new \Exception($task->error);
             }
@@ -1463,6 +1463,7 @@ class PageWeb extends Page {
                 "eio.buffo;"
             );
         }
+        \Etc\Pub::$log->writeCommon("result =" . $result);
         return $result;
     }
 
@@ -1668,10 +1669,10 @@ class ExecuteScript2Thread { //extends \Thread {
     public function run() {
         try {
             $this->engine->engine->executeString($this->script);
-            $result = $this->engine->engine->executeString("eio.buffo;");
+            $this->result = $this->engine->engine->executeString("eio.buffo;");
         } catch (\Exception $e) {
             \Etc\Pub::$log->writeWarning("script2(" . $this->taskSetName . ") execute error, errorString=" . $e->getMessage() . ",st=" . $e->getTraceAsString());
-            $result = $this->engine->engine->executeString(
+            $this->result = $this->engine->engine->executeString(
                 "eio.buffo=\"\"; eio.appendString8(\"F\"); " .
                 "eio.appendString8(\"" .
                 StringFunc::replace(StringFunc::replace(StringFunc::replace($e->getMessage(), "\r\n", "\n"), "\n", "\\n"), "\"", "\\\"") .
