@@ -43,6 +43,11 @@ class PageLoad {
     //private HttpPostedFile postFile = null;
 
     public function Page_Load(): void {
+        ob_clean();
+        print ("s;ldkfjas;dlfkj");
+        return;
+
+
         $startTime = microtime(true);
         Pub::init();
         Pub::loadEEngine();
