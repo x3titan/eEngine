@@ -1569,6 +1569,7 @@ class ScriptDatabase {
      * @var \ScriptEngine\SqlResultSet
      */
     private $sqlResultSet;
+    //DSN=Peijia;UID=sa;PWD=POI!@#zxc;
 
     public function __construct(\ScriptEngine\DBConnection $dbConnection) {
         $this->sqlResultSet = new \ScriptEngine\SqlResultSet();
