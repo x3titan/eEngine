@@ -517,10 +517,10 @@ class StringParamAnalyzer {
             $paramValue = "";
             while (true) {
                 if ($sp > $len) break;
-                if ($this->rawString[$sp - 1] == $this->separator) {
+                if ($this->rawString[$sp - 1] === $this->separator) {
                     $sp++;
                     if ($sp > $len) break;
-                    if ($this->rawString[$sp - 1] == $this->separator) {
+                    if ($this->rawString[$sp - 1] === $this->separator) {
                         $sp++;
                         $paramValue = $paramValue . $this->separator;
                     } else break;
@@ -563,75 +563,69 @@ class StringParamAnalyzer {
     }
 
     public function encodeValue(string $value): string {
-        return value . Replace(separator + "", separator + separator + "");
+        return StringFunc::replace($value, $this->separator, $this->separator . $this->separator);
     }
 
     public function indexByName(string $paramName, int $sameCount = 1): int {
         //int i;
-        if (!caseSensitive) paramName = paramName . ToUpper();
-        for (i = 0; i < count; i++) {
-            if (caseSensitive) {
-                if (this[i] . name == paramName) sameCount--;
+        if (!$this->caseSensitive) $paramName = $paramName . ToUpper();
+        for ($i = 0; $i < $this->count; $i++) {
+            if ($this->caseSensitive) {
+                if ($this->get($i)->name === $paramName) $sameCount--;
             } else {
-                if (this[i] . name . ToUpper() == paramName) sameCount--;
+                if (StringFunc::toUpper($this->get($i)->name) === $paramName) $sameCount--;
             }
-            if (sameCount <= 0) break;
+            if ($sameCount <= 0) break;
         }
-        if (i >= count) {
+        if ($i >= $this->count) {
             return -1;
         } else {
-            return i;
+            return $i;
         }
     }
 
-public
-string valueByName(string paramName) {
-return valueByName(paramName, 1);
-}
+    public function valueByName(string $paramName, int $sameCount = 1): string {
+        //int iTemp;
+        iTemp = indexByName(paramName, sameCount);
+        if (iTemp < 0) {
+            return "";
+        } else {
+            return this[iTemp] . value;
+        }
+    }
 
-public
-string valueByName(string paramName, int sameCount) {
-    int iTemp;
-                iTemp = indexByName(paramName, sameCount);
-                if (iTemp < 0) {
-                    return "";
-                } else {
-                    return this[iTemp] . value;
-                }
-            }
-            public int intValueByName(string paramName) {
-    return intValueByName(paramName, 1);
-}
-            public int intValueByName(string paramName, int sameCount) {
-    string sTemp;
-                int result;
-                sTemp = valueByName(paramName, sameCount);
-                try {
-                    result = Convert . ToInt32(sTemp);
-                } catch {
-                    result = 0;
-                }
-                return result;
-            }
+    public function intValueByName(string $paramName, int $sameCount = 1): int {
+        //string sTemp;
+        //int result;
+        sTemp = valueByName(paramName, sameCount);
+        try {
+            result = Convert . ToInt32(sTemp);
+        } catch {
+            result = 0;
+        }
+        return result;
+    }
 
-            public function setValueByName(string $paramName, string $paramValue, bool $autoAppend = true): bool {
-    //int paramIndex;
-    paramIndex = indexByName(paramName);
-    if ((!autoAppend) && (paramIndex < 0)) return false;
-    if (paramIndex < 0) {
-        appendParam(paramName, paramValue);
+    public function setValueByName(string $paramName, string $paramValue, bool $autoAppend = true): bool {
+        //int paramIndex;
+        paramIndex = indexByName(paramName);
+        if ((!autoAppend) && (paramIndex < 0)) return false;
+        if (paramIndex < 0) {
+            appendParam(paramName, paramValue);
+            return true;
+        }
+        this[paramIndex] . value = paramValue;
         return true;
     }
-    this[paramIndex] . value = paramValue;
-    return true;
+public void appendParam(string paramName, string paramValue) {
+StringParamAnalyzerItem item = new StringParamAnalyzerItem();
+item . name = paramName;
+item . value = paramValue;
+buff . Add(item);
 }
-            public void appendParam(string paramName, string paramValue) {
-    StringParamAnalyzerItem item = new StringParamAnalyzerItem();
-                item . name = paramName;
-                item . value = paramValue;
-                buff . Add(item);
-            }
-            public bool deleteItemByIndex(int index) {
+
+public
+bool deleteItemByIndex(int index) {
     if ((index < 0) || (index >= count)) {
         return false;
     } else {
