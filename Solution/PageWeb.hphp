@@ -132,9 +132,13 @@ class PageWeb extends Page {
             $scriptDatabase = new ScriptDatabase($project->value->dbConnection);
             $this->scriptEngine->engine->db = $scriptDatabase;
             //link class object
-            //$this->scriptEngine->engine->executeString(
-            //    "db=PHP.db"
-            //);
+            $this->scriptEngine->engine->executeString(
+                "session=PHP.session;\n" .
+                "request=PHP.request;\n" .
+                "response=PHP.response;\n" .
+                "es=PHP.es;\n" .
+                "db=PHP.db;\n"
+            );
             //准备eio接口
             $this->scriptEngine->engine->executeString(
                 "function StringData2() {\n" .
