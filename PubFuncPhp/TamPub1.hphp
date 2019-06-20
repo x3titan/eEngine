@@ -568,7 +568,7 @@ class StringParamAnalyzer {
 
     public function indexByName(string $paramName, int $sameCount = 1): int {
         //int i;
-        if (!$this->caseSensitive) $paramName = $paramName . ToUpper();
+        if (!$this->caseSensitive) $paramName = StringFunc::toUpper($paramName);
         for ($i = 0; $i < $this->count; $i++) {
             if ($this->caseSensitive) {
                 if ($this->get($i)->name === $paramName) $sameCount--;
@@ -586,108 +586,98 @@ class StringParamAnalyzer {
 
     public function valueByName(string $paramName, int $sameCount = 1): string {
         //int iTemp;
-        iTemp = indexByName(paramName, sameCount);
-        if (iTemp < 0) {
+        $iTemp = $this->indexByName($paramName, $sameCount);
+        if ($iTemp < 0) {
             return "";
         } else {
-            return this[iTemp] . value;
+            return $this->get($iTemp)->value;
         }
     }
 
     public function intValueByName(string $paramName, int $sameCount = 1): int {
         //string sTemp;
         //int result;
-        sTemp = valueByName(paramName, sameCount);
-        try {
-            result = Convert . ToInt32(sTemp);
-        } catch {
-            result = 0;
-        }
-        return result;
+        $sTemp = $this->valueByName($paramName, $sameCount);
+        $result = (int)$sTemp;
+        return $result;
     }
 
     public function setValueByName(string $paramName, string $paramValue, bool $autoAppend = true): bool {
         //int paramIndex;
-        paramIndex = indexByName(paramName);
-        if ((!autoAppend) && (paramIndex < 0)) return false;
-        if (paramIndex < 0) {
-            appendParam(paramName, paramValue);
+        $paramIndex = $this->indexByName($paramName);
+        if ((!$this->autoAppend) && ($paramIndex < 0)) return false;
+        if ($paramIndex < 0) {
+            $this->appendParam($paramName, $paramValue);
             return true;
         }
-        this[paramIndex] . value = paramValue;
+        $this->get($paramIndex)->value = $paramValue;
         return true;
     }
-public void appendParam(string paramName, string paramValue) {
-StringParamAnalyzerItem item = new StringParamAnalyzerItem();
-item . name = paramName;
-item . value = paramValue;
-buff . Add(item);
-}
 
-public
-bool deleteItemByIndex(int index) {
-    if ((index < 0) || (index >= count)) {
-        return false;
-    } else {
-        buff . RemoveAt(index);
-        return true;
+    public function appendParam(string $paramName, string $paramValue): void {
+        $item = new StringParamAnalyzer\StringParamAnalyzerItem();
+        $item->name = $paramName;
+        $item->value = $paramValue;
+        $this->buff->Add($item);
     }
-}
-            public function deleteItemByName(string $paramName): bool {
-    return deleteItemByName(paramName, 0x7FFFFFFF);
-}
-            public function deleteItemByName(string $paramName, int $deleteCount): bool {
-    //int iTemp;
-    $result = false;
-    while (deleteCount > 0) {
-        iTemp = indexByName(paramName);
-        if (iTemp < 0) break;
-        deleteItemByIndex(iTemp);
-        deleteCount--;
-        result = true;
-    }
-    return result;
-}
-            public function combineSame(): bool {
-    //int itemIndex, i;
-    //string sTemp;
-    bool result = false;
-                itemIndex = 0;
-                while (true) {
-                    if (itemIndex >= (count - 1)) break;
-                    sTemp = this[itemIndex] . name;
-                    if (!caseSensitive) sTemp = sTemp . ToUpper();
-                    i = itemIndex + 1;
-                    while (true) {
-                        if (i >= count) break;
-                        if (!caseSensitive) {
-                            if (this[i] . name . ToUpper() != sTemp) {
-                                i++;
-                                continue;
-                            }
-                        } else {
-                            if (this[i] . name != sTemp) {
-                                i++;
-                                continue;
-                            }
-                        }
-                        if (this[i] . value != this[itemIndex] . value) {
-                            i++;
-                            continue;
-                        }
-                        deleteItemByIndex(i);
-                        result = true;
-                    }
-                    itemIndex++;
-                }
-                return result;
-            }
+
+    public function deleteItemByIndex(int $index): bool {
+        if (($index < 0) || ($index >= $this->count)) {
+            return false;
+        } else {
+            $this->buff->RemoveAt($index);
+            return true;
         }
+    }
 
+    public function deleteItemByName(string $paramName, int $deleteCount = 0x7FFFFFFF): bool {
+        //int iTemp;
+        $result = false;
+        while ($deleteCount > 0) {
+            $iTemp = $this->indexByName($paramName);
+            if ($iTemp < 0) break;
+            $this->deleteItemByIndex($iTemp);
+            $deleteCount--;
+            $result = true;
+        }
+        return $result;
+    }
 
-
-
-
+    public function combineSame(): bool {
+        //int itemIndex, i;
+        //string sTemp;
+        $result = false;
+        itemIndex = 0;
+        while (true) {
+            if (itemIndex >= (count - 1)) break;
+            sTemp = this[itemIndex] . name;
+            if (!caseSensitive) sTemp = sTemp . ToUpper();
+            i = itemIndex + 1;
+            while (true) {
+                if (i >= count) break;
+                if (!caseSensitive) {
+                    if (this[i] . name . ToUpper() != sTemp) {
+                        i++;
+                        continue;
+                    }
+                } else {
+                    if (this[i] . name != sTemp) {
+                        i++;
+                        continue;
+                    }
+                }
+                if (this[i] . value != this[itemIndex] . value) {
+                    i++;
+                    continue;
+                }
+                deleteItemByIndex(i);
+                result = true;
+            }
+            itemIndex++;
+        }
+        return result;
+    }
+}
 
 
 /**
