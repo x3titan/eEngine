@@ -419,6 +419,7 @@ class StringParamAnalyzerItem {
 namespace TamPub1\StringFunc;
 
 use TamPub1\ArrayList;
+use TamPub1\StringFunc;
 
 /**
  * xxx=xxxx;xxx=xxx;形式的字符串处理器
@@ -450,66 +451,64 @@ class StringParamAnalyzer {
         $this->urlEncoding = false;
     }
 
-    public function analyze(bool merge = false, bool mergeSameName = true): void {
+    public function analyze(bool $merge = false, bool $mergeSameName = true): void {
         //int len, sp;
         //string paramName, paramValue;
-        if (!merge) {
-            count = 0;
+        if (!$merge) {
+            $this->count = 0;
         }
-        sp = 1;
-        len = rawString . Length;
-        if (len == 0) return;
+        $sp = 1;
+        $len = StringFunc::length($this->rawString);
+        if ($len == 0) return;
         while (true) {
-            if (sp > len) break;
+            if ($sp > $len) break;
             //analyze
-            paramName = DelphiString . getToken(rawString, ref sp, "=");
-                    sp++;
-                    paramValue = "";
-                    while (true) {
-                        if (sp > len) break;
-                        if (rawString[sp - 1] == separator) {
-                            sp++;
-                            if (sp > len) break;
-                            if (rawString[sp - 1] == separator) {
-                                sp++;
-                                paramValue = paramValue + separator;
-                            } else break;
-                        } else {
-                            paramValue = paramValue + rawString[sp - 1];
-                            sp++;
-                        }
-                    }
-                    //add parameter
-                    if (autoTrimParamName) paramName = paramName . Trim();
-                    if (autoTrimParamValue) paramValue = paramValue . Trim();
-                    if (merge) {
-                        if (mergeSameName) {
-                            if (!setValueByName(paramName, paramValue, true)) appendParam(paramName, paramValue);
-                        } else {
-                            appendParam(paramName, paramValue);
-                        }
-                    } else {
-                        appendParam(paramName, paramValue);
-                    }
+            $paramName = \TamPub1\DelphiString:: getToken($this->rawString, $sp, "=");
+            $sp++;
+            $paramValue = "";
+            while (true) {
+                if ($sp > $len) break;
+                if ($this->rawString[$sp - 1] == $this->separator) {
+                    $sp++;
+                    if ($sp > $len) break;
+                    if ($this->rawString[$sp - 1] == $this->separator) {
+                        $sp++;
+                        $paramValue = $paramValue . $this->separator;
+                    } else break;
+                } else {
+                    $paramValue = $paramValue . $this->rawString[$sp - 1];
+                    $sp++;
                 }
+            }
+            //add parameter
+            if ($this->autoTrimParamName) $paramName = StringFunc::trim($paramName);
+            if ($this->autoTrimParamValue) $paramValue = StringFunc::trim($paramValue);
+            if ($merge) {
+                if ($mergeSameName) {
+                    if (!$this->setValueByName($paramName, $paramValue, true)) $this->appendParam($paramName, $paramValue);
+                } else {
+                    $this->appendParam($paramName, $paramValue);
+                }
+            } else {
+                $this->appendParam($paramName, $paramValue);
+            }
+        }
     }
 
     public function encode(): void {
         //int i;
         //string sTemp;
         $rawString = "";
-        for (i = 0;
-             i < count;
-             i++) {
-            if (urlEncoding) {
+        for ($i = 0; $i < $this->count; $i++) {
+            if ($this->urlEncoding) {
                 sTemp = httpEncode(this[i] . value);
             } else {
                 sTemp = encodeValue(this[i] . value);
             }
             if (i == 0) {
-                rawString = rawString + this[i] . name + "=" + sTemp + separator;
+                $this->rawString = $this->rawString . this[i]-> name . "=" . sTemp . separator;
             } else {
-                rawString = rawString + paramSpace + this[i] . name + "=" + sTemp + separator;
+                $this->rawString = $this->rawString . paramSpace . this[i]-> name . "=" . sTemp . separator;
             }
         }
     }
@@ -590,20 +589,18 @@ int count {
                 }
                 return result;
             }
-            public bool setValueByName(string paramName, string paramValue) {
-    return setValueByName(paramName, paramValue, true);
+
+            public function setValueByName(string $paramName, string $paramValue, bool $autoAppend = true): bool {
+    //int paramIndex;
+    paramIndex = indexByName(paramName);
+    if ((!autoAppend) && (paramIndex < 0)) return false;
+    if (paramIndex < 0) {
+        appendParam(paramName, paramValue);
+        return true;
+    }
+    this[paramIndex] . value = paramValue;
+    return true;
 }
-            public bool setValueByName(string paramName, string paramValue, bool autoAppend) {
-    int paramIndex;
-                paramIndex = indexByName(paramName);
-                if ((!autoAppend) && (paramIndex < 0)) return false;
-                if (paramIndex < 0) {
-                    appendParam(paramName, paramValue);
-                    return true;
-                }
-                this[paramIndex] . value = paramValue;
-                return true;
-            }
             public void appendParam(string paramName, string paramValue) {
     StringParamAnalyzerItem item = new StringParamAnalyzerItem();
                 item . name = paramName;
