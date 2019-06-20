@@ -85,12 +85,36 @@ class DelphiString {
 
 }
 
+/**
+ * Class ArrayList
+ * @package TamPub1
+ * @property int Count count of array
+ */
 class ArrayList {
     public $buff = array();
 
+    public function __get($name) {
+        if ($name === "count") {
+            return count($this->buff);
+        } else return null;
+    }
+
+    public function __set($name, $value) {
+        return null;
+    }
+
     public function get(int $index) {
         if (($index < 0) || ($index >= count($this->buff))) return null;
-        return $this->buff;
+        return $this->buff[$index];
+    }
+
+    public function Add($item) {
+        array_push($this->buff, $item);
+    }
+
+    public function RemoveAt(int $index) {
+        if (($index < 0) || ($index >= $this->Count)) return;
+        array_splice($this->buff, $index, 1);
     }
 }
 
@@ -451,6 +475,31 @@ class StringParamAnalyzer {
         $this->urlEncoding = false;
     }
 
+    public function __get($name) {
+        if ($name === "count") {
+            return $this->buff->Count;
+        } else return null;
+    }
+
+    public function __set($name, $value) {
+        if ($name === "count") {
+            while ($this->buff->Count < $value) {
+                $this->buff->Add(new StringParamAnalyzer\StringParamAnalyzerItem());
+            }
+            while ($this->buff->Count > $value) {
+                $this->buff->RemoveAt($this->buff->Count - 1);
+            }
+        }
+    }
+
+    public function get(int $index): StringParamAnalyzer\StringParamAnalyzerItem {
+        if (($index < 0) || ($index >= $this->count)) {
+            return null;
+        } else {
+            return $this->buff->get($index);
+        }
+    }
+
     public function analyze(bool $merge = false, bool $mergeSameName = true): void {
         //int len, sp;
         //string paramName, paramValue;
@@ -501,14 +550,14 @@ class StringParamAnalyzer {
         $rawString = "";
         for ($i = 0; $i < $this->count; $i++) {
             if ($this->urlEncoding) {
-                sTemp = httpEncode(this[i] . value);
+                $sTemp = httpEncode($this->get($i)->value);
             } else {
-                sTemp = encodeValue(this[i] . value);
+                $sTemp = encodeValue($this->get($i)->value);
             }
-            if (i == 0) {
-                $this->rawString = $this->rawString . this[i]-> name . "=" . sTemp . separator;
+            if ($i == 0) {
+                $this->rawString = $this->rawString . $this->get($i)->name . "=" . $sTemp . $this->separator;
             } else {
-                $this->rawString = $this->rawString . paramSpace . this[i]-> name . "=" . sTemp . separator;
+                $this->rawString = $this->rawString . $this->paramSpace . $this->get($i)->name . "=" . $sTemp . $this->separator;
             }
         }
     }
@@ -517,56 +566,31 @@ class StringParamAnalyzer {
         return value . Replace(separator + "", separator + separator + "");
     }
 
-    public function
-    StringParamAnalyzerItem this[int index] {
-    get {
-        if ((index < 0) || (index >= count)) {
-            return null;
-        }
-
-else {
-    return buff[index] as StringParamAnalyzerItem;
-                    }
-}
-}
-public
-int count {
-    get {
-        return buff . Count;
-    }
-                set {
-        while (buff . Count < value) {
-            buff . Add(new StringParamAnalyzerItem());
-        }
-        while (buff . Count > value) {
-            buff . RemoveAt(buff . Count - 1);
-        }
-    }
+    public function indexByName(string $paramName, int $sameCount = 1): int {
+        //int i;
+        if (!caseSensitive) paramName = paramName . ToUpper();
+        for (i = 0; i < count; i++) {
+            if (caseSensitive) {
+                if (this[i] . name == paramName) sameCount--;
+            } else {
+                if (this[i] . name . ToUpper() == paramName) sameCount--;
             }
-            public int indexByName(string paramName) {
-    return indexByName(paramName, 1);
-}
-            public function indexByName(string $paramName, int $sameCount): int {
-    //int i;
-    if (!caseSensitive) paramName = paramName . ToUpper();
-    for (i = 0; i < count; i++) {
-        if (caseSensitive) {
-            if (this[i] . name == paramName) sameCount--;
-        } else {
-            if (this[i] . name . ToUpper() == paramName) sameCount--;
+            if (sameCount <= 0) break;
         }
-        if (sameCount <= 0) break;
+        if (i >= count) {
+            return -1;
+        } else {
+            return i;
+        }
     }
-    if (i >= count) {
-        return -1;
-    } else {
-        return i;
-    }
+
+public
+string valueByName(string paramName) {
+return valueByName(paramName, 1);
 }
-            public string valueByName(string paramName) {
-    return valueByName(paramName, 1);
-}
-            public string valueByName(string paramName, int sameCount) {
+
+public
+string valueByName(string paramName, int sameCount) {
     int iTemp;
                 iTemp = indexByName(paramName, sameCount);
                 if (iTemp < 0) {
