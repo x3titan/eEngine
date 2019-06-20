@@ -679,6 +679,7 @@ class StringParamAnalyzer {
     }
 }
 
+namespace TamPub1;
 
 /**
  * 树结构

@@ -131,6 +131,10 @@ class PageWeb extends Page {
             $project = $this->solution->getProject($this->projectItem);
             $scriptDatabase = new ScriptDatabase($project->value->dbConnection);
             $this->scriptEngine->engine->db = $scriptDatabase;
+            //link class object
+            //$this->scriptEngine->engine->executeString(
+            //    "db=PHP.db"
+            //);
             //准备eio接口
             $this->scriptEngine->engine->executeString(
                 "function StringData2() {\n" .
