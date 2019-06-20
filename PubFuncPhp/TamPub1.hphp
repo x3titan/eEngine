@@ -550,9 +550,9 @@ class StringParamAnalyzer {
         $rawString = "";
         for ($i = 0; $i < $this->count; $i++) {
             if ($this->urlEncoding) {
-                $sTemp = httpEncode($this->get($i)->value);
+                $sTemp = urlencode($this->get($i)->value);
             } else {
-                $sTemp = encodeValue($this->get($i)->value);
+                $sTemp = $this->encodeValue($this->get($i)->value);
             }
             if ($i == 0) {
                 $this->rawString = $this->rawString . $this->get($i)->name . "=" . $sTemp . $this->separator;
@@ -647,35 +647,35 @@ class StringParamAnalyzer {
         //int itemIndex, i;
         //string sTemp;
         $result = false;
-        itemIndex = 0;
+        $itemIndex = 0;
         while (true) {
-            if (itemIndex >= (count - 1)) break;
-            sTemp = this[itemIndex] . name;
-            if (!caseSensitive) sTemp = sTemp . ToUpper();
-            i = itemIndex + 1;
+            if ($itemIndex >= ($this->count - 1)) break;
+            $sTemp = $this->get($itemIndex)->name;
+            if (!$this->caseSensitive) $sTemp = StringFunc::toUpper($sTemp);
+            $i = $itemIndex + 1;
             while (true) {
-                if (i >= count) break;
-                if (!caseSensitive) {
-                    if (this[i] . name . ToUpper() != sTemp) {
-                        i++;
+                if ($i >= $this->count) break;
+                if (!$this->caseSensitive) {
+                    if (!(StringFunc::toUpper($this->get($i)->name) === $sTemp)) {
+                        $i++;
                         continue;
                     }
                 } else {
-                    if (this[i] . name != sTemp) {
-                        i++;
+                    if (!($this->get($i)->name === $sTemp)) {
+                        $i++;
                         continue;
                     }
                 }
-                if (this[i] . value != this[itemIndex] . value) {
-                    i++;
+                if (!($this->get($i)->value === $this->get($itemIndex)->value)) {
+                    $i++;
                     continue;
                 }
-                deleteItemByIndex(i);
-                result = true;
+                $this->deleteItemByIndex($i);
+                $result = true;
             }
-            itemIndex++;
+            $itemIndex++;
         }
-        return result;
+        return $result;
     }
 }
 
