@@ -621,22 +621,22 @@ int count {
             public function deleteItemByName(string $paramName): bool {
     return deleteItemByName(paramName, 0x7FFFFFFF);
 }
-            public bool deleteItemByName(string paramName, int deleteCount) {
-    int iTemp;
-                bool result = false;
-                while (deleteCount > 0) {
-                    iTemp = indexByName(paramName);
-                    if (iTemp < 0) break;
-                    deleteItemByIndex(iTemp);
-                    deleteCount--;
-                    result = true;
-                }
-                return result;
-            }
-            public bool combineSame(){
-int itemIndex, i;
-                string sTemp;
-                bool result = false;
+            public function deleteItemByName(string $paramName, int $deleteCount): bool {
+    //int iTemp;
+    $result = false;
+    while (deleteCount > 0) {
+        iTemp = indexByName(paramName);
+        if (iTemp < 0) break;
+        deleteItemByIndex(iTemp);
+        deleteCount--;
+        result = true;
+    }
+    return result;
+}
+            public function combineSame(): bool {
+    //int itemIndex, i;
+    //string sTemp;
+    bool result = false;
                 itemIndex = 0;
                 while (true) {
                     if (itemIndex >= (count - 1)) break;
