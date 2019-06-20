@@ -85,6 +85,16 @@ class DelphiString {
 
 }
 
+class ArrayList {
+    public $buff = array();
+
+    public function get(int $index) {
+        if (($index < 0) || ($index >= count($this->buff))) return null;
+        return $this->buff;
+    }
+}
+
+
 /**
  * Class StringFunc 高级字符串函数(平台兼容函数)，第一个字符以0序号开始
  * @package TamPub1
@@ -398,6 +408,272 @@ class StringFunc {
     }
 
 }
+
+namespace TamPub1\StringFunc\StringParamAnalyzer;
+
+class StringParamAnalyzerItem {
+    public $name = "";
+    public $value = "";
+}
+
+namespace TamPub1\StringFunc;
+
+use TamPub1\ArrayList;
+
+/**
+ * xxx=xxxx;xxx=xxx;形式的字符串处理器
+ * Class StringParamAnalyzer
+ * @package TamPub1\StringFunc
+ */
+class StringParamAnalyzer {
+    /**
+     * @var ArrayList
+     */
+    private $buff;
+    public $paramSpace = "";
+    public $separator = "";
+    public $rawString = "";
+    public $caseSensitive = false;
+    public $autoTrimParamName = false;
+    public $autoTrimParamValue = false;
+    public $urlEncoding = false;
+
+    public function __construct() {
+        $this->buff = new ArrayList();
+        $this->count = 0;
+        $this->rawString = "";
+        $this->separator = ';';
+        $this->paramSpace = "";
+        $this->caseSensitive = false;
+        $this->autoTrimParamName = true;
+        $this->autoTrimParamValue = true;
+        $this->urlEncoding = false;
+    }
+
+    public function analyze(bool merge = false, bool mergeSameName = true): void {
+        //int len, sp;
+        //string paramName, paramValue;
+        if (!merge) {
+            count = 0;
+        }
+        sp = 1;
+        len = rawString . Length;
+        if (len == 0) return;
+        while (true) {
+            if (sp > len) break;
+            //analyze
+            paramName = DelphiString . getToken(rawString, ref sp, "=");
+                    sp++;
+                    paramValue = "";
+                    while (true) {
+                        if (sp > len) break;
+                        if (rawString[sp - 1] == separator) {
+                            sp++;
+                            if (sp > len) break;
+                            if (rawString[sp - 1] == separator) {
+                                sp++;
+                                paramValue = paramValue + separator;
+                            } else break;
+                        } else {
+                            paramValue = paramValue + rawString[sp - 1];
+                            sp++;
+                        }
+                    }
+                    //add parameter
+                    if (autoTrimParamName) paramName = paramName . Trim();
+                    if (autoTrimParamValue) paramValue = paramValue . Trim();
+                    if (merge) {
+                        if (mergeSameName) {
+                            if (!setValueByName(paramName, paramValue, true)) appendParam(paramName, paramValue);
+                        } else {
+                            appendParam(paramName, paramValue);
+                        }
+                    } else {
+                        appendParam(paramName, paramValue);
+                    }
+                }
+    }
+
+    public function encode(): void {
+        //int i;
+        //string sTemp;
+        $rawString = "";
+        for (i = 0;
+             i < count;
+             i++) {
+            if (urlEncoding) {
+                sTemp = httpEncode(this[i] . value);
+            } else {
+                sTemp = encodeValue(this[i] . value);
+            }
+            if (i == 0) {
+                rawString = rawString + this[i] . name + "=" + sTemp + separator;
+            } else {
+                rawString = rawString + paramSpace + this[i] . name + "=" + sTemp + separator;
+            }
+        }
+    }
+
+    public function encodeValue(string $value): string {
+        return value . Replace(separator + "", separator + separator + "");
+    }
+
+    public function
+    StringParamAnalyzerItem this[int index] {
+    get {
+        if ((index < 0) || (index >= count)) {
+            return null;
+        }
+
+else {
+    return buff[index] as StringParamAnalyzerItem;
+                    }
+}
+}
+public
+int count {
+    get {
+        return buff . Count;
+    }
+                set {
+        while (buff . Count < value) {
+            buff . Add(new StringParamAnalyzerItem());
+        }
+        while (buff . Count > value) {
+            buff . RemoveAt(buff . Count - 1);
+        }
+    }
+            }
+            public int indexByName(string paramName) {
+    return indexByName(paramName, 1);
+}
+            public function indexByName(string $paramName, int $sameCount): int {
+    //int i;
+    if (!caseSensitive) paramName = paramName . ToUpper();
+    for (i = 0; i < count; i++) {
+        if (caseSensitive) {
+            if (this[i] . name == paramName) sameCount--;
+        } else {
+            if (this[i] . name . ToUpper() == paramName) sameCount--;
+        }
+        if (sameCount <= 0) break;
+    }
+    if (i >= count) {
+        return -1;
+    } else {
+        return i;
+    }
+}
+            public string valueByName(string paramName) {
+    return valueByName(paramName, 1);
+}
+            public string valueByName(string paramName, int sameCount) {
+    int iTemp;
+                iTemp = indexByName(paramName, sameCount);
+                if (iTemp < 0) {
+                    return "";
+                } else {
+                    return this[iTemp] . value;
+                }
+            }
+            public int intValueByName(string paramName) {
+    return intValueByName(paramName, 1);
+}
+            public int intValueByName(string paramName, int sameCount) {
+    string sTemp;
+                int result;
+                sTemp = valueByName(paramName, sameCount);
+                try {
+                    result = Convert . ToInt32(sTemp);
+                } catch {
+                    result = 0;
+                }
+                return result;
+            }
+            public bool setValueByName(string paramName, string paramValue) {
+    return setValueByName(paramName, paramValue, true);
+}
+            public bool setValueByName(string paramName, string paramValue, bool autoAppend) {
+    int paramIndex;
+                paramIndex = indexByName(paramName);
+                if ((!autoAppend) && (paramIndex < 0)) return false;
+                if (paramIndex < 0) {
+                    appendParam(paramName, paramValue);
+                    return true;
+                }
+                this[paramIndex] . value = paramValue;
+                return true;
+            }
+            public void appendParam(string paramName, string paramValue) {
+    StringParamAnalyzerItem item = new StringParamAnalyzerItem();
+                item . name = paramName;
+                item . value = paramValue;
+                buff . Add(item);
+            }
+            public bool deleteItemByIndex(int index) {
+    if ((index < 0) || (index >= count)) {
+        return false;
+    } else {
+        buff . RemoveAt(index);
+        return true;
+    }
+}
+            public function deleteItemByName(string $paramName): bool {
+    return deleteItemByName(paramName, 0x7FFFFFFF);
+}
+            public bool deleteItemByName(string paramName, int deleteCount) {
+    int iTemp;
+                bool result = false;
+                while (deleteCount > 0) {
+                    iTemp = indexByName(paramName);
+                    if (iTemp < 0) break;
+                    deleteItemByIndex(iTemp);
+                    deleteCount--;
+                    result = true;
+                }
+                return result;
+            }
+            public bool combineSame(){
+int itemIndex, i;
+                string sTemp;
+                bool result = false;
+                itemIndex = 0;
+                while (true) {
+                    if (itemIndex >= (count - 1)) break;
+                    sTemp = this[itemIndex] . name;
+                    if (!caseSensitive) sTemp = sTemp . ToUpper();
+                    i = itemIndex + 1;
+                    while (true) {
+                        if (i >= count) break;
+                        if (!caseSensitive) {
+                            if (this[i] . name . ToUpper() != sTemp) {
+                                i++;
+                                continue;
+                            }
+                        } else {
+                            if (this[i] . name != sTemp) {
+                                i++;
+                                continue;
+                            }
+                        }
+                        if (this[i] . value != this[itemIndex] . value) {
+                            i++;
+                            continue;
+                        }
+                        deleteItemByIndex(i);
+                        result = true;
+                    }
+                    itemIndex++;
+                }
+                return result;
+            }
+        }
+
+
+
+
+
+
 
 /**
  * 树结构
