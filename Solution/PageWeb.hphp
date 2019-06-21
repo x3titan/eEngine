@@ -1577,12 +1577,104 @@ class ScriptDatabase {
      * @var \ScriptEngine\SqlResultSet
      */
     private $sqlResultSet;
+
     //DSN=Peijia;UID=sa;PWD=POI!@#zxc;
 
     public function __construct(\ScriptEngine\DBConnection $dbConnection) {
         $this->sqlResultSet = new \ScriptEngine\SqlResultSet();
         $this->dbConnection = $dbConnection;
     }
+
+    /// <summary>执行一个带返回结果的Sql语句</summary>
+    public function executeQuery(string $dbConnectionName, string $sqlString): string {
+        return $this->execute($dbConnectionName, $sqlString, true);
+    }
+
+    /// <summary>执行一个不带返回结果的Sql语句</summary>
+    public function executeNoneQuery(string $dbConnectionName, string $sqlString): bool {
+        return $this->execute($dbConnectionName, $sqlString, false) != null;
+    }
+
+    public function setTimeout(string $dbConnectionName, int $timeout): bool {
+        //找到dbConnectionItem
+        $dbConnectionItem = $this->dbConnection->getItemByName($dbConnectionName);
+        if ($dbConnectionItem == null) {
+            return false;
+        }
+        $dbConnectionItem->timeout = $timeout;
+        return true;
+    }
+
+    private function execute(string $dbConnectionName, string $sqlString, bool $hasResult): string {
+        //找到dbConnectionItem
+        $dbConnectionItem = $this->dbConnection->getItemByName($dbConnectionName);
+        if ($dbConnectionItem == null) {
+            return null;
+        }
+
+        //产生新的sqlResult
+        $sqlResultName = "";
+        for ($i = 1; $i < 10000; $i++) {
+            $sqlResultName = "sqlResult" . $i;
+            if ($this->sqlResultSet->getItemByName($sqlResultName) == null) break;
+        }
+        $this->sqlResultSet->add($sqlResultName, $dbConnectionItem->name, $sqlString);
+        $sqlResult = $this->sqlResultSet->items[count($this->sqlResultSet->items) - 1];
+        //执行sql
+
+        try {
+            $host = '127.0.0.1';
+
+            $user = 'root';
+
+            $password = 'root';
+
+            $dbName = 'php';
+
+            $link = new mysqli（$host,$user,$password,$dbName）；
+
+if （$link->connect_error）{
+
+die（"连接失败：" . $link->connect_error）；
+
+}
+
+$sql = "select * from admins";
+
+$res = $link->query（$sql）；
+
+$data = $res->fetch_all（）；
+
+var_dump（$data）；
+
+
+
+            sqlResult . odbcConnection = new System . Data . Odbc . OdbcConnection();
+            sqlResult . odbcConnection . ConnectionString = dbConnectionItem . connectionString;
+            sqlResult . odbcConnection . Open();
+            sqlResult . odbcCommand = new System . Data . Odbc . OdbcCommand();
+            sqlResult . odbcCommand . Connection = sqlResult . odbcConnection;
+            sqlResult . odbcCommand . CommandText = sqlResult . sqlString;
+            if (dbConnectionItem . timeout >= 0) {
+                sqlResult . odbcConnection . ConnectionTimeout = dbConnectionItem . timeout;
+            }
+            if (hasResult) {
+                sqlResult . sqlResult = sqlResult . odbcCommand . ExecuteReader();
+            } else {
+                sqlResult . odbcCommand . ExecuteNonQuery();
+            }
+        } catch (Exception e) {
+            sqlResult . sqlResult = null;
+            sqlResult . odbcCommand = null;
+            sqlResult . odbcConnection . Close();
+            sqlResult . odbcConnection = null;
+            $this->sqlResultSet . items . RemoveAt($this->sqlResultSet . items . Count - 1);
+            Etc . Pub . log . writeWarning("execute query error, errorString=" + e . Message);
+            return null;
+        }
+            //返回结果
+            return $sqlResultName;
+        }
 }
 
 /**
