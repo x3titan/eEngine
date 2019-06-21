@@ -64,9 +64,34 @@ class DBConnection {
     }
 }
 
+
 namespace ScriptEngine\DBConnection;
+
+/**
+ * Class Item
+ * @package ScriptEngine\DBConnection
+ * @property string connectionString
+ */
 class Item {
     public $name = "";
-    public $connectionString = "";
     public $timeout = -1;
+    /**
+     * @var \TamPub1\StringFunc\StringParamAnalyzer
+     */
+    public $conDecoder;
+    public function __construct() {
+        $this->conDecoder = new \TamPub1\StringFunc\StringParamAnalyzer();
+    }
+
+    public function __get($name) {
+       if ($name==="connectionString") {
+           return  $this->conDecoder->rawString;
+       } else return null;
+    }
+    public function __set($name, $value) {
+        if ($name==="connectionString") {
+            $this->conDecoder->rawString = $value;
+            $this->conDecoder->analyze();
+       }
+    }
 }
