@@ -14,9 +14,13 @@ use TamPub1\StringFunc;
 
 class SqlResultSet {
     /**
-     * @var array SqlResult[]
+     * @var \TamPub1\ArrayList() SqlResult[]
      */
-    public $items = array();
+    public $items;
+
+    public function __construct() {
+        $this->items = new \TamPub1\ArrayList();
+    }
 
     public function add(string $name, string $sqlConnection, string $sqlString): string {
         if ($this->getItemByName($name) != null) {
@@ -30,14 +34,14 @@ class SqlResultSet {
         $item->name = $name;
         $item->sqlConnection = $sqlConnection;
         $item->sqlString = $sqlString;
-        array_push($this->items, $item);
+        $this->items->Add($item);
         return "";
     }
 
     public function getItemByName(string $name): ? SqlResult {
-        for ($i = 0; $i < count($this->items); $i++) {
-            if ($this->items[$i]->name === $name) {
-                return $this->items[$i];
+        for ($i = 0; $i < $this->items->Count; $i++) {
+            if ($this->items->items[$i]->name === $name) {
+                return $this->items->items[$i];
             }
         }
         return null;
@@ -96,8 +100,10 @@ class SqlResult {
     //public System.Data.Odbc.OdbcConnection odbcConnection = null;
     /// <summary>sql command变量</summary>
     //public System.Data.Odbc.OdbcCommand odbcCommand = null;
-    /// <summary>sql结果集</summary>
-    //public System.Data.Odbc.OdbcDataReader sqlResult = null;
+    /**
+     * @var \mysqli_result sql结果集
+     */
+    public $sqlResult;
     /**
      * @var string 数据库连接名字
      */
