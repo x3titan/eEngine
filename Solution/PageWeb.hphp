@@ -1579,6 +1579,7 @@ class ScriptDatabase {
     private $sqlResultSet;
 
     //DSN=Peijia;UID=sa;PWD=POI!@#zxc;
+    //Server=mysql;DataSource=192.168.1.20,3306;InitialCatalog=TCloud;UID=root;PWD=1qazxsw2root;
 
     public function __construct(\ScriptEngine\DBConnection $dbConnection) {
         $this->sqlResultSet = new \ScriptEngine\SqlResultSet();
@@ -1621,7 +1622,7 @@ class ScriptDatabase {
         $this->sqlResultSet->add($sqlResultName, $dbConnectionItem->name, $sqlString);
         $sqlResult = $this->sqlResultSet->items[count($this->sqlResultSet->items) - 1];
         //执行sql
-
+        $dsn = $dbConnectionItem->conDecoder->valueByName("dsn")
         try {
             $host = '127.0.0.1';
 
