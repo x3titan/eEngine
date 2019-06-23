@@ -1579,7 +1579,7 @@ class ScriptDatabase {
     private $sqlResultSet;
 
     //DSN=Peijia;UID=sa;PWD=POI!@#zxc;
-    //Server=mysql;DataSource=192.168.1.20,3306;InitialCatalog=TCloud;UID=root;PWD=1qazxsw2root;
+    //Server=mysql;DataSource=192.168.1.20;port=3306;InitialCatalog=TCloud;UID=root;PWD=1qazxsw2root;
 
     public function __construct(\ScriptEngine\DBConnection $dbConnection) {
         $this->sqlResultSet = new \ScriptEngine\SqlResultSet();
@@ -1620,62 +1620,41 @@ class ScriptDatabase {
             if ($this->sqlResultSet->getItemByName($sqlResultName) == null) break;
         }
         $this->sqlResultSet->add($sqlResultName, $dbConnectionItem->name, $sqlString);
-        $sqlResult = $this->sqlResultSet->items[count($this->sqlResultSet->items) - 1];
+        $sqlResult = $this->sqlResultSet->items->items[$this->sqlResultSet->items->Count - 1];
         //执行sql
-        $dsn = $dbConnectionItem->conDecoder->valueByName("dsn")
-        try {
-            $host = '127.0.0.1';
-
-            $user = 'root';
-
-            $password = 'root';
-
-            $dbName = 'php';
-
-            $link = new mysqli（$host,$user,$password,$dbName）；
-
-if （$link->connect_error）{
-
-die（"连接失败：" . $link->connect_error）；
-
-}
-
-$sql = "select * from admins";
-
-$res = $link->query（$sql）；
-
-$data = $res->fetch_all（）；
-
-var_dump（$data）；
-
-
-
-            sqlResult . odbcConnection = new System . Data . Odbc . OdbcConnection();
-            sqlResult . odbcConnection . ConnectionString = dbConnectionItem . connectionString;
-            sqlResult . odbcConnection . Open();
-            sqlResult . odbcCommand = new System . Data . Odbc . OdbcCommand();
-            sqlResult . odbcCommand . Connection = sqlResult . odbcConnection;
-            sqlResult . odbcCommand . CommandText = sqlResult . sqlString;
-            if (dbConnectionItem . timeout >= 0) {
-                sqlResult . odbcConnection . ConnectionTimeout = dbConnectionItem . timeout;
+        $server = StringFunc::toLower($dbConnectionItem->conDecoder->valueByName("server"));
+        if ($server === "mysql") {
+            $host = $dbConnectionItem->conDecoder->valueByName("DataSource");
+            $hostPort = $dbConnectionItem->conDecoder->intValueByName("port");
+            if ($hostPort == 0) $hostPort = 3306;
+            $user = $dbConnectionItem->conDecoder->valueByName("UID");
+            $password = $dbConnectionItem->conDecoder->valueByName("PWD");
+            $dbName = $dbConnectionItem->conDecoder->valueByName("InitialCatalog");
+            $link = new \mysqli($host, $user, $password, $dbName, $hostPort);
+            if ($link->connect_error) {
+                $sqlResult->sqlResult = null;
+                $this->sqlResultSet->items->RemoveAt($this->sqlResultSet->items->Count - 1);
+                \Etc\Pub::$log->writeWarning("execute query error, errorString=" . $link->connect_error);
+                return null;
             }
-            if (hasResult) {
-                sqlResult . sqlResult = sqlResult . odbcCommand . ExecuteReader();
-            } else {
-                sqlResult . odbcCommand . ExecuteNonQuery();
+            $sql = $sqlResult->sqlString;
+            $res = $link->query($sql);
+            if (!$res) {
+                $sqlResult->sqlResult = null;
+                $this->sqlResultSet->items->RemoveAt($this->sqlResultSet->items->Count - 1);
+                \Etc\Pub::$log->writeWarning("execute query error, sql=" . $sql);
+                return null;
             }
-        } catch (Exception e) {
-            sqlResult . sqlResult = null;
-            sqlResult . odbcCommand = null;
-            sqlResult . odbcConnection . Close();
-            sqlResult . odbcConnection = null;
-            $this->sqlResultSet . items . RemoveAt($this->sqlResultSet . items . Count - 1);
-            Etc . Pub . log . writeWarning("execute query error, errorString=" + e . Message);
-            return null;
+            $sqlResult->sqlResult = $res;
+            //$data = $res->fetch_all();
+            //var_dump($data);
+        } else {
+            return "";
         }
-            //返回结果
-            return $sqlResultName;
-        }
+
+        //返回结果
+        return $sqlResultName;
+    }
 }
 
 /**
