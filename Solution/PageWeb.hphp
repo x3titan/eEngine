@@ -1655,6 +1655,56 @@ class ScriptDatabase {
         //返回结果
         return $sqlResultName;
     }
+
+    /// <summary>产生一个CSV文件</summary>
+    public function generateCSV(string $sqlResultName, string $filePathName, bool $title = true): bool {
+        $sqlResult = $this->sqlResultSet->getItemByName($sqlResultName);
+        if ($sqlResult == null) return false;
+        $file = new \TamPub1\FileOperation();
+        if (!$file->openAppend($filePathName)) {
+            \Etc\Pub::$log->writeWarning("db.generateCSV()无法创建或者打开文件：" . $filePathName);
+            return false;
+        }
+        //title
+        //string sTemp;
+        //int i;
+        if ($title) {
+            $fields = $sqlResult->sqlResult->fetch_fields();
+            for ($i = 0; $i < count($fields); $i++) {
+                $sTemp = $i > 0 ? "," : "";
+                $sTemp .= "\"" . $fields[$i]->name . "\"";
+                if (!$file->writeWFixedString($sTemp)) {
+                    $file->close();
+                    \Etc\Pub::$log->writeWarning("db.generateCSV()无法写入文件：" . $filePathName);
+                    return false;
+                }
+            }
+            if (!$file->writeWFixedString("\r\n")) {
+                $file->close();
+                \Etc\Pub::$log->writeWarning("db.generateCSV()无法写入文件：" . $filePathName);
+                return false;
+            }
+        }
+        //data
+        while ($row = $sqlResult->sqlResult->fetch_row()) {
+            for ($i = 0; $i < count($fields); $i++) {
+                $sTemp = $i > 0 ? "," : "";
+                $sTemp .= "\"" . StringFunc::replace($row[$i], "\"", "\"\"") . "\"";
+                if (!$file->writeWFixedString($sTemp)) {
+                    $file->close();
+                    \Etc\Pub::$log->writeWarning("db.generateCSV()无法写入文件：" . $filePathName);
+                    return false;
+                }
+            }
+            if (!$file->writeWFixedString("\r\n")) {
+                $file->close();
+                \Etc\Pub::$log->writeWarning("db.generateCSV()无法写入文件：" . $filePathName);
+                return false;
+            }
+        }
+        $file->close();
+        return true;
+    }
 }
 
 /**
