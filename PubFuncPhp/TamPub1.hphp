@@ -91,11 +91,11 @@ class DelphiString {
  * @property int Count count of array
  */
 class ArrayList {
-    public $buff = array();
+    public $items = array();
 
     public function __get($name) {
         if ($name === "count") {
-            return count($this->buff);
+            return count($this->items);
         } else return null;
     }
 
@@ -104,17 +104,17 @@ class ArrayList {
     }
 
     public function get(int $index) {
-        if (($index < 0) || ($index >= count($this->buff))) return null;
-        return $this->buff[$index];
+        if (($index < 0) || ($index >= count($this->items))) return null;
+        return $this->items[$index];
     }
 
     public function Add($item) {
-        array_push($this->buff, $item);
+        array_push($this->items, $item);
     }
 
     public function RemoveAt(int $index) {
         if (($index < 0) || ($index >= $this->Count)) return;
-        array_splice($this->buff, $index, 1);
+        array_splice($this->items, $index, 1);
     }
 }
 
