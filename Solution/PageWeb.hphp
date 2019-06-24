@@ -1436,7 +1436,7 @@ class PageWeb extends Page {
             $s2 =
                 //接收的数据放入eio接口
                 "eio.buffi=\"" . StringFunc::replace(StringFunc::replace(StringFunc::replace(StringFunc::replace(StringFunc::replace($data,
-                    "\^\^", "\^"), "\^x", "<"), "\"", "\\\""), "\r", "\\r"), "\n", "\\n") . "\";\n" .
+                    "^^", "^"), "^x", "<"), "\"", "\\\""), "\r", "\\r"), "\n", "\\n") . "\";\n" .
                 //封装script2
                 "var __script2 = function() {\n" .
                 $taskSetItem->script2 . "\n" .
