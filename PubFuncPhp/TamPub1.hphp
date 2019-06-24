@@ -207,6 +207,7 @@ class StringFunc {
      */
     public static function replace(string $value, string $find, string $newOne): string {
         if ($value === "") return "";
+        $find = mb_ereg_replace("\^", "\\^", $find);
         return mb_ereg_replace($find, $newOne, $value);
     }
 
