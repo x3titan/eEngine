@@ -243,8 +243,13 @@ class CacheGenerator {
                         continue;
                     }
                     if (StringFunc::toLower($file) === "thumbs.db") continue; //不拷贝输入法文件
-                    FileOperation::copy($sdir . $file, $ddir . $file);
-                    \Etc\Pub::$log->writeCommon("copy cache file: " . $ddir . $file);
+                    if (!FileOperation::copy($sdir . $file, $ddir . $file)) {
+                        \Etc\Pub::$log->writeCommon("copy cache file fail, reason=" . error_get_last()["message"] .
+                            ", sfile=" . $sdir . $file .
+                            ", dfile=" . $ddir . $file);
+                    } else {
+                        \Etc\Pub::$log->writeCommon("copy cache file: " . $ddir . $file);
+                    }
                 }
             }
         }
