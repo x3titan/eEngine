@@ -836,7 +836,7 @@ class Etc {
      * @param object $object 需要删除的元素
      * @return bool 没找到返回false
      */
-    public static function arrayDeleteObject(array $array, $object): bool {
+    public static function arrayDeleteObject(array &$array, $object): bool {
         for ($i = 0; $i < count($array); $i++) {
             if ($array[$i] === $object) {
                 array_splice($array, $i, 1);
