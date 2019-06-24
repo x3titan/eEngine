@@ -1705,6 +1705,87 @@ class ScriptDatabase {
         $file->close();
         return true;
     }
+
+public void dispose() {
+for (int i = 0; i < sqlResultSet.items.Count; i++) {
+try {
+sqlResultSet.items[i].odbcConnection.Close();
+sqlResultSet.items[i].odbcConnection.Dispose();
+} catch {
+}
+}
+}
+/// <summary>将字符串内容编码，防止注入攻击</summary>
+public string encode(string text) {
+    return text.Replace("'", "''");
+}
+        /// <summary>移动sqlResult到下一条记录</summary>
+        public bool read(string sqlResultName) {
+    ScriptEngine.SqlResult sqlResult = sqlResultSet.getItemByName(sqlResultName);
+            if (sqlResult == null) return false;
+            return sqlResult.sqlResult.Read();
+        }
+        /// <summary>以字符串形式读取字段</summary>
+        public string getString(string sqlResultName, string fieldName) {
+    ScriptEngine.SqlResult sqlResult = sqlResultSet.getItemByName(sqlResultName);
+            if (sqlResult == null) return "";
+            string result;
+            try {
+                int index = sqlResult.sqlResult.GetOrdinal(fieldName);
+                result = Convert.ToString(sqlResult.sqlResult[fieldName]);
+            } catch {
+                return "";
+            }
+            return result;
+        }
+        /// <summary>以整数形式读取字段</summary>
+        public int getInt32(string sqlResultName, string fieldName) {
+    ScriptEngine.SqlResult sqlResult = sqlResultSet.getItemByName(sqlResultName);
+            if (sqlResult == null) return 0;
+            int result;
+            try {
+                int index = sqlResult.sqlResult.GetOrdinal(fieldName);
+                if (sqlResult.sqlResult.IsDBNull(index)) {
+                    return 0;
+                }
+                result = sqlResult.sqlResult.GetInt32(index);
+            } catch {
+                return 0;
+            }
+            return result;
+        }
+        /// <summary>以整数形式读取字段</summary>
+        public double getFloat(string sqlResultName, string fieldName) {
+    ScriptEngine.SqlResult sqlResult = sqlResultSet.getItemByName(sqlResultName);
+            if (sqlResult == null) return 0;
+            double result;
+            try {
+                int index = sqlResult.sqlResult.GetOrdinal(fieldName);
+                if (sqlResult.sqlResult.IsDBNull(index)) {
+                    return 0;
+                }
+                result = sqlResult.sqlResult.GetDouble(index);
+            } catch {
+                return 0;
+            }
+            return result;
+        }
+        /// <summary>以整数形式读取字段</summary>
+        public decimal getMoney(string sqlResultName, string fieldName) {
+    ScriptEngine.SqlResult sqlResult = sqlResultSet.getItemByName(sqlResultName);
+            if (sqlResult == null) return 0;
+            decimal result;
+            try {
+                int index = sqlResult.sqlResult.GetOrdinal(fieldName);
+                if (sqlResult.sqlResult.IsDBNull(index)) {
+                    return 0;
+                }
+                result = sqlResult.sqlResult.GetDecimal(index);
+            } catch {
+                return 0;
+            }
+            return result;
+        }
 }
 
 /**
