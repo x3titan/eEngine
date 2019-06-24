@@ -1779,36 +1779,17 @@ class ScriptDatabase {
      * @return float
      */
     public function getFloat(string $sqlResultName, string $fieldName): float {
-        $sqlResult = $this->sqlResultSet->getItemByName($sqlResultName);
-        if ($sqlResult == null) return 0;
-        double result;
-            try {
-                int index = sqlResult . sqlResult . GetOrdinal(fieldName);
-                if (sqlResult . sqlResult . IsDBNull(index)) {
-                    return 0;
-                }
-                result = sqlResult . sqlResult . GetDouble(index);
-            } catch {
-                return 0;
-            }
-            return result;
-        }
+        return (float)($this->getString($sqlResultName, $fieldName));
+    }
 
-    /// <summary>以整数形式读取字段</summary>
+    /**
+     * 以金融形式读取字段
+     * @param string $sqlResultName
+     * @param string $fieldName
+     * @return float
+     */
     public function getMoney(string $sqlResultName, string $fieldName): float {
-        $sqlResult = $this->sqlResultSet->getItemByName($sqlResultName);
-        if ($sqlResult == null) return 0;
-        //decimal result;
-        try {
-            int index = sqlResult . sqlResult . GetOrdinal(fieldName);
-                if (sqlResult . sqlResult . IsDBNull(index)) {
-                    return 0;
-                }
-                result = sqlResult . sqlResult . GetDecimal(index);
-            } catch {
-            return 0;
-        }
-        return result;
+        return $this->getFloat($sqlResultName, $fieldName);
     }
 }
 
