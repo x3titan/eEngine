@@ -102,7 +102,7 @@ class Pub {
         }
         while (count(self::$eEngine->solution->projects->children) > $projectCount) {
             $node = self::$eEngine->solution->projects->children[count(self::$eEngine->solution->projects->children) - 1];
-            self::$log->writeCommon("remove project: " . $node->projectPath);
+            self::$log->writeCommon("remove project: " . $node->value->projectPath);
             self::$eEngine->solution->projects->remove($node);
         }
     }
