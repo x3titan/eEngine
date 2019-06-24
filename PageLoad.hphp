@@ -43,6 +43,8 @@ class PageLoad {
     //private HttpPostedFile postFile = null;
 
     public function Page_Load(): void {
+        //print(StringFunc::replace("ta^^m003", "\^\^", "xxxxxxx"));
+        //die();
         $startTime = microtime(true);
         Pub::init();
         Pub::loadEEngine();
