@@ -1645,7 +1645,10 @@ class ScriptDatabase {
                 \Etc\Pub::$log->writeWarning("execute query error, sql=" . $sql);
                 return null;
             }
-            $sqlResult->sqlResult = $res;
+            if ($hasResult) {
+                $sqlResult->mysqlResult = $res;
+                $sqlResult->mysqlFields = $res->fetch_fields();
+            }
             //$data = $res->fetch_all();
             //var_dump($data);
         } else {
@@ -1669,10 +1672,9 @@ class ScriptDatabase {
         //string sTemp;
         //int i;
         if ($title) {
-            $fields = $sqlResult->sqlResult->fetch_fields();
-            for ($i = 0; $i < count($fields); $i++) {
+            for ($i = 0; $i < count($sqlResult->mysqlFields); $i++) {
                 $sTemp = $i > 0 ? "," : "";
-                $sTemp .= "\"" . $fields[$i]->name . "\"";
+                $sTemp .= "\"" . $sqlResult->mysqlFields[$i]->name . "\"";
                 if (!$file->writeWFixedString($sTemp)) {
                     $file->close();
                     \Etc\Pub::$log->writeWarning("db.generateCSV()无法写入文件：" . $filePathName);
@@ -1686,8 +1688,8 @@ class ScriptDatabase {
             }
         }
         //data
-        while ($row = $sqlResult->sqlResult->fetch_row()) {
-            for ($i = 0; $i < count($fields); $i++) {
+        while ($row = $sqlResult->mysqlResult->fetch_row()) {
+            for ($i = 0; $i < count($sqlResult->mysqlFields); $i++) {
                 $sTemp = $i > 0 ? "," : "";
                 $sTemp .= "\"" . StringFunc::replace($row[$i], "\"", "\"\"") . "\"";
                 if (!$file->writeWFixedString($sTemp)) {
@@ -1706,86 +1708,108 @@ class ScriptDatabase {
         return true;
     }
 
-public void dispose() {
-for (int i = 0; i < sqlResultSet.items.Count; i++) {
-try {
-sqlResultSet.items[i].odbcConnection.Close();
-sqlResultSet.items[i].odbcConnection.Dispose();
-} catch {
-}
-}
-}
-/// <summary>将字符串内容编码，防止注入攻击</summary>
-public string encode(string text) {
-    return text.Replace("'", "''");
-}
-        /// <summary>移动sqlResult到下一条记录</summary>
-        public bool read(string sqlResultName) {
-    ScriptEngine.SqlResult sqlResult = sqlResultSet.getItemByName(sqlResultName);
-            if (sqlResult == null) return false;
-            return sqlResult.sqlResult.Read();
-        }
-        /// <summary>以字符串形式读取字段</summary>
-        public string getString(string sqlResultName, string fieldName) {
-    ScriptEngine.SqlResult sqlResult = sqlResultSet.getItemByName(sqlResultName);
-            if (sqlResult == null) return "";
-            string result;
-            try {
-                int index = sqlResult.sqlResult.GetOrdinal(fieldName);
-                result = Convert.ToString(sqlResult.sqlResult[fieldName]);
-            } catch {
-                return "";
+    public function dispose(): void {
+        for ($i = 0; $i < $this->sqlResultSet->items->Count; $i++) {
+            if ($this->sqlResultSet->items->items[$i]->sqlResult != null) {
+                $this->sqlResultSet->items->items[$i]->sqlResult->close();
             }
-            return result;
         }
-        /// <summary>以整数形式读取字段</summary>
-        public int getInt32(string sqlResultName, string fieldName) {
-    ScriptEngine.SqlResult sqlResult = sqlResultSet.getItemByName(sqlResultName);
-            if (sqlResult == null) return 0;
-            int result;
+    }
+
+    /**
+     * 将字符串内容编码，防止注入攻击
+     * @param string $text
+     * @return string
+     */
+    public function encode(string $text): string {
+        return StringFunc::replace($text, "'", "''");
+    }
+
+    /**
+     * 移动sqlResult到下一条记录
+     * @param string $sqlResultName
+     * @return bool
+     */
+    public function read(string $sqlResultName): bool {
+        $sqlResult = $this->sqlResultSet->getItemByName($sqlResultName);
+        if ($sqlResult == null) return false;
+        $sqlResult->mysqlRow = $sqlResult->mysqlResult->fetch_row();
+        return $sqlResult->mysqlRow ? true : false;
+    }
+
+    private function getOrdinal(\ScriptEngine\SqlResultSet\SqlResult $sqlResult, string $fieldName): int {
+        $fieldName = StringFunc::toUpper($fieldName);
+        for ($i = 0; $i < count($sqlResult->mysqlFields); $i++) {
+            if (StringFunc::toUpper($sqlResult->mysqlFields[$i]->name) === $fieldName) return $i;
+        }
+        return -1;
+    }
+
+    /**
+     * 以字符串形式读取字段
+     * @param string $sqlResultName
+     * @param string $fieldName
+     * @return string
+     */
+    public function getString(string $sqlResultName, string $fieldName): string {
+        $sqlResult = $this->sqlResultSet->getItemByName($sqlResultName);
+        if ($sqlResult == null) return "";
+        //string result;
+        $index = $this->getOrdinal($sqlResult, $fieldName);
+        if ($index < 0) return "";
+        if ($index >= count($sqlResult->mysqlRow)) return "";
+        $result = $sqlResult->mysqlRow[$index];
+        return $result;
+    }
+
+    /**
+     * 以整数形式读取字段
+     * @param string $sqlResultName
+     * @param string $fieldName
+     * @return int
+     */
+    public function getInt32(string $sqlResultName, string $fieldName): int {
+        return (int)($this->getString($sqlResultName, $fieldName));
+    }
+
+    /**
+     * 以浮点数形式读取字段
+     * @param string $sqlResultName
+     * @param string $fieldName
+     * @return float
+     */
+    public function getFloat(string $sqlResultName, string $fieldName): float {
+        $sqlResult = $this->sqlResultSet->getItemByName($sqlResultName);
+        if ($sqlResult == null) return 0;
+        double result;
             try {
-                int index = sqlResult.sqlResult.GetOrdinal(fieldName);
-                if (sqlResult.sqlResult.IsDBNull(index)) {
+                int index = sqlResult . sqlResult . GetOrdinal(fieldName);
+                if (sqlResult . sqlResult . IsDBNull(index)) {
                     return 0;
                 }
-                result = sqlResult.sqlResult.GetInt32(index);
+                result = sqlResult . sqlResult . GetDouble(index);
             } catch {
                 return 0;
             }
             return result;
         }
-        /// <summary>以整数形式读取字段</summary>
-        public double getFloat(string sqlResultName, string fieldName) {
-    ScriptEngine.SqlResult sqlResult = sqlResultSet.getItemByName(sqlResultName);
-            if (sqlResult == null) return 0;
-            double result;
-            try {
-                int index = sqlResult.sqlResult.GetOrdinal(fieldName);
-                if (sqlResult.sqlResult.IsDBNull(index)) {
+
+    /// <summary>以整数形式读取字段</summary>
+    public function getMoney(string $sqlResultName, string $fieldName): float {
+        $sqlResult = $this->sqlResultSet->getItemByName($sqlResultName);
+        if ($sqlResult == null) return 0;
+        //decimal result;
+        try {
+            int index = sqlResult . sqlResult . GetOrdinal(fieldName);
+                if (sqlResult . sqlResult . IsDBNull(index)) {
                     return 0;
                 }
-                result = sqlResult.sqlResult.GetDouble(index);
+                result = sqlResult . sqlResult . GetDecimal(index);
             } catch {
-                return 0;
-            }
-            return result;
+            return 0;
         }
-        /// <summary>以整数形式读取字段</summary>
-        public decimal getMoney(string sqlResultName, string fieldName) {
-    ScriptEngine.SqlResult sqlResult = sqlResultSet.getItemByName(sqlResultName);
-            if (sqlResult == null) return 0;
-            decimal result;
-            try {
-                int index = sqlResult.sqlResult.GetOrdinal(fieldName);
-                if (sqlResult.sqlResult.IsDBNull(index)) {
-                    return 0;
-                }
-                result = sqlResult.sqlResult.GetDecimal(index);
-            } catch {
-                return 0;
-            }
-            return result;
-        }
+        return result;
+    }
 }
 
 /**
