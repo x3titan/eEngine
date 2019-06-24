@@ -1427,24 +1427,22 @@ class PageWeb extends Page {
 
     /// <summary>执行2号脚本（后台脚本）</summary>
     public function executeScript2(string $taskSetName, string $data): string {
-        \Etc\Pub::$log->writeCommon("execute sc2");
-
         $taskSetItem = $this->taskSet->getByName($taskSetName);
         if ($taskSetItem == null) return "";
         //string result;
         //执行用户代码
-        \Etc\Pub::$log->writeCommon("execute sc2");
         try {
+            //\Etc\Pub::$log->writeCommon("data=" . $data);
             $s2 =
                 //接收的数据放入eio接口
                 "eio.buffi=\"" . StringFunc::replace(StringFunc::replace(StringFunc::replace(StringFunc::replace(StringFunc::replace($data,
-                    "^^", "^"), "^x", "<"), "\"", "\\\""), "\r", "\\r"), "\n", "\\n") . "\";\n" .
+                    "\^\^", "\^"), "\^x", "<"), "\"", "\\\""), "\r", "\\r"), "\n", "\\n") . "\";\n" .
                 //封装script2
                 "var __script2 = function() {\n" .
                 $taskSetItem->script2 . "\n" .
                 "}\n" .
                 "__script2();\n";
-
+            //\Etc\Pub::$log->writeCommon("s2=" . $s2);
             $task = new ExecuteScript2Thread();
             $task->script = $s2;
             $task->engine = $this->scriptEngine;
@@ -1471,7 +1469,7 @@ class PageWeb extends Page {
                 "eio.buffo;"
             );
         }
-        \Etc\Pub::$log->writeCommon("result =" . $result);
+        //\Etc\Pub::$log->writeCommon("result =" . $result);
         return $result;
     }
 
