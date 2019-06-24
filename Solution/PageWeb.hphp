@@ -1809,6 +1809,19 @@ class ScriptSession {
  */
 class ScriptES {
     public $encoding = "utf-8";
+
+    public function logCommon(string $log): void {
+        \Etc\Pub::$log->writeCommon($log);
+    }
+
+    public function logWarning(string $log): void {
+        \Etc\Pub::$log->writeWarning($log);
+    }
+
+    public function logError(string $log): void {
+        \Etc\Pub::$log->writeError($log);
+    }
+
 }
 
 /// <summary>后台javascript的Request接口</summary>
