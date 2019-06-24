@@ -103,7 +103,9 @@ class SqlResult {
     /**
      * @var \mysqli_result sql结果集
      */
-    public $sqlResult;
+    public $mysqlResult = null;
+    public $mysqlRow = array();
+    public $mysqlFields = array();
     /**
      * @var string 数据库连接名字
      */
