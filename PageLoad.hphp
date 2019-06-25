@@ -56,14 +56,14 @@ class PageLoad {
         Pub::loadProjectCache();
         Pub::saveEEngine();
 
-        //CacheGenerator::start();
+        CacheGenerator::start();
 
         //init CacheGenerator //!!! code later
         //!!! CacheGenerator.applicationPath = Request.ApplicationPath;
         //!!! CacheGenerator.start();
         //Request.ContentEncoding = System.Text.Encoding.GetEncoding("gb2312");
         $url = isset($_GET["_L_"]) ? $_GET["_L_"] : null;
-        $url = "/TCloudLinux/main";
+        //$url = "/TCloudLinux/main";
         $taskSet = isset($_GET["_T_"]) ? $_GET["_T_"] : null;
         $fileUpload = isset($_GET["_F_"]) ? $_GET["_F_"] : null;
         if ($url == null) $url = "";

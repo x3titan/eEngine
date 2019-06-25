@@ -1257,7 +1257,7 @@ class PageWeb extends Page {
         $s4->value->property->getItem("onImageLoad")->value->asString = "";
         //generate base($s0)
         $s0->value->property->getItem("bgColorEnabled")->value->asString = "false";
-        $s0->value->property->getItem("backgroundImg")->value->asString = "url:res/empty.png";
+        $s0->value->property->getItem("backgroundImg")->value->asString = "url:Res/empty.png";
         $s0->value->property->getItem("backgroundImgMode")->value->asString = "stretch";
         $s0->value->property->getItem("backgroundSkin")->value->asString = "";
         $s0->value->property->getItem("text")->value->asString = "";
@@ -1308,7 +1308,7 @@ class PageWeb extends Page {
         $s4->value->property->getItem("dockX")->value->asString = "fill";
         $s4->value->property->getItem("dockY")->value->asString = "fill";
         $s4->value->property->getItem("bgColorEnabled")->value->asString = "false";
-        $s4->value->property->getItem("backgroundImg")->value->asString = "url:res/empty.png";
+        $s4->value->property->getItem("backgroundImg")->value->asString = "url:Res/empty.png";
         $s4->value->property->getItem("backgroundImgMode")->value->asString = "stretch";
         $s4->value->property->getItem("backgroundSkin")->value->asString = "";
         $s4->value->property->getItem("text")->value->asString = "";
