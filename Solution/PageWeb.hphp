@@ -1585,7 +1585,7 @@ class ScriptDatabase {
     }
 
     /// <summary>执行一个带返回结果的Sql语句</summary>
-    public function executeQuery(string $dbConnectionName, string $sqlString): string {
+    public function executeQuery(string $dbConnectionName, string $sqlString): ? string {
         return $this->execute($dbConnectionName, $sqlString, true);
     }
 
