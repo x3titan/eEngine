@@ -44,7 +44,12 @@ class PageLoad {
 
     public function Page_Load(): void {
         //print(StringFunc::replace("tam^^abcd", "^^", "^"));
-        //die();
+//        $a = new StringFunc\StringParamAnalyzer();
+//        $a->rawString = "Server=mysql;DataSource=192.168.1.20;port=3306;InitialCatalog=TCloud;UID=root;PWD=1qazxsw2root;";
+//        $a->analyze();
+//        print($a->count);
+//        print($a->valueByName("server"));
+//        die();
         $startTime = microtime(true);
         Pub::init();
         Pub::loadEEngine();
