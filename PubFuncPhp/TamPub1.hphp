@@ -94,7 +94,7 @@ class ArrayList {
     public $items = array();
 
     public function __get($name) {
-        if ($name === "count") {
+        if ($name === "Count") {
             return count($this->items);
         } else return null;
     }
@@ -257,7 +257,7 @@ class StringFunc {
      */
     public static function pos(string $subString, string $value, int $startPos = 0): int {
         $pos = mb_strpos($value, $subString, $startPos, self::$encoding);
-        return $pos ? $pos : -1;
+        return $pos === false ? -1 : $pos;
     }
 
     /**
@@ -493,7 +493,7 @@ class StringParamAnalyzer {
         }
     }
 
-    public function get(int $index): StringParamAnalyzer\StringParamAnalyzerItem {
+    public function get(int $index): ? StringParamAnalyzer\StringParamAnalyzerItem {
         if (($index < 0) || ($index >= $this->count)) {
             return null;
         } else {
