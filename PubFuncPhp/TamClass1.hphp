@@ -177,7 +177,7 @@ class Variant {
             $this->data = (string)$value;
         } else if ($name === "asString") {
             $this->data = $value;
-        } else if ($name === "asString") {
+        } else if ($name === "asDouble") {
             $this->data = (string)$value;
         } else if ($name === "asObject") {
             if ($this->defaultType === "string") {
@@ -386,13 +386,31 @@ class TamDiskLog extends TamLog {
     public function writeLog(int $logType, string $logString): bool {
         $this->writeLogLock->Lock();
         if ($logType == self::$TYPE_WARNING) {
-            if (!$this->fileWarning->openAppend()) { $this->writeLogLock->Unlock(); return false; }
-            if (!$this->fileWarning->writeWFixedString($logString . "\r\n")) { $this->writeLogLock->Unlock(); return false; }
-            if (!$this->closeAndCheck($this->fileWarning)) { $this->writeLogLock->Unlock(); return false; }
+            if (!$this->fileWarning->openAppend()) {
+                $this->writeLogLock->Unlock();
+                return false;
+            }
+            if (!$this->fileWarning->writeWFixedString($logString . "\r\n")) {
+                $this->writeLogLock->Unlock();
+                return false;
+            }
+            if (!$this->closeAndCheck($this->fileWarning)) {
+                $this->writeLogLock->Unlock();
+                return false;
+            }
         } else if ($logType == self::$TYPE_ERROR) {
-            if (!$this->fileError->openAppend()) { $this->writeLogLock->Unlock(); return false; }
-            if (!$this->fileError->writeWFixedString($logString . "\r\n")) { $this->writeLogLock->Unlock(); return false; }
-            if (!$this->closeAndCheck($this->fileError)) { $this->writeLogLock->Unlock(); return false; }
+            if (!$this->fileError->openAppend()) {
+                $this->writeLogLock->Unlock();
+                return false;
+            }
+            if (!$this->fileError->writeWFixedString($logString . "\r\n")) {
+                $this->writeLogLock->Unlock();
+                return false;
+            }
+            if (!$this->closeAndCheck($this->fileError)) {
+                $this->writeLogLock->Unlock();
+                return false;
+            }
         }
         if ($logType == self::$TYPE_COMMON) {
             $logString = "  " . $logString;
@@ -401,9 +419,18 @@ class TamDiskLog extends TamLog {
         } else {
             $logString = "E " . $logString;
         }
-        if (!$this->fileAll->openAppend()){ $this->writeLogLock->Unlock(); return false; }
-        if (!$this->fileAll->writeWFixedString($logString . "\r\n")) { $this->writeLogLock->Unlock(); return false; }
-        if (!$this->closeAndCheck($this->fileAll)) { $this->writeLogLock->Unlock(); return false; }
+        if (!$this->fileAll->openAppend()) {
+            $this->writeLogLock->Unlock();
+            return false;
+        }
+        if (!$this->fileAll->writeWFixedString($logString . "\r\n")) {
+            $this->writeLogLock->Unlock();
+            return false;
+        }
+        if (!$this->closeAndCheck($this->fileAll)) {
+            $this->writeLogLock->Unlock();
+            return false;
+        }
         $this->writeLogLock->Unlock();
         return true;
     }
