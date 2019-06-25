@@ -1343,7 +1343,7 @@ class PageWeb extends Page {
         $result->Append("c.colCount=" . colCount . ";\n");
         //dynamic row mode
         $result->Append("c.dynamicMode=" . $control->value->property->getItem("dynamicMode")->value->asString . ";\n");
-        if (count($control->children) <= 0) return $result->ToString();
+        if (count($control->children) <= 0) return;
         //循环一行
         //StringBuilder rowVar = null;
         $rowVar = null;
