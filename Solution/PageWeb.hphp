@@ -682,7 +682,7 @@ class PageWeb extends Page {
         if ($control->value->type === "Panel") {
             $this->generateJsStringPanel($result, $control);
         } else if ($control->value->type === "Link") {
-            $result->Append($this->generateJsStringLink($control));
+            $this->generateJsStringLink($result, $control);
         } else if ($control->value->type === "Edit") {
             $this->generateJsStringEdit($result, $control);
         } else if ($control->value->type === "TableTitle") {
@@ -693,23 +693,23 @@ class PageWeb extends Page {
             $result->Append("c.heavyEnabled=" . $control->value->property->getItem("heavyEnabled")->value->asString . ";\n");
             $result->Append("c.heavy=" . $control->value->property->getItem("heavy")->value->asString . ";\n");
         } else if ($control->value->type === "TableBody") {
-            $result->Append($this->generateJsStringTableBody($control));
+            $this->generateJsStringTableBody($result, $control);
         } else if ($control->value->type === "TableBodyItem") {
-            $result->Append($this->generateJsStringTableBodyItem($control));
+            $this->generateJsStringTableBodyItem($result, $control);
         } else if ($control->value->type === "DivRoot") {
             $this->generateJsStringPanel($result, $control);
         } else if ($control->value->type === "RichEdit") {
-            $result->Append($this->generateJsStringRichEdit($control));
+            $this->generateJsStringRichEdit($result, $control);
         } else if ($control->value->type === "LayoutX" || $control->value->type === "LayoutY") {
-            $result->Append($this->generateJsStringLayout($control));
+            $this->generateJsStringLayout($result, $control);
         } else if ($control->value->type === "LayoutXItem" || $control->value->type === "LayoutYItem") {
-            $result->Append($this->generateJsStringLayoutItem($control));
+            $this->generateJsStringLayoutItem($result, $control);
         } else if ($control->value->type === "FileUpload") {
-            $result->Append($this->generateJsStringUploadFile($control));
+            $this->generateJsStringUploadFile($result, $control);
         } else if ($control->value->type === "CheckBox") {
             $this->generateJsStringCheckBox($result, $control);
         } else if ($control->value->type === "Button") {
-            $result->Append($this->generateJsStringButton($control));
+            $this->generateJsStringButton($result, $control);
         }
         //overflow(autoScroll)
         if ($control->value->property->getItem("autoScroll")->value->asString === "true") {
@@ -717,9 +717,8 @@ class PageWeb extends Page {
         }
     }
 
-    private function generateJsStringLink(Tree $control): string {
-        $result = "";
-        $result .= $this->generateJsStringPanel($control);
+    private function generateJsStringLink(StringBuilder $result, Tree $control): string {
+        $this->generateJsStringPanel($result, $control);
         //addLink(c, "www.baidu.com");
         //产生url
         $url = $control->value->property->getItem("linkInternal")->value->asString;
@@ -738,7 +737,7 @@ class PageWeb extends Page {
             $url .= "&" . $urlParams->items[$i]->name . "=" . $this->scriptEngine->getInlineResult($urlParams->items[$i]->value);
         }
         //产生语句
-        $result .= "addLink(c, \"" . $url . "\");\n";
+        $result->Append("addLink(c, \"" . $url . "\");\n");
         return $result;
     }
 
@@ -817,36 +816,30 @@ class PageWeb extends Page {
         }
     }
 
-    private function generateJsStringRichEdit(Tree $control): string {
-        $result = "";
+    private function generateJsStringRichEdit(StringBuilder $result, Tree $control): void {
         //string text;
         $control->value->property->getItem("backgroundSkin")->value->asString = ""; //清空设计状态的皮肤
         $text = $control->value->property->getItem("text")->value->asString;
         $control->value->property->getItem("text")->value->asString = ""; //清空设计状态的文字
-        $result .= $this->generateJsStringPanel($control);
+        $this->generateJsStringPanel($result, $control);
         //createRichedit(c,text);
-        $result .= "createRichedit(c,\"" . StringFunc::replace($this->scriptEngine->getInlineResult($text), "\"", "\\\"") . "\");\n";
-        return $result;
+        $result->Append("createRichedit(c,\"" . StringFunc::replace($this->scriptEngine->getInlineResult($text), "\"", "\\\"") . "\");\n");
     }
 
-    private function generateJsStringLayout(Tree $control): string {
-        $result = "";
-        $result .= $this->generateJsStringPanel($control);
-        $result .= "c.layout=\"" . $control->value->type . "\";\n";
-        return $result;
+    private function generateJsStringLayout(StringBuilder $result, Tree $control): void {
+        $this->generateJsStringPanel($result, $control);
+        $result->Append("c.layout=\"" . $control->value->type . "\";\n");
     }
 
-    private function generateJsStringLayoutItem(Tree $control): string {
-        $result = "";
-        $result .= $this->generateJsStringPanel($control);
-        $result .= "c.heavyEnabled=" . $control->value->property->getItem("heavyEnabled")->value->asString . ";\n";
-        $result .= "c.heavy=" . $control->value->property->getItem("heavy")->value->asString . ";\n";
-        return $result;
+    private function generateJsStringLayoutItem(StringBuilder $result, Tree $control): void {
+        $this->generateJsStringPanel($result, $control);
+        $result->Append("c.heavyEnabled=" . $control->value->property->getItem("heavyEnabled")->value->asString . ";\n");
+        $result->Append("c.heavy=" . $control->value->property->getItem("heavy")->value->asString . ";\n");
     }
 
-    private function generateJsStringUploadFile(Tree $control): string {
-        $result = $this->generateJsStringPanel($control);
-        $result .=
+    private function generateJsStringUploadFile(StringBuilder $result, Tree $control): void {
+        $this->generateJsStringPanel($result, $control);
+        $result->Append(
             "c.innerHTML +=\n" .
             "    \"<form id='ee_" . $control->value->name . "_form' method='post' action='ee.php?_L_=/" .
             $this->solution->getProject($this->projectItem)->value->projectFolderName . Solution:: getPath($this->projectItem) . "&_F_=U' target='ee_" . $control->value->name . "_frame' \" +\n" .
@@ -896,9 +889,7 @@ class PageWeb extends Page {
             "}\n" .
             "c.stop = function () {\n" .
             "    " . $control->value->name . "_stop();\n" .
-            "}\n";
-
-        return $result;
+            "}\n");
     }
 
     /**
@@ -1230,8 +1221,7 @@ class PageWeb extends Page {
         }
     }
 
-    private function generateJsStringButton(Tree $control): string {
-        $result = new StringBuilder();
+    private function generateJsStringButton(StringBuilder $result, Tree $control): void {
         //copy data
         $s0 = new Tree(); //button
         $s1 = new Tree(); //normal
@@ -1271,7 +1261,7 @@ class PageWeb extends Page {
         $s0->value->property->getItem("backgroundImgMode")->value->asString = "stretch";
         $s0->value->property->getItem("backgroundSkin")->value->asString = "";
         $s0->value->property->getItem("text")->value->asString = "";
-        $result->Append($this->generateJsStringPanel($s0));
+        $this->generateJsStringPanel($result, $s0);
         //generate $s1
         $s1->value->name .= "status1"; //特殊名字如:ee_checkbox1status1
         //$s1.value.property.getItem("bindControl").value.asString = $control.value.name;
@@ -1281,7 +1271,7 @@ class PageWeb extends Page {
         //$s1.value.property.getItem("bindBottom").value.asString = "bottom";
         $s1->value->property->getItem("dockX")->value->asString = "fill";
         $s1->value->property->getItem("dockY")->value->asString = "fill";
-        $result->Append($this->generateJsStringPanel($s1));
+        $this->generateJsStringPanel($result, $s1);
         $result->Append("c=\$g(\"ee_" . $control->value->name . "\");\n");
         $result->Append("c.status1=\$g(\"ee_" . $s1->value->name . "\");\n");
         $result->Append("c.status1.button=c;\n");
@@ -1295,7 +1285,7 @@ class PageWeb extends Page {
         $s2->value->property->getItem("backgroundImgMode")->value->asString = $s2->value->property->getItem("backgroundImgMode1")->value->asString;
         $s2->value->property->getItem("backgroundSkin")->value->asString = $s2->value->property->getItem("backgroundSkin1")->value->asString;
         $s2->value->property->getItem("fontColor")->value->asString = $s2->value->property->getItem("fontColor1")->value->asString;
-        $result->Append($this->generateJsStringPanel($s2));
+        $this->generateJsStringPanel($result, $s2);
         $result->Append("c=\$g(\"ee_" . $control->value->name . "\");\n");
         $result->Append("c.status2=\$g(\"ee_" . $s2->value->name . "\");\n");
         $result->Append("c.status2.button=c;\n");
@@ -1309,7 +1299,7 @@ class PageWeb extends Page {
         $s3->value->property->getItem("backgroundImgMode")->value->asString = $s3->value->property->getItem("backgroundImgMode2")->value->asString;
         $s3->value->property->getItem("backgroundSkin")->value->asString = $s3->value->property->getItem("backgroundSkin2")->value->asString;
         $s3->value->property->getItem("fontColor")->value->asString = $s3->value->property->getItem("fontColor2")->value->asString;
-        $result->Append($this->generateJsStringPanel($s3));
+        $this->generateJsStringPanel($result, $s3);
         $result->Append("c=\$g(\"ee_" . $control->value->name . "\");\n");
         $result->Append("c.status3=\$g(\"ee_" . $s3->value->name . "\");\n");
         $result->Append("c.status3.button=c;\n");
@@ -1322,7 +1312,7 @@ class PageWeb extends Page {
         $s4->value->property->getItem("backgroundImgMode")->value->asString = "stretch";
         $s4->value->property->getItem("backgroundSkin")->value->asString = "";
         $s4->value->property->getItem("text")->value->asString = "";
-        $result->Append($this->generateJsStringPanel($s4));
+        $this->generateJsStringPanel($result, $s4);
         $result->Append("c=\$g(\"ee_" . $control->value->name . "\");\n");
         $result->Append("c.clickLayer=\$g(\"ee_" . $s4->value->name . "\");\n");
         $result->Append("c.clickLayer.button=c;\n");
@@ -1331,12 +1321,10 @@ class PageWeb extends Page {
         //downX,downY属性
         $result->Append("c.downX=" . $control->value->property->getItem("downX")->value->asString . ";\n");
         $result->Append("c.downY=" . $control->value->property->getItem("downY")->value->asString . ";\n");
-        return $result->ToString();
     }
 
-    private function generateJsStringTableBody(Tree $control): string {
-        $result = new StringBuilder();
-        $result->Append($this->generateJsStringPanel($control));
+    private function generateJsStringTableBody(StringBuilder $result, Tree $control): void {
+        $this->generateJsStringPanel($result, $control);
         //c.rowCount=xxx;
         //int rowCount;
         if (count($control->children) == 0) {
@@ -1390,9 +1378,11 @@ class PageWeb extends Page {
             }
             $rowVar->Append("\"ee_" . $control->current->value->name . "\"");
             //产生语句
+            $controlText = new StringBuilder();
+            $this->generateJsStringControl($controlText, $control->current);
             $result->Append(
                 StringFunc::replace(StringFunc::replace(StringFunc::replace(
-                    $this->generateJsStringControl($control->current),
+                    $controlText->ToString(),
                     "\"", "\\\""), "\r\n", "\n"), "\n", "\\n\"+\n\"")
             );
         }
@@ -1415,14 +1405,11 @@ class PageWeb extends Page {
             $prevControl = $control->current;
         }
         $this->controls->current = $prevControl;
-        return $result->ToString();
     }
 
-    private function generateJsStringTableBodyItem(Tree $control): string {
-        $result = "";
-        $result .= $this->generateJsStringPanel($control);
+    private function generateJsStringTableBodyItem(StringBuilder $result, Tree $control): void {
+        $this->generateJsStringPanel($result, $control);
         //onUpdate函数取消，在TableBody中一并产生 2016/06/03
-        return $result;
     }
 
     /// <summary>执行2号脚本（后台脚本）</summary>
