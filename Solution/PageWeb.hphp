@@ -1620,9 +1620,7 @@ class ScriptDatabase {
         $this->sqlResultSet->add($sqlResultName, $dbConnectionItem->name, $sqlString);
         $sqlResult = $this->sqlResultSet->items->items[$this->sqlResultSet->items->Count - 1];
         //执行sql
-        \Etc\Pub::$log->writeCommon("execute queryxxxxxxxxxxxxxxx , sql=" . $dbConnectionItem->conDecoder->rawString);
         $server = StringFunc::toLower($dbConnectionItem->conDecoder->valueByName("server"));
-        \Etc\Pub::$log->writeCommon("execute queryxxxxxxxxxxxxxxx , sql=" . $server);
         if ($server === "mysql") {
             $host = $dbConnectionItem->conDecoder->valueByName("DataSource");
             $hostPort = $dbConnectionItem->conDecoder->intValueByName("port");
