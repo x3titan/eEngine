@@ -118,4 +118,8 @@ class Pub {
         self::$eEngine = unserialize($buff);
         return true;
     }
+
+    public static function selfUpgraded(): bool {
+        return true;
+    }
 }
