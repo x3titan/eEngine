@@ -43,12 +43,7 @@ class PageLoad {
     //private HttpPostedFile postFile = null;
 
     public function Page_Load(): void {
-        //print(StringFunc::replace("tam^^abcd", "^^", "^"));
-//        $a = new StringFunc\StringParamAnalyzer();
-//        $a->rawString = "Server=mysql;DataSource=192.168.1.20;port=3306;InitialCatalog=TCloud;UID=root;PWD=1qazxsw2root;";
-//        $a->analyze();
-//        print($a->count);
-//        print($a->valueByName("server"));
+//        print(StringFunc::replace("tam^^abcd", "^^", "^"));
 //        die();
         $startTime = microtime(true);
         Pub::init();
@@ -56,14 +51,14 @@ class PageLoad {
         Pub::loadProjectCache();
         Pub::saveEEngine();
 
-        CacheGenerator::start();
+        //CacheGenerator::start();
 
         //init CacheGenerator //!!! code later
         //!!! CacheGenerator.applicationPath = Request.ApplicationPath;
         //!!! CacheGenerator.start();
         //Request.ContentEncoding = System.Text.Encoding.GetEncoding("gb2312");
         $url = isset($_GET["_L_"]) ? $_GET["_L_"] : null;
-        //$url = "/TCloudLinux/main";
+        //$url = "/TCloudLinux/admin/userAdmin/userAdmin";
         $taskSet = isset($_GET["_T_"]) ? $_GET["_T_"] : null;
         $fileUpload = isset($_GET["_F_"]) ? $_GET["_F_"] : null;
         if ($url == null) $url = "";

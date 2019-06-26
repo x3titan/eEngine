@@ -1340,7 +1340,7 @@ class PageWeb extends Page {
         } else {
             $colCount = floor(count($control->children) / $control->value->property->getItem("rowCount")->value->asInt32);
         }
-        $result->Append("c.colCount=" . colCount . ";\n");
+        $result->Append("c.colCount=" . $colCount . ";\n");
         //dynamic row mode
         $result->Append("c.dynamicMode=" . $control->value->property->getItem("dynamicMode")->value->asString . ";\n");
         if (count($control->children) <= 0) return;
@@ -1353,22 +1353,31 @@ class PageWeb extends Page {
         $result->Append("c.jsCreateRow=\"");
         $control->getFirst();
         $currentColCount = 0;
-        while (true) {
-            $control->getNext();
-            if ($control->current == null) break;
-            //是否是一列
-            for ($i = 0; $i < count($control->children); $i++) {
-                if ($control->children[$i] == $control->current) {
-                    $currentColCount++;
-                    if ($control->current->value->property->getItem("onUpdate")->value->asString->Length > 0) {
-                        $onUpdate->Append("c.cols[" . ($currentColCount - 1) . "].onUpdate=function(sender,text) {\n");
-                        $onUpdate->Append($this->scriptEngine->getInlineResult($control->current->value->property->getItem("onUpdate")->value->asString) . "\n");
-                        $onUpdate->Append("}\n");
-                    }
-                    break;
-                }
+
+        for ($i = 0; $i < min($colCount, count($control->children)); $i++) {
+            $control->current = $control->children[$i];
+            if (StringFunc::length($control->current->value->property->getItem("onUpdate")->value->asString) > 0) {
+                $onUpdate->Append("c.cols[" . $i . "].onUpdate=function(sender,text) {\n");
+                $onUpdate->Append($this->scriptEngine->getInlineResult($control->current->value->property->getItem("onUpdate")->value->asString) . "\n");
+                $onUpdate->Append("}\n");
             }
-            if ($currentColCount > $colCount) break;
+
+            //        while (true) {
+            //            $control->getNext();
+            //            if ($control->current == null) break;
+            //            //是否是一列
+            //            for ($i = 0; $i < count($control->children); $i++) {
+            //                if ($control->children[$i] == $control->current) {
+            //                    $currentColCount++;
+            //                    if (StringFunc::length($control->current->value->property->getItem("onUpdate")->value->asString) > 0) {
+            //                        $onUpdate->Append("c.cols[" . ($currentColCount - 1) . "].onUpdate=function(sender,text) {\n");
+            //                        $onUpdate->Append($this->scriptEngine->getInlineResult($control->current->value->property->getItem("onUpdate")->value->asString) . "\n");
+            //                        $onUpdate->Append("}\n");
+            //                    }
+            //                    break;
+            //                }
+            //            }
+            //            if ($currentColCount > $colCount) break;
             //产生rowVar表
             if ($rowVar == null) {
                 $rowVar = new StringBuilder();
@@ -1391,7 +1400,7 @@ class PageWeb extends Page {
         $result->Append($rowVar->ToString());
         $result->Append($onUpdate->ToString());
         //初始化dynamicMode状态
-        if ($control->value->property->getItem("dynamicMode")->value->asString->Equals("false")) {
+        if ($control->value->property->getItem("dynamicMode")->value->asString === "false") {
             $result->Append("eb.initTableBody(c);\n");
             $result->Append("ee.tableSetRowCount(c," . $rowCount . ");\n");
         }
