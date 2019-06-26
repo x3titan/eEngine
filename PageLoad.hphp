@@ -43,8 +43,9 @@ class PageLoad {
     //private HttpPostedFile postFile = null;
 
     public function Page_Load(): void {
-//        print(StringFunc::replace("tam^^abcd", "^^", "^"));
-//        die();
+        print(filemtime(FileOperation::currentFilePathName()));
+
+        die();
         $startTime = microtime(true);
         Pub::init();
         Pub::loadEEngine();
