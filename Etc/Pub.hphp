@@ -15,6 +15,7 @@ require_once __DIR__ . "/../PubFuncPhp/TamClass1.hphp";
 use TamPub1\ConfigurationManager;
 use TamPub1\FileOperation;
 use TamPub1\ShareMemory;
+use TamPub1\StringBuilder;
 use TamPub1\StringData2;
 use TamPub1\StringFunc;
 use TamPub1\TamLocker;
@@ -120,6 +121,51 @@ class Pub {
     }
 
     public static function selfUpgraded(): bool {
+        //read last status
+        $lastStatus = ShareMemory::read(0xA70);
+        if ($lastStatus === "") return true;
+
+        //generate current status
+        $currentStatus = new StringBuilder();
+
+        //compare
+
+
+        return true;
+    }
+
+    private static function generateCurrentStatus(StringBuilder $currentStatus, string $dir): bool {
+        $dir = StringFunc::addRearChar($dir, \Etc\Pub::$pathSeperator);
+        if (!FileOperation::pathExists($dir)) {
+            return false;
+        }
+
+        $files = scandir($dir);
+        foreach ($files as $file) {
+            if ($file === ".") continue;
+            if ($file === "..") continue;
+            if (is_dir($dir . $file)) {
+                self::generateCurrentStatus($currentStatus, $dir . $file . \Etc\Pub::$pathSeperator);
+            } else {
+                $ext = StringFunc::toLower(FileOperation::getFileExt($file));
+                if (($ext !== "php") && ($ext !== "hphp")) continue;
+                
+                if (!FileOperation::isSame($sdir . $file, $ddir . $file)) {
+                    if (StringFunc::toLower(FileOperation::getFileExt($file)) === "xml") {
+                        //不拷贝页面源文件
+                        continue;
+                    }
+                    if (StringFunc::toLower($file) === "thumbs.db") continue; //不拷贝输入法文件
+                    if (!FileOperation::copy($sdir . $file, $ddir . $file)) {
+                        \Etc\Pub::$log->writeCommon("copy cache file fail, reason=" . error_get_last()["message"] .
+                            ", sfile=" . $sdir . $file .
+                            ", dfile=" . $ddir . $file);
+                    } else {
+                        \Etc\Pub::$log->writeCommon("copy cache file: " . $ddir . $file);
+                    }
+                }
+            }
+        }
         return true;
     }
 }
