@@ -43,9 +43,9 @@ class PageLoad {
     //private HttpPostedFile postFile = null;
 
     public function Page_Load(): void {
-        print(filemtime(FileOperation::currentFilePathName()));
+        //print(\Etc\Pub::selfUpgraded()? "true": "false");
 
-        die();
+        //die();
         $startTime = microtime(true);
         Pub::init();
         Pub::loadEEngine();
