@@ -123,15 +123,16 @@ class Pub {
     public static function selfUpgraded(): bool {
         //read last status
         $lastStatus = ShareMemory::read(0xA70);
-        if ($lastStatus === "") return true;
 
         //generate current status
         $currentStatus = new StringBuilder();
+        self::generateCurrentStatus($currentStatus, FileOperation::currentFilePath());
+
+        //write to share memory
+        ShareMemory::write(0xA70, $currentStatus);
 
         //compare
-
-
-        return true;
+        return ($currentStatus . "") !== $lastStatus;
     }
 
     private static function generateCurrentStatus(StringBuilder $currentStatus, string $dir): bool {
@@ -149,20 +150,12 @@ class Pub {
             } else {
                 $ext = StringFunc::toLower(FileOperation::getFileExt($file));
                 if (($ext !== "php") && ($ext !== "hphp")) continue;
-                
-                if (!FileOperation::isSame($sdir . $file, $ddir . $file)) {
-                    if (StringFunc::toLower(FileOperation::getFileExt($file)) === "xml") {
-                        //不拷贝页面源文件
-                        continue;
-                    }
-                    if (StringFunc::toLower($file) === "thumbs.db") continue; //不拷贝输入法文件
-                    if (!FileOperation::copy($sdir . $file, $ddir . $file)) {
-                        \Etc\Pub::$log->writeCommon("copy cache file fail, reason=" . error_get_last()["message"] .
-                            ", sfile=" . $sdir . $file .
-                            ", dfile=" . $ddir . $file);
-                    } else {
-                        \Etc\Pub::$log->writeCommon("copy cache file: " . $ddir . $file);
-                    }
+                $currentStatus->Append($dir . $file);
+                $time = filemtime($dir . $file);
+                if ($time === false) {
+                    $currentStatus->Append("0000");
+                } else {
+                    $currentStatus->Append($time . "|");
                 }
             }
         }
