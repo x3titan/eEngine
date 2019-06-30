@@ -1738,6 +1738,10 @@ class StringBuilder {
     public function ToString(): string {
         return implode("", $this->buff);
     }
+
+    public function __toString() {
+        return $this->ToString();
+    }
 }
 
 /**
