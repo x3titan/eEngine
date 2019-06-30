@@ -48,6 +48,9 @@ class PageLoad {
         //die();
         $startTime = microtime(true);
         Pub::init();
+        if (\Etc\Pub::selfUpgraded()) {
+            ShareMemory::delete(0xAEE);
+        }
         Pub::loadEEngine();
         Pub::loadProjectCache();
         Pub::saveEEngine();
