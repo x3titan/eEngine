@@ -595,9 +595,7 @@ class PageWeb extends Page {
     }
 
     public function generateJsStringOnControlLoad(): string {
-        $result = "";
-        //TamPub1 . Tree < Control> $node;
-
+        $result = new StringBuilder();
         //初始化TableBody控件，eb.initTableBody(ee.getControl("tablebody1"));
         $node = $this->controls->getFirst();
         while (true) {
@@ -605,15 +603,15 @@ class PageWeb extends Page {
             if ($node == null) break;
             if ($node->value->type === "TableBody") {
                 if (StringFunc::length($node->value->property->getItem("tableTitle")->value->asString) > 0) {
-                    $result .= "ee.getControl(\"" . $node->value->name . "\").tableTitle=ee.getControl(\"" . $node->value->property->getItem("tableTitle")->value->asString . "\");\n";
+                    $result->Append("ee.getControl(\"" . $node->value->name . "\").tableTitle=ee.getControl(\"" . $node->value->property->getItem("tableTitle")->value->asString . "\");\n");
                 }
-                $result .= "eb.initTableBody(ee.getControl(\"" . $node->value->name . "\"));\n";
+                $result->Append("eb.initTableBody(ee.getControl(\"" . $node->value->name . "\"));\n");
                 if ($node->value->property->getItem("autoClear")->value->asString === "true") {
-                    $result .= "ee.clearTableData(ee.getControl(\"" . $node->value->name . "\"));\n";
+                    $result->Append("ee.clearTableData(ee.getControl(\"" . $node->value->name . "\"));\n");
                 }
             } else if ($node->value->type === "TableTitle") {
                 if (StringFunc::length($node->value->property->getItem("tableBody")->value->asString) > 0) {
-                    $result .= "ee.getControl(\"" . $node->value->name . "\").tableBody=ee.getControl(\"" . $node->value->property->getItem("tableBody")->value->asString . "\");\n";
+                    $result->Append("ee.getControl(\"" . $node->value->name . "\").tableBody=ee.getControl(\"" . $node->value->property->getItem("tableBody")->value->asString . "\");\n");
                 }
             }
         }
@@ -626,24 +624,24 @@ class PageWeb extends Page {
                 //onControlLoad事件
                 $s = $node->value->property->getItem("onControlLoad")->value->asString;
                 if (StringFunc::length($s) > 0) {
-                    $result .= $this->scriptEngine->getInlineResult($s) . "\n";
+                    $result->Append($this->scriptEngine->getInlineResult($s) . "\n");
                 }
                 //touch事件
                 $s = $node->value->property->getItem("onSlideUp")->value->asString;
                 if (StringFunc::length($s) > 0) {
-                    $result .= "\$g(\"divRoot\").onSlideUp = function () {\n" . $this->scriptEngine->getInlineResult($s) . "\n}\n";
+                    $result->Append("\$g(\"divRoot\").onSlideUp = function () {\n" . $this->scriptEngine->getInlineResult($s) . "\n}\n");
                 }
                 $s = $node->value->property->getItem("onSlideDown")->value->asString;
                 if (StringFunc::length($s) > 0) {
-                    $result .= "\$g(\"divRoot\").onSlideDown = function () {\n" . $this->scriptEngine->getInlineResult($s) . "\n}\n";
+                    $result->Append("\$g(\"divRoot\").onSlideDown = function () {\n" . $this->scriptEngine->getInlineResult($s) . "\n}\n");
                 }
                 $s = $node->value->property->getItem("onSlideLeft")->value->asString;
                 if (StringFunc::length($s) > 0) {
-                    $result .= "\$g(\"divRoot\").onSlideLeft = function () {\n" . $this->scriptEngine->getInlineResult($s) . "\n}\n";
+                    $result->Append("\$g(\"divRoot\").onSlideLeft = function () {\n" . $this->scriptEngine->getInlineResult($s) . "\n}\n");
                 }
                 $s = $node->value->property->getItem("onSlideRight")->value->asString;
                 if (StringFunc::length($s) > 0) {
-                    $result .= "\$g(\"divRoot\").onSlideRight = function () {\n" . $this->scriptEngine->getInlineResult($s) . "\n}\n";
+                    $result->Append("\$g(\"divRoot\").onSlideRight = function () {\n" . $this->scriptEngine->getInlineResult($s) . "\n}\n");
                 }
                 break;
             }
@@ -660,7 +658,7 @@ class PageWeb extends Page {
             }
             if (!$node->value->property->getItem("aniAutoStart")->value->asString === "true") continue;
             //ee.showAni(ee.getControl("panel1"));
-            $result .= "ee.showAni(ee.getControl(\"" . $node->value->name . "\"));\n";
+            $result->Append("ee.showAni(ee.getControl(\"" . $node->value->name . "\"));\n");
         }
         return $result;
     }
