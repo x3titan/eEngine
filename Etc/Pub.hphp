@@ -129,10 +129,11 @@ class Pub {
         self::generateCurrentStatus($currentStatus, FileOperation::currentFilePath());
 
         //write to share memory
-        ShareMemory::write(0xA70, $currentStatus);
+        $currentStatusString = $currentStatus->ToString();
+        ShareMemory::write(0xA70, $currentStatusString);
 
         //compare
-        return ($currentStatus . "") !== $lastStatus;
+        return $currentStatusString !== $lastStatus;
     }
 
     private static function generateCurrentStatus(StringBuilder $currentStatus, string $dir): bool {
@@ -150,12 +151,12 @@ class Pub {
             } else {
                 $ext = StringFunc::toLower(FileOperation::getFileExt($file));
                 if (($ext !== "php") && ($ext !== "hphp")) continue;
-                $currentStatus->Append($dir . $file);
+                //$currentStatus->Append($dir . $file);
                 $time = filemtime($dir . $file);
                 if ($time === false) {
                     $currentStatus->Append("0000");
                 } else {
-                    $currentStatus->Append($time . "|");
+                    $currentStatus->Append($time);
                 }
             }
         }
