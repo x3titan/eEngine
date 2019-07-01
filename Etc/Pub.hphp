@@ -147,10 +147,11 @@ class Pub {
             if ($file === ".") continue;
             if ($file === "..") continue;
             if (is_dir($dir . $file)) {
+                if ($file === "cache") continue;
                 self::generateCurrentStatus($currentStatus, $dir . $file . \Etc\Pub::$pathSeperator);
             } else {
-                $ext = StringFunc::toLower(FileOperation::getFileExt($file));
-                if (($ext !== "php") && ($ext !== "hphp")) continue;
+                $ext = StringFunc::toLower(StringFunc::copy($file, StringFunc::length($file) - 3, 3));
+                if ($ext !== "php") continue;
                 //$currentStatus->Append($dir . $file);
                 $time = filemtime($dir . $file);
                 if ($time === false) {
