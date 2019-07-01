@@ -124,6 +124,7 @@ class EEngine {
             $item->value->page = unserialize(FileOperation::loadToStringGBK($codeCachePath . "_page.epage"));
             $item->value->page->projectItem = $item;
             $item->value->page->solution = $this->solution;
+            $result = $item->value->page;
         } else {
             $startTime = microtime(true);
             $result = new PageWeb();
