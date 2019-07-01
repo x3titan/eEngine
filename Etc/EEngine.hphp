@@ -46,21 +46,22 @@ class EEngine {
 
     public function loadProjectByIndex(int $projectIndex, string $projectPath): void {
         if ($projectIndex < 0) return;
+        $startTime = microtime(true);
         if ($projectIndex >= count($this->solution->projects->children)) {
             $this->solution->loadProject($projectPath);
-            Pub::$log->writeCommon("load project: " . $projectPath);
+            Pub::$log->writeCommon("load project(" . floor((microtime(true) - $startTime) * 1000) . "ms): " . $projectPath);
             return;
         }
         if (!(StringFunc::toUpper($this->solution->projects->children[$projectIndex]->value->projectPath) ===
             StringFunc::toUpper($projectPath))) {
             $this->solution->loadProject($projectPath, $projectIndex);
-            Pub::$log->writeCommon("load project: " . $projectPath);
+            Pub::$log->writeCommon("load project(" . floor((microtime(true) - $startTime) * 1000) . "ms): " . $projectPath);
             return;
         }
         if ($this->solution->projects->children[$projectIndex]->value->projectLastModifyTime !=
             filemtime($projectPath . "project.xml")) {
             $this->solution->loadProject($projectPath, $projectIndex);
-            Pub::$log->writeCommon("load project: " . $projectPath);
+            Pub::$log->writeCommon("load project(" . floor((microtime(true) - $startTime) * 1000) . "ms): " . $projectPath);
             return;
         }
     }
@@ -133,6 +134,7 @@ class EEngine {
             $result->loadFromFile($pageXmlFilename);
             //delete code template cache file;
             FileOperation::deleteFile($codeCachePath . "_initControl.epage");
+            FileOperation::deleteFile($codeCachePath . "_onControlLoad.epage");
             FileOperation::saveString($codeCachePath . "_page.epage", serialize($result));
             $item->value->projectLastModifyTime = $xmlModifyTime;
             Pub::$log->writeCommon("load page(" . floor((microtime(true) - $startTime) * 1000) . "ms): " . Solution::getDiskPath($item) . "page.xml");
