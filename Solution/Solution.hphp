@@ -325,7 +325,7 @@ class Item {
      */
     public $projectFilePathName = "";
     /**
-     * @var int 项目文件在物理硬盘上，上次被修改的时间
+     * @var int 项目文件在物理硬盘上，上次被修改的时间，如果是页面文件则表示页面文件上次被修改的时间
      */
     public $projectLastModifyTime;
     /**
