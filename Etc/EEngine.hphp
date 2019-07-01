@@ -14,6 +14,7 @@ require_once __DIR__ . "/../Solution/PageWeb.hphp";
 use Solution\PageWeb;
 use Solution\Solution;
 use TamPub1\Etc;
+use TamPub1\FileOperation;
 use TamPub1\StringFunc;
 use TamPub1\Tree;
 
@@ -83,11 +84,11 @@ class EEngine {
     }
 
     /**
-     * 产生一个新的页面，从而避免线程冲突，代价是需要重新从磁盘读取文件，这个有待后期优化
+     * old version backup
      * @param string $pagePath
-     * @return \Solution\PageWeb
+     * @return null|PageWeb
      */
-    public function getPage(string $pagePath): ? \Solution\PageWeb {
+    private function getPageV1(string $pagePath): ? \Solution\PageWeb {
         $pagePath = StringFunc::addRearChar($pagePath, '/') . "page.xml";
         $item = $this->solution->getItem($pagePath);
         if ($item == null) return null;
@@ -102,6 +103,40 @@ class EEngine {
         $result->loadFromFile(Solution::getDiskPath($item) . "page.xml");
         Pub::$log->writeCommon("load page: " . Solution::getDiskPath($item) . "page.xml");
         $result->solution = $this->solution;
+        return $result;
+    }
+
+    /**
+     * search page in solution via pagePath, and load page into memory.
+     * if page file(xml file) has been modified then reload page and delete code template cache file
+     * @param string $pagePath
+     * @return \Solution\PageWeb
+     */
+    public function getPage(string $pagePath): ? \Solution\PageWeb {
+        $pagePath = StringFunc::addRearChar($pagePath, '/') . "page.xml";
+        $item = $this->solution->getItem($pagePath);
+        if ($item == null) return null;
+        $pageXmlFilename = Solution::getDiskPath($item) . "page.xml";
+        $xmlModifyTime = filemtime($pageXmlFilename);
+        $codeCachePath = FileOperation::currentFilePath() . "cache" . FileOperation::extractFilePath($pagePath);
+        if ($xmlModifyTime === false) return null;
+        if ($item->value->projectLastModifyTime == $xmlModifyTime) {
+            $item->value->page = unserialize(FileOperation::loadToStringGBK($codeCachePath . "_page.epage"));
+            $item->value->page->projectItem = $item;
+            $item->value->page->solution = $this->solution;
+        } else {
+            $startTime = microtime(true);
+            $result = new PageWeb();
+            $item->value->page = $result;
+            $result->projectItem = $item;
+            $result->loadFromFile($pageXmlFilename);
+            //delete code template cache file;
+            FileOperation::deleteFile($codeCachePath . "_initControl.epage");
+            FileOperation::saveString($codeCachePath . "_page.epage", serialize($result));
+            $item->value->projectLastModifyTime = $xmlModifyTime;
+            Pub::$log->writeCommon("load page(" . floor((microtime(true) - $startTime) * 1000) . "ms): " . Solution::getDiskPath($item) . "page.xml");
+            $result->solution = $this->solution;
+        }
         return $result;
     }
 }
