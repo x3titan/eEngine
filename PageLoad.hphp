@@ -45,6 +45,7 @@ class PageLoad {
     public function Page_Load(): void {
         //print(\Etc\Pub::selfUpgraded()? "true": "false");
         //ShareMemory::delete(0xAEE);
+        //FileOperation::saveString("/home/tam/epage/log/abc.txt", "laskjdf;lsdaf");
         //die();
         $startTime = microtime(true);
         Pub::init();
@@ -52,14 +53,14 @@ class PageLoad {
             \Etc\Pub::$log->writeCommon("epage upgrade decteded, delete share memory at 0xAEE");
             ShareMemory::delete(0xAEE);
         }
-        \Etc\Pub::$log->writeCommon("!!!time12:" . floor((microtime(true) - $startTime) * 1000) . "ms");
+
+        \Etc\Pub::$log->writeCommon("!!!selfUpgraded():" . floor((microtime(true) - $startTime) * 1000) . "ms");
         $startTime = microtime(true);
-        Pub::loadEEngine();
-        Pub::loadProjectCache();
+
+        Pub::loadEEngine();  //load eEngine from Share Memory
+        Pub::loadProjectCache(); //load different project from disk
         //Pub::saveEEngine();
 
-        \Etc\Pub::$log->writeCommon("!!!time22:" . floor((microtime(true) - $startTime) * 1000) . "ms");
-        $startTime = microtime(true);
         //CacheGenerator::start();
 
         //init CacheGenerator //!!! code later
@@ -73,13 +74,8 @@ class PageLoad {
         if ($url == null) $url = "";
         //url = String(url.getBytes("iso-8859-1"), "utf-8");
         //Solution.PageWeb page;
-        \Etc\Pub::$log->writeCommon("!!!time32:" . floor((microtime(true) - $startTime) * 1000) . "ms");
-        $startTime = microtime(true);
 
         $page = \Etc\Pub::$eEngine->getPage($url);
-
-        \Etc\Pub::$log->writeCommon("!!!time2:" . floor((microtime(true) - $startTime) * 1000) . "ms");
-        $startTime = microtime(true);
 
         if ($page == null) {
             if (StringFunc::length($url) > 0) {
@@ -99,9 +95,6 @@ class PageLoad {
             }
         }
 
-        \Etc\Pub::$log->writeCommon("!!!time2:" . floor((microtime(true) - $startTime) * 1000) . "ms");
-        $startTime = microtime(true);
-
         $project = \Etc\Pub::$eEngine->solution->getProject($page->projectItem);
         $project->value->page = null;
         Pub::saveEEngine();
@@ -110,8 +103,6 @@ class PageLoad {
 
 
         } else if ($taskSet == null) {
-            \Etc\Pub::$log->writeCommon("!!!time2:" . floor((microtime(true) - $startTime) * 1000) . "ms");
-            $startTime = microtime(true);
             //Etc.Pub.log.writeCommon("start generate webpage, url=" + url);
             $scriptEngineInst = $page->initScriptEngine("Session", "Request", "Response");
             if ($scriptEngineInst == null) {
@@ -125,15 +116,23 @@ class PageLoad {
             $this->jsStringInclude = $page->generateJsStringInclude();
             $this->jsStringOnPageCreate = $page->generateJsStringOnPageCreate();
             $this->jsStringOnPageLoad = $page->generateJsStringOnPageLoad();
-
-            $codeCachePath = FileOperation::currentFilePath() . "cache" . FileOperation::extractFilePath($url);
+            $codeCachePath = StringFunc::addRearChar(FileOperation::currentFilePath() . "cache" . $url, \Etc\Pub::$pathSeperator);
             if (FileOperation::exists($codeCachePath . "_initControl.epage")) {
                 $this->jsStringInitControl = FileOperation::loadToStringGBK($codeCachePath . "_initControl.epage");
             } else {
+                $timeTemp =microtime(true);
                 $this->jsStringInitControl = $page->generateJsStringInitControl();
+                \Etc\Pub::$log->writeCommon("generate _initControl.epage in ".floor((microtime(true) - $timeTemp) * 1000)."ms, url=" . $url);
                 FileOperation::saveString($codeCachePath . "_initControl.epage", $this->jsStringInitControl);
             }
-            $this->jsStringOnControlLoad = $page->generateJsStringOnControlLoad();
+            if (FileOperation::exists($codeCachePath . "_onControlLoad.epage")) {
+                $this->jsStringOnControlLoad = FileOperation::loadToStringGBK($codeCachePath . "_onControlLoad.epage");
+            } else {
+                $timeTemp =microtime(true);
+                $this->jsStringOnControlLoad = $page->generateJsStringOnControlLoad();
+                \Etc\Pub::$log->writeCommon("generate _onControlLoad.epage in ".floor((microtime(true) - $timeTemp) * 1000)."ms, url=" . $url);
+                FileOperation::saveString($codeCachePath . "_onControlLoad.epage", $this->jsStringOnControlLoad);
+            }
             \Etc\Pub::$log->writeCommon("generate page in " . floor((microtime(true) - $startTime) * 1000) . "ms, url=" . $url .
                 ", size=" . (StringFunc::length($this->jsStringOnPageCreate) +
                     StringFunc::length($this->jsStringOnPageLoad) +
