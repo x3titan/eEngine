@@ -1436,7 +1436,7 @@ class FileOperation {
 
     public static function saveString(string $filename, string $data, string $coding = ""): bool {
         $fp = fopen($filename, "wb");
-        if (!$fp) return false;
+        if ($fp === false) return false;
         fwrite($fp, $data);
         fclose($fp);
         return true;
