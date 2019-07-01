@@ -49,12 +49,17 @@ class PageLoad {
         $startTime = microtime(true);
         Pub::init();
         if (\Etc\Pub::selfUpgraded()) {
+            \Etc\Pub::$log->writeCommon("epage upgrade decteded, delete share memory at 0xAEE");
             ShareMemory::delete(0xAEE);
         }
+        \Etc\Pub::$log->writeCommon("!!!time12:" . floor((microtime(true) - $startTime) * 1000) . "ms");
+        $startTime = microtime(true);
         Pub::loadEEngine();
         Pub::loadProjectCache();
         //Pub::saveEEngine();
 
+        \Etc\Pub::$log->writeCommon("!!!time22:" . floor((microtime(true) - $startTime) * 1000) . "ms");
+        $startTime = microtime(true);
         //CacheGenerator::start();
 
         //init CacheGenerator //!!! code later
@@ -68,9 +73,14 @@ class PageLoad {
         if ($url == null) $url = "";
         //url = String(url.getBytes("iso-8859-1"), "utf-8");
         //Solution.PageWeb page;
-        \Etc\Pub::$lockObject->Lock();
+        \Etc\Pub::$log->writeCommon("!!!time32:" . floor((microtime(true) - $startTime) * 1000) . "ms");
+        $startTime = microtime(true);
+
         $page = \Etc\Pub::$eEngine->getPage($url);
-        \Etc\Pub::$lockObject->Unlock();
+
+        \Etc\Pub::$log->writeCommon("!!!time2:" . floor((microtime(true) - $startTime) * 1000) . "ms");
+        $startTime = microtime(true);
+
         if ($page == null) {
             if (StringFunc::length($url) > 0) {
                 \Etc\Pub::$log->writeWarning("无法载入页面，尝试载入默认页面,url=" . $url);
@@ -88,6 +98,10 @@ class PageLoad {
                 return;
             }
         }
+
+        \Etc\Pub::$log->writeCommon("!!!time2:" . floor((microtime(true) - $startTime) * 1000) . "ms");
+        $startTime = microtime(true);
+
         $project = \Etc\Pub::$eEngine->solution->getProject($page->projectItem);
         $project->value->page = null;
         Pub::saveEEngine();
@@ -96,7 +110,7 @@ class PageLoad {
 
 
         } else if ($taskSet == null) {
-            \Etc\Pub::$log->writeCommon("time2:" . floor((microtime(true) - $startTime) * 1000) . "ms");
+            \Etc\Pub::$log->writeCommon("!!!time2:" . floor((microtime(true) - $startTime) * 1000) . "ms");
             $startTime = microtime(true);
             //Etc.Pub.log.writeCommon("start generate webpage, url=" + url);
             $scriptEngineInst = $page->initScriptEngine("Session", "Request", "Response");
