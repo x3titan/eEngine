@@ -44,7 +44,7 @@ class PageLoad {
 
     public function Page_Load(): void {
         //print(\Etc\Pub::selfUpgraded()? "true": "false");
-
+        //ShareMemory::delete(0xAEE);
         //die();
         $startTime = microtime(true);
         Pub::init();
@@ -53,7 +53,7 @@ class PageLoad {
         }
         Pub::loadEEngine();
         Pub::loadProjectCache();
-        Pub::saveEEngine();
+        //Pub::saveEEngine();
 
         //CacheGenerator::start();
 
@@ -88,11 +88,10 @@ class PageLoad {
                 return;
             }
         }
-        Pub::saveEEngine();
-        //TamPub1.Tree<Solution.Solution.Item> project;
-        \Etc\Pub::$lockObject->Lock();
         $project = \Etc\Pub::$eEngine->solution->getProject($page->projectItem);
-        \Etc\Pub::$lockObject->Unlock();
+        $project->value->page = null;
+        Pub::saveEEngine();
+        $project->value->page = $page;
         if ($fileUpload != null) {
 
 
@@ -112,7 +111,14 @@ class PageLoad {
             $this->jsStringInclude = $page->generateJsStringInclude();
             $this->jsStringOnPageCreate = $page->generateJsStringOnPageCreate();
             $this->jsStringOnPageLoad = $page->generateJsStringOnPageLoad();
-            $this->jsStringInitControl = $page->generateJsStringInitControl();
+
+            $codeCachePath = FileOperation::currentFilePath() . "cache" . FileOperation::extractFilePath($url);
+            if (FileOperation::exists($codeCachePath . "_initControl.epage")) {
+                $this->jsStringInitControl = FileOperation::loadToStringGBK($codeCachePath . "_initControl.epage");
+            } else {
+                $this->jsStringInitControl = $page->generateJsStringInitControl();
+                FileOperation::saveString($codeCachePath . "_initControl.epage", $this->jsStringInitControl);
+            }
             $this->jsStringOnControlLoad = $page->generateJsStringOnControlLoad();
             \Etc\Pub::$log->writeCommon("generate page in " . floor((microtime(true) - $startTime) * 1000) . "ms, url=" . $url .
                 ", size=" . (StringFunc::length($this->jsStringOnPageCreate) +
