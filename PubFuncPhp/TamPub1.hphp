@@ -1347,7 +1347,11 @@ class FileOperation {
     }
 
     public static function deleteFile(string $filename): bool {
-        return unlink($filename);
+        if (self::exists($filename)) {
+            return unlink($filename);
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -1424,7 +1428,7 @@ class FileOperation {
      */
     public static function loadToStringGBK(string $filename): string {
         $fp = fopen($filename, "rb");
-        if ($fp) return "";
+        if ($fp === false) return "";
         $result = fread($fp, filesize($filename));
         fclose($fp);
         return $result;
@@ -1916,13 +1920,21 @@ class ShareMemory {
         return $result;
     }
 
-    public static function delete(int $key): void {
+    public static function delete(int $key): bool {
         error_reporting(E_ALL ^ E_WARNING);
         $mp = shmop_open($key, 'a', 0777, 0);
         error_reporting(E_ALL);
-        if (!$mp) return;
-        shmop_delete($mp);
-        shmop_close($mp);
+        if ($mp === false) return false;
+        error_reporting(E_ALL ^ E_WARNING);
+        if (!shmop_delete($mp)) {
+            shmop_close($mp);
+            error_reporting(E_ALL);
+            return false;
+        } else {
+            shmop_close($mp);
+            error_reporting(E_ALL);
+            return true;
+        }
     }
 }
 
