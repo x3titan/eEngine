@@ -75,6 +75,8 @@ class PageLoad {
         //url = String(url.getBytes("iso-8859-1"), "utf-8");
         //Solution.PageWeb page;
 
+        //$url = "/TCloudLinux/admin/userAdmin/companyAdmin";
+        //$url = "/TCloudLinux/main";
         $page = \Etc\Pub::$eEngine->getPage($url);
 
         if ($page == null) {
@@ -95,10 +97,11 @@ class PageLoad {
             }
         }
 
-        $project = \Etc\Pub::$eEngine->solution->getProject($page->projectItem);
-        $project->value->page = null;
+        //$project = \Etc\Pub::$eEngine->solution->getProject($page->projectItem);
+        $page->projectItem->value->page = null;
         Pub::saveEEngine();
-        $project->value->page = $page;
+        $page->projectItem->value->page = $page;
+
         if ($fileUpload != null) {
 
 
